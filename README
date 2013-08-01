@@ -1,1 +1,1 @@
-Basic form module for Biodiversity Metadata ingestion. 
+Basic Drupal form module for Biodiversity Metadata ingestion. This modules requires the Date API module to be activated. To see the form, simply install the module and go to /metabio in your Drupal installation.
