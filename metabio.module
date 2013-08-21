@@ -22,27 +22,27 @@ function metabio_menu() {
 
 // Form builder. Form ID = function name
 function metabio_form(&$node, $form_state) {
-  $form['Overview'] = array(
+  $form['metabio_dataset'] = array(
     '#type' => 'fieldset', 
     '#title' => t('Overview'), 
     '#collapsible' => TRUE, 
     '#collapsed' => FALSE, 
     '#tree' => TRUE,
   );
-  $form['Overview']['Dataset_name'] = array(
+  $form['metabio_dataset']['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Dataset name'),
     '#size' => 50,
     '#required' => FALSE,
   );
-  $form['Overview']['Dataset_description'] = array(
+  $form['metabio_dataset']['description'] = array(
     '#type' => 'textarea',
     '#title' => t('Dataset description'),
     '#cols' => 50,
     '#rows' => 6,
     '#required' => FALSE,
   );
-  $form['Overview']['Data_collector'] = array(
+  $form['metabio_dataset']['collector'] = array(
     '#type' => 'textfield',
     '#title' => t('Who collected the data?'),
     '#size' => 50,
