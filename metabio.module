@@ -1,4 +1,25 @@
 <?php
+
+/**
+ * Implements hook_node_info().
+ */
+function metabio_node_info() {
+  return array(
+    'metabio' => array(
+      'name' => t('Metabio Dataset'),
+      'base' => 'metabio',
+      'description' => t('Biodiversity metadata entry form for datasets.'),
+    ),
+  );
+}
+
+// Implementation of hook_menu(): used to create a page for the form
+function metabio_menu() {
+  $items = array();
+
+  return $items;
+}
+
 // Form builder. Form ID = function name
 function metabio_form($form_state) {
 $form['Overview'] = array(
@@ -49,17 +70,3 @@ function metabio_form_submit($form, &$form_state) {
   ->execute();
   drupal_set_message(t('Form successfully submitted'));
 }
-
-
-// Implementation of hook_menu(): used to create a page for the form
-function metabio_menu() {
-  $items['metabio'] = array(
-    'title' => 'Metabio Dataset',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('metabio_form'),
-    'access arguments' => array('access content'),
-    'type' => MENU_NORMAL_ITEM,
-  );
-  return $items;
-}
-

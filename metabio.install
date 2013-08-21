@@ -1,16 +1,5 @@
 <?php
-/**
- * Implements hook_node_info().
- */
-function metabio_node_info() {
-  return array(
-    'metabio' => array(
-      'name' => t('Metabio Dataset'),
-      'base' => 'metabio',
-      'description' => t('Biodiversity metadata entry form for datasets.'),
-    ),
-  );
-}
+
 /**
  * Implements hook_schema().
  */
