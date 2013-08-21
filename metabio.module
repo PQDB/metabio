@@ -53,7 +53,7 @@ function metabio_form_submit($form, &$form_state) {
 
 // Implementation of hook_menu(): used to create a page for the form
 function metabio_menu() {
-  $items['metabio_form'] = array(
+  $items['metabio'] = array(
     'title' => 'Metabio Dataset',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('metabio_form'),

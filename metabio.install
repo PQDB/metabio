@@ -4,10 +4,10 @@
  */
 function metabio_node_info() {
   return array(
-    'metabio_form' => array(
-      'name' => t('Metabio form2'),
-      'base' => 'article',
-      'description' => t('Biodiversity metadata entry form version 2.'),
+    'metabio' => array(
+      'name' => t('Metabio Dataset'),
+      'base' => 'metabio',
+      'description' => t('Biodiversity metadata entry form for datasets.'),
     ),
   );
 }
