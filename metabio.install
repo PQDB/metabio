@@ -1,0 +1,57 @@
+<?php
+/**
+ * Implements hook_node_info().
+ */
+function metabio_node_info() {
+  return array(
+    'metabio_form' => array(
+      'name' => t('Metabio form2'),
+      'base' => 'article',
+      'description' => t('Biodiversity metadata entry form version 2.'),
+    ),
+  );
+}
+/**
+ * Implements hook_schema().
+ */
+
+function metabio_schema() {
+  $schema = array();
+  $schema['metabio_dataset'] = array(
+    'description' => 'The base table for metadata datasets.',
+    'fields' => array(
+      'mid' => array(
+        'description' => 'The primary identifier for a metadata dataset entry.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE),
+      'nid' => array(
+        'description' => 'The foreign key for the node',
+        'type' => 'int',
+        'not null' => TRUE),
+      'name' => array(
+        'description' => 'The name of the dataset',
+        'type' => 'varchar',
+        'length' => 255),
+      'description' => array(
+        'description' => 'The description of the dataset.',
+        'type' => 'text'),
+      'collector' => array(
+        'description' => 'Who collected the data?',
+        'type' => 'varchar',
+        'length' => 255),
+      ),
+      'indexes' => array(
+        'node_dataset' => array('nid')
+      ),
+      'foreign keys' => array(
+        'node' => array(
+          'table' => 'node',
+          'columns' => array('nid' => 'nid'),
+         )
+      ),
+      'primary key' => array('mid'),
+  );
+  return $schema;
+}
+?>

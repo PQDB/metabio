@@ -1,4 +1,4 @@
 name = "Biodiversity Metadata System"
 description = "Biodiversity Metadata System"
 core = 7.x
-files[] = metabio.module
+version = "1.0"

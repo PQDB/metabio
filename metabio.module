@@ -1,159 +1,65 @@
 <?php
-/**
- * @file
- * Custom field for Biodiversity Metadata Form.
- */
-
-
-/**
- * Implements hook_field_info().
- * Provides the description of the field.
- */
-function metabio_field_info() {
-  return array(
-    'metabio' => array(
-      'label' => t('Biodiversity metadata form'),
-      'description' => t('Form system for biodiversity metadata'),
-      'default_widget' => 'metabio',
-      'default_formatter' => 'metabio',
-    ),
-  );
-}
-
-/**
- * Implements hook_field_schema().
- */
-function metabio_field_schema($field) {
-  $columns = array(
-    'id' => array(
-      'type' => 'int',
-      'unsigned' => TRUE,
-      'not null' => FALSE
-    ),
-    'dataset_title' => array(
-      'type' => 'varchar',
-      'length' => 1024,
-      'not null' => FALSE
-    ),
-    'dataset_description' => array(
-      'type' => 'text',
-      'not null' => FALSE
-    ),
-  );
-  return array(
-    'columns' => $columns,
-  );
-}
-
-/**
- * Implements hook_field_validate().
- * Provides a validation function for each item.
- */
-function metabio_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
-
-}
-
-/**
- * Implements hook_field_is_empty().
- * Define what constitutes an empty item for a fielt type.
- */
-function metabio_field_is_empty($item, $field) {
-  return (empty($item['id']) && empty($item['dataset_title']) && empty($item['dataset_description']));
-}
-
-/**
- * Implements hook_field_widget_info().
- * Expose Field API widget types.
- */
-function metabio_field_widget_info() {
-  return array(
-    'metabio' => array(
-      'label' => t('metabio widget'),
-      'field types' => array('metabio'),
-    ),
-  );
-}
-
-/**
- * Implements hook_field_widget_form().
- * Return the form for a single field widget.
- */
-function metabio_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $element += array(
-    '#type' => $instance['widget']['type'],
-    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
-  );
-  return $element;
-}
-
-/**
- * Implements hook_element_info().
- * Declare the field Form API element types and specify their default values.
- */
-function metabio_element_info() {
-  $elements = array();
-  $elements['metabio'] = array(
-    '#input' => TRUE,
-    '#process' => array('metabio_field_process'),
-  );
-  return $elements;
-}
-
-/**
- * Build the form element. When creating a form using FAPI #process,
- * note that $element['#value'] is already set.
- *
- * The $fields array is in $complete_form['#field_info'][$element['#field_name']].
- */
-function metabio_field_process($element, $form_state, $complete_form) {
-
-$element['dataset_title'] = array(
+// Form builder. Form ID = function name
+function metabio_form($form_state) {
+$form['Overview'] = array(
+  '#type' => 'fieldset', 
+  '#title' => t('Overview'), 
+  '#collapsible' => TRUE, 
+  '#collapsed' => FALSE, 
+  '#tree' => TRUE,
+);
+$form['Overview']['Dataset_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Dataset name'),
     '#size' => 50,
     '#required' => FALSE,
 );
-  $element['dataset_description'] = array(
+  $form['Overview']['Dataset_description'] = array(
     '#type' => 'textarea',
     '#title' => t('Dataset description'),
     '#cols' => 50,
     '#rows' => 6,
     '#required' => FALSE,
   );
-$element['submit'] = array(
+$form['Overview']['Data_collector'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Who collected the data?'),
+    '#size' => 50,
+    '#required' => FALSE,
+);
+$form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
 );
-  // To prevent an extra required indicator, disable the required flag on the
-  // base element since all the sub-fields are already required if desired.
-  $element['#required'] = FALSE;
-
-  return $element;
+  return $form;
 }
 
-/**
- * Implements hook_field_formatter_info().
- */
-function metabio_field_formatter_info() {
-  return array(
-    'metabio' => array(
-      'label' => t('Metabio formatter'),
-      'field types' => array('metabio'),
-    ),
+
+// Form validation handler. 
+function metabio_form_validate($form, &$form_state) {
+}
+
+// Form submit handler. Default handler is formid_submit()
+function metabio_form_submit($form, &$form_state) {
+  $nid=db_insert('metabio_form_table')->fields(array(
+  'dataset_name'=>$form_state['values']['Overview']['Dataset_name'],
+  'dataset_description'=>$form_state['values']['Overview']['Dataset_description'],
+  'data_collector'=>$form_state['values']['Overview']['Data_collector'],
+  ))
+  ->execute();
+  drupal_set_message(t('Form successfully submitted'));
+}
+
+
+// Implementation of hook_menu(): used to create a page for the form
+function metabio_menu() {
+  $items['metabio_form'] = array(
+    'title' => 'Metabio Dataset',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('metabio_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
   );
+  return $items;
 }
-
-/**
- * Implements hook_node_info().
- */
-function metabio_node_info() {
-  return array(
-    'metabio' => array(
-      'name' => t('Metabio form'),
-      'base' => 'article',
-      'description' => t('Biodiversity metadata entry form.'),
-    ),
-  );
-}
-
 
