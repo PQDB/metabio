@@ -21,20 +21,20 @@ function metabio_menu() {
 }
 
 // Form builder. Form ID = function name
-function metabio_form($form_state) {
-$form['Overview'] = array(
-  '#type' => 'fieldset', 
-  '#title' => t('Overview'), 
-  '#collapsible' => TRUE, 
-  '#collapsed' => FALSE, 
-  '#tree' => TRUE,
-);
-$form['Overview']['Dataset_name'] = array(
+function metabio_form(&$node, $form_state) {
+  $form['Overview'] = array(
+    '#type' => 'fieldset', 
+    '#title' => t('Overview'), 
+    '#collapsible' => TRUE, 
+    '#collapsed' => FALSE, 
+    '#tree' => TRUE,
+  );
+  $form['Overview']['Dataset_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Dataset name'),
     '#size' => 50,
     '#required' => FALSE,
-);
+  );
   $form['Overview']['Dataset_description'] = array(
     '#type' => 'textarea',
     '#title' => t('Dataset description'),
@@ -42,31 +42,34 @@ $form['Overview']['Dataset_name'] = array(
     '#rows' => 6,
     '#required' => FALSE,
   );
-$form['Overview']['Data_collector'] = array(
+  $form['Overview']['Data_collector'] = array(
     '#type' => 'textfield',
     '#title' => t('Who collected the data?'),
     '#size' => 50,
     '#required' => FALSE,
-);
-$form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Submit'),
-);
+  );
+  $form['#submit'][] = 'metabio_form_submit';
   return $form;
 }
 
+// Form submit handler. Default handler is formid_submit()
+function metabio_form_submit($form, &$form_state) {
+  //do additional stuff to form_state as needed
+}
 
 // Form validation handler. 
 function metabio_form_validate($form, &$form_state) {
 }
 
-// Form submit handler. Default handler is formid_submit()
-function metabio_form_submit($form, &$form_state) {
-  $nid=db_insert('metabio_form_table')->fields(array(
-  'dataset_name'=>$form_state['values']['Overview']['Dataset_name'],
-  'dataset_description'=>$form_state['values']['Overview']['Dataset_description'],
-  'data_collector'=>$form_state['values']['Overview']['Data_collector'],
-  ))
-  ->execute();
-  drupal_set_message(t('Form successfully submitted'));
+function metabio_insert($node) {
+  debug($node);
+  //dump stuff into the metabio_dataset table here
+}
+
+function metabio_update(&$node) {
+  debug($node);
+}
+
+function metabio_load(&$node) {
+  //add metabio content to the node here when it's loaded
 }
