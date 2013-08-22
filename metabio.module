@@ -1,5 +1,7 @@
 <?php
 
+$GLOBALS['metabio_dataset_fields'] = array('name', 'description', 'collector');
+
 /**
  * Implements hook_node_info().
  */
@@ -64,22 +66,11 @@ function metabio_form_validate($form, &$form_state) {
 }
 
 function metabio_insert($node) {
-  db_insert('metabio_dataset')->fields(array(
-    'nid' => $node->nid,
-    'name' => $node->metabio_dataset['name'],
-    'description' => $node->metabio_dataset['description'],
-    'collector' => $node->metabio_dataset['collector']
-  ))->execute();
+  db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
 }
 
 function metabio_update($node) {
-  db_delete('metabio_dataset')->condition('nid', $node->nid)->execute();
-  db_insert('metabio_dataset')->fields(array(
-    'nid' => $node->nid,
-    'name' => $node->metabio_dataset['name'],
-    'description' => $node->metabio_dataset['description'],
-    'collector' => $node->metabio_dataset['collector']
-  ))->execute();
+  db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
 }
 
 function metabio_delete($node) {
@@ -87,14 +78,18 @@ function metabio_delete($node) {
 }
 
 function metabio_load($nodes) {
-  foreach($nodes as $node) {
-    $nids[] = $node->nid;
-  }
-  $fields = array('mid', 'nid', 'name', 'description', 'collector');
-  $result = db_select('metabio_dataset', 'm')->fields('m', $fields)->where('m.nid IN (:nids)', array(':nids' => $nids))->execute();
+  $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
   foreach($result as $record) {
-    foreach($fields as $field) {
+    foreach($GLOBALS['metabio_dataset_fields'] as $field) {
       $nodes[$record->nid]->metabio_dataset[$field] = $record->{$field};
     }
   }
+}
+
+function _metabio_fields($node) {
+  $fields = array();
+  foreach($GLOBALS['metabio_dataset_fields'] as $field) {
+    $fields[$field] = $node->metabio_dataset[$field];
+  }
+  return $fields;
 }
