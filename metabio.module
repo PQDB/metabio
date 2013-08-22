@@ -57,6 +57,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['collector'] : ""
     );
     $form['#validate'][] = 'metabio_form_validate';
+	 $form['#submit'][] = 'metabio_form_submit';
   }
 }
 
@@ -64,6 +65,13 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
 function metabio_form_validate($form, &$form_state) {
   //do validation here if necessary
 }
+
+
+// Form submit handler.
+function metabio_form_submit($form, &$form_state) {
+  $form_state['values']['title']=$form_state['values']['metabio_dataset']['name'];
+}
+
 
 function metabio_insert($node) {
   db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
