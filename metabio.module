@@ -1,6 +1,10 @@
 <?php
 
-$GLOBALS['metabio_dataset_fields'] = array('name', 'description', 'collector');
+$GLOBALS['metabio_dataset_fields'] = array(
+  'metabio_dataset' => array(
+    'name', 'description', 'collector'
+  )
+);
 
 /**
  * Implements hook_node_info().
@@ -57,7 +61,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['collector'] : ""
     );
     $form['#validate'][] = 'metabio_form_validate';
-	 $form['#submit'][] = 'metabio_form_submit';
+    $form['#submit'][] = 'metabio_form_submit';
   }
 }
 
@@ -69,7 +73,7 @@ function metabio_form_validate($form, &$form_state) {
 
 // Form submit handler.
 function metabio_form_submit($form, &$form_state) {
-  $form_state['values']['title']=$form_state['values']['metabio_dataset']['name'];
+  $form_state['values']['title'] = $form_state['values']['metabio_dataset']['name'];
 }
 
 
@@ -88,16 +92,20 @@ function metabio_delete($node) {
 function metabio_load($nodes) {
   $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
   foreach($result as $record) {
-    foreach($GLOBALS['metabio_dataset_fields'] as $field) {
-      $nodes[$record->nid]->metabio_dataset[$field] = $record->{$field};
+    foreach($GLOBALS['metabio_dataset_fields'] as $fieldsets => $fieldset) {
+      foreach($fieldset as $field) {
+        $nodes[$record->nid]->{$fieldsets}[$field] = $record->{$field};
+      }
     }
   }
 }
 
 function _metabio_fields($node) {
   $fields = array();
-  foreach($GLOBALS['metabio_dataset_fields'] as $field) {
-    $fields[$field] = $node->metabio_dataset[$field];
+  foreach($GLOBALS['metabio_dataset_fields'] as $fieldsets => $fieldset) {
+    foreach($fieldset as $field) {
+      $fields[$field] = $node->{$fieldsets}[$field];
+    }
   }
   return $fields;
 }
