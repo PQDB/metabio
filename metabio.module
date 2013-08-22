@@ -23,37 +23,39 @@ function metabio_menu() {
 }
 
 // Form builder. Form ID = function name
-function metabio_form_node_form_alter(&$form, &$form_state, $form_id) {
-  $form['metabio_dataset'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Overview'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#tree' => TRUE,
-  );
-  $form['metabio_dataset']['name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Dataset name'),
-    '#size' => 50,
-    '#required' => TRUE,
-    '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['name'] : ""
-  );
-  $form['metabio_dataset']['description'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Dataset description'),
-    '#cols' => 50,
-    '#rows' => 6,
-    '#required' => FALSE,
-    '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['description'] : ""
-  );
-  $form['metabio_dataset']['collector'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Who collected the data?'),
-    '#size' => 50,
-    '#required' => FALSE,
-    '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['collector'] : ""
-  );
-  $form['#validate'][] = 'metabio_form_validate';
+function metabio_form_alter(&$form, &$form_state, $form_id) {
+  if($form_id == 'metabio_node_form') {
+    $form['metabio_dataset'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Overview'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#tree' => TRUE,
+    );
+    $form['metabio_dataset']['name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Dataset name'),
+      '#size' => 50,
+      '#required' => TRUE,
+      '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['name'] : ""
+    );
+    $form['metabio_dataset']['description'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Dataset description'),
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['description'] : ""
+    );
+    $form['metabio_dataset']['collector'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Who collected the data?'),
+      '#size' => 50,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['collector'] : ""
+    );
+    $form['#validate'][] = 'metabio_form_validate';
+  }
 }
 
 // Form validation handler.
@@ -61,7 +63,7 @@ function metabio_form_validate($form, &$form_state) {
   //do validation here if necessary
 }
 
-function metabio_node_insert($node) {
+function metabio_insert($node) {
   db_insert('metabio_dataset')->fields(array(
     'nid' => $node->nid,
     'name' => $node->metabio_dataset['name'],
@@ -70,7 +72,7 @@ function metabio_node_insert($node) {
   ))->execute();
 }
 
-function metabio_node_update($node) {
+function metabio_update($node) {
   db_delete('metabio_dataset')->condition('nid', $node->nid)->execute();
   db_insert('metabio_dataset')->fields(array(
     'nid' => $node->nid,
@@ -80,11 +82,11 @@ function metabio_node_update($node) {
   ))->execute();
 }
 
-function metabio_node_delete($node) {
+function metabio_delete($node) {
   db_delete('metabio_dataset')->condition('nid', $node->nid)->execute();
 }
 
-function metabio_node_load($nodes) {
+function metabio_load($nodes) {
   foreach($nodes as $node) {
     $nids[] = $node->nid;
   }
