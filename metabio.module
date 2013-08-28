@@ -1,9 +1,41 @@
 <?php
-
 $GLOBALS['metabio_dataset_fields'] = array(
-  'metabio_dataset' => array(
-    'name', 'description', 'collector'
-  )
+    'dataset_name', 
+    'dataset_description', 
+    'data_collector', 
+    'data_holder_first_name',
+    'data_holder_last_name',
+    'data_holder_institution',
+    'data_holder_email',
+    'data_holder_phone',
+    'data_holder_address',
+    'other_institutions',
+    'funding_sources',
+    'dataset_format',
+    'responsible_person',
+    'additional_comments',
+    'taxa_studied',
+    'taxonomic_information', 
+    'taxonomic_details',
+    'study_design',
+    'study_status',
+    'sampling_approaches',
+    'study_goals',
+    'data_types',
+    'frequency_of_sampling',
+    'first_year',
+    'last_year',
+    'number_of_sites',
+    'site_description',
+    'site_habitat',
+    'site_environment',
+    'location_name',
+    'geography',
+    'publications_types',
+    'publications',
+    'publications_hyperlinks',
+    'publications_dois',
+    'files',
 );
 
 /**
@@ -17,8 +49,8 @@ function metabio_node_info() {
       'module'      => 'metabio',
       'description' => t('Biodiversity metadata entry form for datasets.'),
       'has_body'    => FALSE
-    ),
-  );
+      ),
+    );
 }
 
 // Implementation of hook_menu(): used to create a page for the form
@@ -30,40 +62,455 @@ function metabio_menu() {
 
 // Form builder. Form ID = function name
 function metabio_form_alter(&$form, &$form_state, $form_id) {
+
   if($form_id == 'metabio_node_form') {
     $form['metabio_dataset'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Overview'),
+      '#collapsible' => FALSE,
+       '#tree' =>FALSE,
+      );
+   /* $form['overviewtab']=array(
+      '#type'=>'vertical_tabs',
+      '#weight' => 99,
+      );
+      */
+    $form['metabio_dataset']['overview'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('overview'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#tree' => TRUE,
-    );
-    $form['metabio_dataset']['name'] = array(
+      '#group' => 'overviewtab',
+      '#tree' =>FALSE,
+      );
+    $form['metabio_dataset']['overview']['dataset_name'] = array(
       '#type' => 'textfield',
       '#title' => t('Dataset name'),
       '#size' => 50,
-      '#required' => TRUE,
-      '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['name'] : ""
-    );
-    $form['metabio_dataset']['description'] = array(
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->dataset_name) ? $form['#node']->dataset_name : ""
+      );
+    $form['metabio_dataset']['overview']['dataset_description'] = array(
       '#type' => 'textarea',
       '#title' => t('Dataset description'),
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['description'] : ""
-    );
-    $form['metabio_dataset']['collector'] = array(
+      '#default_value' => isset($form['#node']->dataset_description) ? $form['#node']->dataset_description : ""
+      );
+    $form['metabio_dataset']['overview']['data_collector'] = array(
       '#type' => 'textfield',
       '#title' => t('Who collected the data?'),
       '#size' => 50,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio_dataset) ? $form['#node']->metabio_dataset['collector'] : ""
-    );
+      '#default_value' => isset($form['#node']->data_collector) ? $form['#node']->data_collector : ""
+      );
+    
+    $form['metabio_dataset']['overview']['data_holder_contact'] = array(
+      '#type' => 'fieldset', 
+      '#title' => t('Contact information for data holder'),
+      '#collapsible' => FALSE, 
+      );
+    $form['metabio_dataset']['overview']['data_holder_contact']['data_holder_first_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('First name'),
+      '#size' => 50,
+      '#required' => FALSE,
+      '#title_display' => 'invisible',
+      '#field_prefix' => t('First name'),
+      '#default_value' => isset($form['#node']->data_holder_first_name) ? $form['#node']->data_holder_first_name : ""
+      );
+
+    $form['metabio_dataset']['overview']['data_holder_contact']['data_holder_last_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Last name'),
+      '#size' => 50,
+      '#required' => FALSE,
+      '#title_display' => 'invisible',
+      '#field_prefix' => t('Last name'),
+      '#default_value' => isset($form['#node']->data_holder_last_name) ? $form['#node']->data_holder_last_name : ""
+      );
+    $form['metabio_dataset']['overview']['data_holder_contact']['data_holder_institution'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Institution'),
+      '#size' => 50,
+      '#required' => FALSE,
+      '#title_display' => 'invisible',
+      '#field_prefix' => t('Institution'),
+      '#default_value' => isset($form['#node']->data_holder_institution) ? $form['#node']->data_holder_institution : ""
+      );
+    $form['metabio_dataset']['overview']['data_holder_contact']['data_holder_email'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Email'),
+      '#size' => 50,
+      '#required' => FALSE,
+      '#title_display' => 'invisible',
+      '#field_prefix' => t('Email'),
+      '#default_value' => isset($form['#node']->data_holder_email) ? $form['#node']->data_holder_email : ""
+      );
+
+    $form['metabio_dataset']['overview']['data_holder_contact']['data_holder_phone'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Phone'),
+      '#size' => 50,
+      '#required' => FALSE,
+      '#title_display' => 'invisible',
+      '#field_prefix' => t('Phone'),
+      '#default_value' => isset($form['#node']->data_holder_phone) ? $form['#node']->data_holder_phone : ""
+      );
+
+    $form['metabio_dataset']['overview']['data_holder_contact']['data_holder_address'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Address'),
+      '#size' => 50,
+      '#required' => FALSE,
+      '#title_display' => 'invisible',
+      '#field_prefix' => t('Address'),
+      '#default_value' => isset($form['#node']->data_holder_address) ? $form['#node']->data_holder_address : ""
+      );
+
+    $form['metabio_dataset']['overview']['other_institutions'] = array(
+      '#title' => t('Other institution(s) involved in data collection, analysis, archiving, etc. (e.g. university, government, department)'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->other_institutions) ? $form['#node']->other_institutions : ""
+      );
+
+    $form['metabio_dataset']['overview']['funding_sources'] = array(
+      '#title' => t('Funding sources for data collection'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->funding_sources) ? $form['#node']->funding_sources : ""
+      );
+
+    $form['metabio_dataset']['overview']['dataset_format'] = array(
+      '#title' => t('In what format is the dataset?'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->dataset_format) ? $form['#node']->dataset_format : ""
+      );
+
+    $form['metabio_dataset']['overview']['responsible_person'] = array(
+      '#title' => t('Person currently responsible for this metadata'),
+      '#type' => 'textfield',
+      '#size' => 50,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->responsible_person) ? $form['#node']->responsible_person : ""
+      );
+
+    $form['metabio_dataset']['overview']['additional_comments'] = array(
+      '#title' => t('Any additional comments?'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->additional_comments) ? $form['#node']->additional_comments : ""
+      );
+
+    $form['metabio_dataset']['biology'] = array(
+      '#type' => 'fieldset', 
+      '#title' => t('biology'), 
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE,
+      '#tree' =>FALSE,
+      );
+
+    $form['metabio_dataset']['biology']['taxa_studied'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Taxa studied'),
+      '#size' => 100,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->taxa_studied) ? $form['#node']->taxa_studied : ""
+      );  
+    $form['metabio_dataset']['biology']['taxonomic_information'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(
+        1 => t('Mammals'), 
+        2 => t('Marine mammals'),
+        3 => t('Birds'),
+        4 => t('Amphibians and reptiles'),
+        5 => t('Fish'),
+        6 => t('Insects'),
+        7 => t('Arthropods'),
+        8 => t('Crustaceans'),
+        9 => t('Non-arthropod invertebrate animals'),
+        10 => t('Vascular plants'),
+        11 => t('Non-vascular plants'),
+        12 => t('Mushrooms, molds and yeast'),
+        13 => t('Unicellular organisms'),
+        14 => t('Bacteria')
+        ),
+      '#title' => t('Taxonomic information'),
+      '#default_value' => isset($form['#node']->taxonomic_information) ? $form['#node']->taxonomic_information : ""
+      );
+
+    $form['metabio_dataset']['biology']['taxonomic_details'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Add specific taxa here. Begin typing either the latin or common name to filter'),
+      '#size' => 100,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->taxonomic_details) ? $form['#node']->taxonomic_details : ""
+      );  
+
+    $form['metabio_dataset']['study_details'] = array(
+      '#type' => 'fieldset', 
+      '#title' => t('Study details'), 
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE,
+      '#tree' =>FALSE,
+      );
+    $form['metabio_dataset']['study_details']['study_design'] = array(
+      '#title' => t('Describe the study design?'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->study_design) ? $form['#node']->study_design : ""
+      );
+
+    $form['metabio_dataset']['study_details']['study_status'] = array(
+      '#type' => 'radios',
+      '#options' => array(
+        0 => t('Ongoing'), 
+        1 => t('Complete')
+        ),
+      '#title' => t('Study status'),
+      '#default_value' => isset($form['#node']->study_status) ? $form['#node']->study_status: ""
+      );
+
+    $form['metabio_dataset']['study_details']['sampling_approaches'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(
+        1 => t('Direct visual obseration(e.g. Fieldwork)'), 
+        2 => t('Indirect visual observation (e.g. photos)'),
+        3 => t('Active sampling (e.g. electrofishing, plant vouchers)'),
+        4 => t('Passive sampling (e.g. insect or mammal traps)'),
+        5 => t('Remote sensing')
+        ),
+      '#title' => t('Sampling approaches(es)'),
+      '#default_value' => isset($form['#node']->sampling_approaches) ? $form['#node']->sampling_approaches: ""
+      );
+
+    $form['metabio_dataset']['study_details']['study_goals'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(
+        1 => t('Individual level (e.g. behaviour, physiology, autecology)'),
+        2 => t('Community level (e.g. richness, distribution, composition)'),
+        3 => t('Population/species level (e.g. systematic study)'),
+        4 => t('Ecosystem level'),
+        5 => t('Paleo-study'),
+        6 => t('Complete inventory'),
+        7 => t('Partial inventory'),
+        8 => t('Single species')
+        ),
+      '#title' => t('Study goal(s)'),
+      '#default_value' => isset($form['#node']->study_goals) ? $form['#node']->study_goals : ""
+      );
+
+    $form['metabio_dataset']['study_details']['data_types'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(
+        1 => t('Species list'), 
+        2 => t('Presence/absence'),
+        3 => t('Abundance/relative abundance/frequency'),
+        4 => t('Biomass'),
+        5 => t('Size'),
+        6 => t('Relative coverage'),
+        7 => t('Genetics'),
+        8 => t('Other')
+        ),
+      '#title' => t('Data type(s)'),
+      '#default_value' => isset($form['#node']->data_types) ? $form['#node']->data_types : ""
+      );
+
+    $form['metabio_dataset']['study_details']['frequency_of_sampling'] = array(
+      '#title' => t('Frequency of sampling'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->frequency_of_sampling) ? $form['#node']->frequency_of_sampling : ""
+      );
+
+    $form['metabio_dataset']['study_details']['first_year'] = array(
+      '#title' => t('First year of data collection'),
+      '#type' => 'date_select',
+      '#date_format' => 'Y',
+      '#default_value' => '2013',
+      '#date_year_range' => '-100:0',
+      '#required' => FALSE,
+      '#date_label_position' => 'within',
+      '#default_value' => isset($form['#node']->first_year) ? $form['#node']->first_year : ""
+      );
+
+
+    $form['metabio_dataset']['study_details']['last_year'] = array(
+      '#title' => t('Last year of data collection'),
+      '#type' => 'date_select',
+      '#date_format' => 'Y',
+      '#default_value' => '2013',
+      '#date_year_range' => '-100:0',
+      '#required' => FALSE,
+      '#date_label_position' => 'within',
+      '#default_value' => isset($form['#node']->last_year) ? $form['#node']->last_year : ""
+      );
+
+
+    $form['metabio_dataset']['site_details'] = array(
+      '#type' => 'fieldset', 
+      '#title' => t('Site details'), 
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE,
+      '#tree' =>FALSE,
+      );
+
+    $form['metabio_dataset']['site_details']['number_of_sites'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Number of sites included in the study'),
+      '#size' => 100,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->number_of_sites) ? $form['#node']->number_of_sites : ""
+      );
+
+    $form['metabio_dataset']['site_details']['site_description'] = array(
+      '#title' => t('Decribe the site(s) (including distribution of sites if more than one)'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->site_description) ? $form['#node']->site_description : ""
+      );
+
+    $form['metabio_dataset']['site_details']['site_habitat'] = array(
+      '#title' => t('Describe site habitat(s)'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->site_habitat) ? $form['#node']->site_habitat : ""
+      );
+
+    $form['metabio_dataset']['site_details']['site_environment'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(
+        1 => t('Aquatic'), 
+        2 => t('Terrestrial'),
+        3 => t('Marine'),
+        4 => t('Aerial')
+        ),
+      '#title' => t('Site environment(s)'),
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->site_environment) ? $form['#node']->site_environment : ""
+      );
+
+    $form['metabio_dataset']['site_details']['location_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Location name'),
+      '#size' => 100,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->location_name) ? $form['#node']->location_name : ""
+      );
+
+    $form['metabio_dataset']['site_details']['geography'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Location name'),
+      '#size' => 100,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->geography) ? $form['#node']->geography : ""
+      );
+
+    $form['metabio_dataset']['citations'] = array(
+      '#type' => 'fieldset', 
+      '#title' => t('citations'), 
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE,
+      '#tree' =>FALSE,
+      );
+
+    $form['metabio_dataset']['citations']['publications_types'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(
+        1 => t('Publication(s) in peer reviewed literature'), 
+        2 => t('Thesis/es'),
+        3 => t('Report(s)'),
+        4 => t('Unpublished'),
+        5 => t('Database')
+        ),
+      '#title' => t('Publications'),
+      '#default_value' => isset($form['#node']->publications_types) ? $form['#node']->publications_types : ""
+      );
+
+    $form['metabio_dataset']['citations']['publications'] = array(
+      '#title' => t('List of publications'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->publications) ? $form['#node']->publications : ""
+      );
+
+    $form['metabio_dataset']['citations']['publications_hyperlinks'] = array(
+      '#title' => t('Hyperlinks to publications'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->publications_hyperlinks) ? $form['#node']->publications_hyperlinks : ""
+      );
+
+    $form['metabio_dataset']['citations']['publications_dois'] = array(
+      '#title' => t('DOIs publications'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 6,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->publications_dois) ? $form['#node']->publications_dois : ""
+      );
+
+    $form['metabio_dataset']['citations']['specimens'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(
+        1 => t('Specimens in a known collection'), 
+        2 => t('Specimens not in a known collection'),
+        3 => t('No specimens collected')
+        ),
+      '#title' => t('Specimens'),
+      '#default_value' => isset($form['#node']->specimens) ? $form['#node']->specimens : ""
+      );
+
+    $form['metabio_dataset']['citations']['collections'] = array(
+      '#type' => 'textarea',
+      '#rows' => 6,
+      '#cols' => 50,
+      '#title' => t('Name of collection(s)'),
+      '#default_value' => isset($form['#node']->collections) ? $form['#node']->collections : ""
+      );
+
+    $form['metabio_dataset']['filelist'] = array(
+      '#type' => 'fieldset', 
+      '#title' => t('Files'), 
+      '#collapsible' => TRUE, 
+      '#collapsed' => TRUE, 
+      '#tree' =>FALSE,
+      );
+
+    $form['metabio_dataset']['filelist']['files']= array(
+      '#type' => 'file',
+      '#title' => t('Choose a file'),
+      '#title_display' => 'invisible',
+      '#size' => 22,
+      '#default_value' => isset($form['#node']->files) ? $form['#node']->files : ""
+      );    
     $form['#validate'][] = 'metabio_form_validate';
     $form['#submit'][] = 'metabio_form_submit';
   }
 }
+
 
 // Form validation handler.
 function metabio_form_validate($form, &$form_state) {
@@ -73,28 +520,38 @@ function metabio_form_validate($form, &$form_state) {
 
 // Form submit handler.
 function metabio_form_submit($form, &$form_state) {
-  $form_state['values']['title'] = $form_state['values']['metabio_dataset']['name'];
+  $form_state['values']['title'] = $form_state['values']['dataset_name'];
 }
 
 
 function metabio_insert($node) {
-  db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
+    if($node->type=='metabio'){
+    db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
+  }
 }
 
 function metabio_update($node) {
-  db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
+  if($node->type=='metabio'){
+    db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
+  }
 }
 
 function metabio_delete($node) {
-  db_delete('metabio_dataset')->condition('nid', $node->nid)->execute();
+  if($node->type=='metabio'){
+    db_delete('metabio_dataset')->condition('nid', $node->nid)->execute();
+  }
 }
 
 function metabio_load($nodes) {
-  $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
-  foreach($result as $record) {
-    foreach($GLOBALS['metabio_dataset_fields'] as $fieldsets => $fieldset) {
-      foreach($fieldset as $field) {
-        $nodes[$record->nid]->{$fieldsets}[$field] = $record->{$field};
+ if($nodes[key($nodes)]->type=='metabio'){
+    $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
+    foreach($result as $record) {
+      foreach($GLOBALS['metabio_dataset_fields'] as $field) {
+        if (is_array(json_decode($record->{$field},true))){ 
+        $nodes[$record->nid]->{$field} = array_keys(json_decode($record->{$field},true));
+        }else{
+        $nodes[$record->nid]->{$field} = $record->{$field};
+        }
       }
     }
   }
@@ -102,10 +559,14 @@ function metabio_load($nodes) {
 
 function _metabio_fields($node) {
   $fields = array();
-  foreach($GLOBALS['metabio_dataset_fields'] as $fieldsets => $fieldset) {
-    foreach($fieldset as $field) {
-      $fields[$field] = $node->{$fieldsets}[$field];
-    }
+  foreach($GLOBALS['metabio_dataset_fields'] as $field) {
+      if(is_array($node->$field)){
+        $fields[$field] = json_encode(array_filter($node->$field));
+      }else{
+        $fields[$field] = $node->$field;
+      }
   }
   return $fields;
 }
+
+?>
