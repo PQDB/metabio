@@ -155,6 +155,10 @@ function metabio_schema() {
         'description' => 'Comma separated list of publication DOIs',
         'type' => 'varchar',
         'length' => 255),
+      'collections' => array(
+        'description' => 'Collections information',
+        'type' => 'varchar',
+        'length' => 255),
       'files' => array(
         'description' => 'Comma separated list of file urls',
         'type' => 'varchar',
