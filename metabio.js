@@ -137,12 +137,17 @@ for (var i = 0; i < markers.length; i++ ){
  var newCell0 = newRow.insertCell(0);
  newCell0.innerHTML='<input type="hidden" name="coordinates[]" value="'+markers[i].title +','+markers[i].position.lat()+','+markers[i].position.lng()+'">'+markers[i].title +','+markers[i].position.lat()+','+markers[i].position.lng()+'<br>';
 }
+var tblBody=document.getElementById('tbl');
 for (var i = 0; i < vertices.length; i++ ){
  for (var p =0; p<vertices[i].length;p++){
- var tblBody=document.getElementById('tbl');
  var newRow=tblBody.insertRow(-1);
  var newCell0 = newRow.insertCell(0);
  newCell0.innerHTML='<input type="hidden" name="coordinates[]" value="'+vertices[i][p].title +','+vertices[i][p].position.lat()+','+vertices[i][p].position.lng()+'">'+vertices[i][p].title +','+vertices[i][p].position.lat()+','+vertices[i][p].position.lng()+'<br>';
+ if (p==vertices[i].length-1){
+  var newRow=tblBody.insertRow(-1);
+  var newCell0 = newRow.insertCell(0);
+  newCell0.innerHTML='<input type="hidden" name="coordinates[]" value="'+vertices[i][0].title +','+vertices[i][0].position.lat()+','+vertices[i][0].position.lng()+'">'+vertices[i][0].title +','+vertices[i][0].position.lat()+','+vertices[i][0].position.lng()+'<br>';
+ }
 }
 }
 var coords = jQuery("input[name='coordinates\\[\\]']").map(function(){return jQuery(this).val();}).get().join(';');
