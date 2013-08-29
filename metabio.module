@@ -573,7 +573,12 @@ function _metabio_fields($node) {
   $fields = array();
   foreach($GLOBALS['metabio_dataset_fields'] as $field) {
       if(is_array($node->$field)){
-        $fields[$field] = json_encode(array_filter($node->$field));
+        $tmp=array_filter($node->$field);
+        if (empty($tmp)) {
+          $fields[$field]='';
+        }else{
+          $fields[$field] = json_encode($tmp);
+        }
       }else{
         $fields[$field] = $node->$field;
       }
