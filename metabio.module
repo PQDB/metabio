@@ -61,6 +61,11 @@ function metabio_menu() {
   return $items;
 }
 
+function metabio_init() {
+  $module_path = base_path().drupal_get_path('module', 'metabio');
+  drupal_add_js(array('metabio_path' => $module_path), 'setting');
+}
+
 // Form builder. Form ID = function name
 function metabio_form_alter(&$form, &$form_state, $form_id) {
 
