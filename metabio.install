@@ -175,6 +175,55 @@ function metabio_schema() {
       ),
       'primary key' => array('mid'),
   );
+  $schema['ITIS_names'] = array(
+    'description' => 'The table with ITIS longnames',
+    'fields' => array(
+      'tsn' => array(
+        'description' => 'The unique TSN for that name',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE),
+      'latin_name' => array(
+        'description' => 'Latin name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),
+      'english_name' => array(
+        'description' => 'English name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),     
+      'french_name' => array(
+        'description' => 'French name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),
+      )
+    'primary key' => array('tsn'),
+  );
+,
   return $schema;
 }
+
+
+/*
+function metabio_install(){
+  module_load_include('inc', 'taxonomy_csv','import/taxonomy_csv.import.api');
+    ini_set("memory_limit","200M");
+    $csv_lines = file_get_contents(drupal_get_path('module','metabio').'/ITIS.csv');
+      $result = taxonomy_csv_import(
+      array(
+        'text'             => $csv_lines,
+        'update_or_ignore' => 'update',
+        'enclosure'        => '"',
+        'source_choice'    => 'text',
+      ));
+}
+
+
+function metabio_disable(){
+    $del = db_delete('system')->condition('name','metabio')->execute();
+    $del = db_delete('metabio_dataset')->execute();
+}
+*/
 ?>
