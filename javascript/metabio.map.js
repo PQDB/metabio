@@ -1,6 +1,6 @@
 ;(function($) {
 
-  Drupal.behaviors.metabio = {
+  Drupal.behaviors.metabio_map = {
 
     markers: [], vertices: [], path: [],
     id: 0,
@@ -10,12 +10,11 @@
       this.prepareMap();
       this.createMap();
       this.attachEvents();
-      this.addTaxonomy();
-      this.fillTaxoTable();
     },
 
     prepareMap: function() {
       var self = this;
+
       $('#polybut').click(function() { self.startPoly(); });
       $('#pointbut').click(function() { self.startPoint(); });
     },
@@ -33,7 +32,7 @@
     attachEvents: function() {
       var self = this;
 
-      $('.fieldset-title').click(function() {
+      $('#edit-site-details').find("legend a").click(function() {
         google.maps.event.trigger(self.map, "resize");
         self.map.setCenter(self.map_center);
       });
@@ -75,6 +74,7 @@
 
     displayCoordinates: function() {
       var coordinates = $('#tbl').html(""), rows = "", coords = "", self = this;
+
       $.each(this.markers, function() {
         rows += self.buildCoordinateRow(this);
       });
@@ -130,34 +130,34 @@
       
       switch(type) {
         case 'drag':
-        google.maps.event.addListener(vertex, 'drag', function() {
-          self.displayCoordinates();
-          $.each(self.path, function(i) {
-            $.each(this, function(j) {
-              if(self.vertices[i][j] === vertex) { self.path[i].setAt(j, vertex.getPosition()); }
+          google.maps.event.addListener(vertex, 'drag', function() {
+            self.displayCoordinates();
+            $.each(self.path, function(i) {
+              $.each(this, function(j) {
+                if(self.vertices[i][j] === vertex) { self.path[i].setAt(j, vertex.getPosition()); }
+              });
             });
           });
-        });
         break;
         
         case 'dblclick':
-        google.maps.event.addListener(vertex, 'dblclick', function() {
-          vertex.setMap(null);
-          $.each(self.vertices, function(i) {
-            $.each(this, function(j) {
-              if(vertex === this) {
-                self.vertices[i].splice(j, 1);
-                ispt = i;
+          google.maps.event.addListener(vertex, 'dblclick', function() {
+            vertex.setMap(null);
+            $.each(self.vertices, function(i) {
+              $.each(this, function(j) {
+                if(vertex === this) {
+                  self.vertices[i].splice(j, 1);
+                  ispt = i;
+                }
+              });
+            });
+            self.displayCoordinates(); 
+            $.each(self.path[ispt], function(i) {
+              if(self.path[ispt].getAt(i) && self.path[ispt].getAt(i).lat() === vertex.position.lat()) {
+                self.path[ispt].removeAt(i);
               }
             });
           });
-          self.displayCoordinates(); 
-          $.each(self.path[ispt], function(i) {
-            if(self.path[ispt].getAt(i) && self.path[ispt].getAt(i).lat() === vertex.position.lat()) {
-              self.path[ispt].removeAt(i);
-            }
-          });
-        });
         break;
       }
     },
@@ -188,52 +188,7 @@
         });
         self.displayCoordinates();
       });
-    },
-
-    addTaxonomy: function(){
-      $('#edit-taxonomic-details-input').keypress(function(event) {
-        e=event;
-        var keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
-        if( keyCode == 13 ) {
-          sp=$('#edit-taxonomic-details-input').val();
-          $('#taxotbl').append('<tr><td><input type="hidden" name="taxo[]" value="'+sp+'">' + sp + '</td><td><button class="taxodel" type="button" style="border:none;">x</button> </td></tr>');
-          $('.taxodel').click(function(){
-            $(this).parent('td').parent('tr').remove();
-            refreshTaxonomy();
-          })
-          $('#edit-taxonomic-details-input').val('');
-          refreshTaxonomy();
-          if(!e) var e = window.event;
-          e.cancelBubble = true;
-          e.returnValue = false;
-          if (e.stopPropagation) {
-            e.stopPropagation();
-            e.preventDefault();
-          }
-          return false;
-        }
-
-      })
-    },
-
-    fillTaxoTable: function(){
-      taxoin=$("input[name='taxonomic_details']").val().split('|');
-      if(taxoin!=""){
-        lt=taxoin.length;
-        for(i=0;i<lt;i++){
-          $('#taxotbl').append('<tr><td><input type="hidden" name="taxo[]" value="'+taxoin[i]+'">' + taxoin[i] + '</td><td><button class="taxodel" type="button" style="border:none;">x</button> </td></tr>'); 
-        }
-      }
-      $('.taxodel').click(function(){
-        $(this).parent('td').parent('tr').remove();
-        refreshTaxonomy();
-      })
     }
-  };
-  function refreshTaxonomy(){
-    taxod = $("input[name='taxo\\[\\]']").map(function(){ return $(this).val(); }).get().join('|');
-    $("input[name='taxonomic_details']").val(taxod);
   }
-
 
 }(jQuery));

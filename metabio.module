@@ -57,23 +57,25 @@ function metabio_node_info() {
 // Implementation of hook_menu(): used to create a page for the form
 function metabio_menu() {
   $items = array();
-  $items['nodes/taxo_autocomplete'] = array(
-'page callback' => 'metabio_taxo_autocomplete_callback',
-'access arguments' => user_access('access example autocomplete'),
-'type' => MENU_CALLBACK,
-);
+  $items['metabio/taxonomy_autocomplete'] = array(
+    'page callback' => 'metabio_taxo_autocomplete_callback',
+    'access arguments' => user_access('access content'),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
 function metabio_init() {
-  $module_path = base_path().drupal_get_path('module', 'metabio');
-  drupal_add_js(array('metabio_path' => $module_path), 'setting');
 }
 
 // Form builder. Form ID = function name
 function metabio_form_alter(&$form, &$form_state, $form_id) {
 
   if($form_id == 'metabio_node_form') {
+
+    $module_path = base_path().drupal_get_path('module', 'metabio');
+    drupal_add_js(array('metabio_path' => $module_path), 'setting');
+
     /*$form['metabio_dataset'] = array(
       '#type' => 'fieldset',
       '#collapsible' => FALSE,
@@ -273,7 +275,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#size' => 100,
       '#required' => FALSE,
       '#prefix' => "<table id='taxotbl'></table>",
-      '#autocomplete_path' => db_table_exists('itis_names') ? 'nodes/taxo_autocomplete' : '',
+      '#autocomplete_path' => db_table_exists('itis_names') ? 'metabio/taxonomy_autocomplete' : '',
       );  
 
     $form['study_details'] = array(
@@ -530,13 +532,17 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#title_display' => 'invisible',
       '#size' => 22,
       '#default_value' => isset($form['#node']->files) ? $form['#node']->files : ""
-      );    
+      );
+    
+    $js_files = array(
+      'http://maps.google.com/maps/api/js?sensor=false',
+      $module_path . '/javascript/metabio.map.js',
+      $module_path . '/javascript/metabio.taxonomy.js',
+    );
+    
+    $form['#attached']['js'] = $js_files;
     $form['#validate'][] = 'metabio_form_validate';
     $form['#submit'][] = 'metabio_form_submit';
-    $form['#attached']['js'] = array(
-    drupal_get_path('module', 'metabio') . '/metabio.js',
-    'http://maps.google.com/maps/api/js?sensor=false',
-    );
   }
 }
 
@@ -616,8 +622,8 @@ function metabio_taxo_autocomplete_callback($string = "") {
       ->range(0, 10)
       ->execute();
     foreach ($result as $row) {
-      ($row->english_name==='NULL')?$eng='': $eng=' - '.check_plain($row->english_name);
-      ($row->french_name==='NULL')?$fr='': $fr=' - '.check_plain($row->french_name);
+      $eng = ($row->english_name === 'NULL') ? '' : ' - '.check_plain($row->english_name);
+      $fr = ($row->french_name === 'NULL') ? '' : ' - '.check_plain($row->french_name);
       $matches[$row->latin_name] = check_plain($row->latin_name).$eng.$fr;
     }
   }
