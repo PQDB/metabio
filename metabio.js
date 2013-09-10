@@ -10,11 +10,12 @@
       this.prepareMap();
       this.createMap();
       this.attachEvents();
+      this.addTaxonomy();
+      this.fillTaxoTable();
     },
 
     prepareMap: function() {
       var self = this;
-
       $('#polybut').click(function() { self.startPoly(); });
       $('#pointbut').click(function() { self.startPoint(); });
     },
@@ -22,11 +23,11 @@
     createMap: function() {
       this.map_center = new google.maps.LatLng(50, -73);
       this.map = new google.maps.Map($("#map")[0], {
-              zoom: 5,
-              center: this.map_center,
-              mapTypeId: google.maps.MapTypeId.HYBRID,
-              disableDoubleClickZoom: true
-        });
+        zoom: 5,
+        center: this.map_center,
+        mapTypeId: google.maps.MapTypeId.HYBRID,
+        disableDoubleClickZoom: true
+      });
     },
     
     attachEvents: function() {
@@ -43,29 +44,29 @@
 
     startPoly: function() {
       var vertex = [],
-          pid = 0,
-          poly = {},
-          self = this;
+      pid = 0,
+      poly = {},
+      self = this;
 
-        if(this.vertices.length > 0) { pid += 1; }
-        this.vertices[pid] = [];
-        this.path[pid] = new google.maps.MVCArray;
-        this.incrementID();
+      if(this.vertices.length > 0) { pid += 1; }
+      this.vertices[pid] = [];
+      this.path[pid] = new google.maps.MVCArray;
+      this.incrementID();
 
-        poly = new google.maps.Polygon({
-          strokeWeight: 3,
-          fillColor: '#5555FF',
-          editable: false
-        });
-        poly.setMap(this.map);
-        poly.setPaths(new google.maps.MVCArray([this.path[pid]]));
-        google.maps.event.clearListeners(this.map,'click');
-        google.maps.event.addListener(this.map, 'click', function(e) { self.addPoly(e, pid); });
+      poly = new google.maps.Polygon({
+        strokeWeight: 3,
+        fillColor: '#5555FF',
+        editable: false
+      });
+      poly.setMap(this.map);
+      poly.setPaths(new google.maps.MVCArray([this.path[pid]]));
+      google.maps.event.clearListeners(this.map,'click');
+      google.maps.event.addListener(this.map, 'click', function(e) { self.addPoly(e, pid); });
     },
 
     startPoint: function() {
       var self = this,
-          mark = new google.maps.Marker({});
+      mark = new google.maps.Marker({});
 
       mark.setMap(this.map);
       google.maps.event.clearListeners(this.map,'click');
@@ -105,7 +106,7 @@
         new google.maps.Size(12, 12),
         new google.maps.Point(0,0),
         new google.maps.Point(6, 6)
-      );
+        );
 
       vertex = new google.maps.Marker({
         position: e.latLng,
@@ -129,45 +130,45 @@
       
       switch(type) {
         case 'drag':
-          google.maps.event.addListener(vertex, 'drag', function() {
-            self.displayCoordinates();
-            $.each(self.path, function(i) {
-              $.each(this, function(j) {
-                if(self.vertices[i][j] === vertex) { self.path[i].setAt(j, vertex.getPosition()); }
-              });
+        google.maps.event.addListener(vertex, 'drag', function() {
+          self.displayCoordinates();
+          $.each(self.path, function(i) {
+            $.each(this, function(j) {
+              if(self.vertices[i][j] === vertex) { self.path[i].setAt(j, vertex.getPosition()); }
             });
           });
+        });
         break;
         
         case 'dblclick':
-          google.maps.event.addListener(vertex, 'dblclick', function() {
-            vertex.setMap(null);
-            $.each(self.vertices, function(i) {
-              $.each(this, function(j) {
-                if(vertex === this) {
-                  self.vertices[i].splice(j, 1);
-                  ispt = i;
-                }
-              });
-            });
-            self.displayCoordinates(); 
-            $.each(self.path[ispt], function(i) {
-              if(self.path[ispt].getAt(i) && self.path[ispt].getAt(i).lat() === vertex.position.lat()) {
-                self.path[ispt].removeAt(i);
+        google.maps.event.addListener(vertex, 'dblclick', function() {
+          vertex.setMap(null);
+          $.each(self.vertices, function(i) {
+            $.each(this, function(j) {
+              if(vertex === this) {
+                self.vertices[i].splice(j, 1);
+                ispt = i;
               }
             });
           });
+          self.displayCoordinates(); 
+          $.each(self.path[ispt], function(i) {
+            if(self.path[ispt].getAt(i) && self.path[ispt].getAt(i).lat() === vertex.position.lat()) {
+              self.path[ispt].removeAt(i);
+            }
+          });
+        });
         break;
       }
     },
 
     addMarker: function(e) {
       var self = this,
-          marker = new google.maps.Marker({
-               position: e.latLng,
-               map: this.map,
-               draggable: true
-          });
+      marker = new google.maps.Marker({
+       position: e.latLng,
+       map: this.map,
+       draggable: true
+     });
 
       marker.title = this.id;
 
@@ -187,8 +188,52 @@
         });
         self.displayCoordinates();
       });
-    }
+    },
 
+    addTaxonomy: function(){
+      $('#edit-taxonomic-details-input').keypress(function(event) {
+        e=event;
+        var keyCode = e.keyCode ? e.keyCode : e.which ? e.which : e.charCode;
+        if( keyCode == 13 ) {
+          sp=$('#edit-taxonomic-details-input').val();
+          $('#taxotbl').append('<tr><td><input type="hidden" name="taxo[]" value="'+sp+'">' + sp + '</td><td><button class="taxodel" type="button" style="border:none;">x</button> </td></tr>');
+          $('.taxodel').click(function(){
+            $(this).parent('td').parent('tr').remove();
+            refreshTaxonomy();
+          })
+          $('#edit-taxonomic-details-input').val('');
+          refreshTaxonomy();
+          if(!e) var e = window.event;
+          e.cancelBubble = true;
+          e.returnValue = false;
+          if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+          return false;
+        }
+
+      })
+    },
+
+    fillTaxoTable: function(){
+      taxoin=$("input[name='taxonomic_details']").val().split('|');
+      if(taxoin!=""){
+        lt=taxoin.length;
+        for(i=0;i<lt;i++){
+          $('#taxotbl').append('<tr><td><input type="hidden" name="taxo[]" value="'+taxoin[i]+'">' + taxoin[i] + '</td><td><button class="taxodel" type="button" style="border:none;">x</button> </td></tr>'); 
+        }
+      }
+      $('.taxodel').click(function(){
+        $(this).parent('td').parent('tr').remove();
+        refreshTaxonomy();
+      })
+    }
   };
+  function refreshTaxonomy(){
+    taxod = $("input[name='taxo\\[\\]']").map(function(){ return $(this).val(); }).get().join('|');
+    $("input[name='taxonomic_details']").val(taxod);
+  }
+
 
 }(jQuery));

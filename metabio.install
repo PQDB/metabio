@@ -175,12 +175,12 @@ function metabio_schema() {
       ),
       'primary key' => array('mid'),
   );
-  $schema['ITIS_names'] = array(
+  /*$schema['ITIS_names'] = array(
     'description' => 'The table with ITIS longnames',
     'fields' => array(
       'tsn' => array(
         'description' => 'The unique TSN for that name',
-        'type' => 'serial',
+        'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE),
       'latin_name' => array(
@@ -198,10 +198,8 @@ function metabio_schema() {
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE),
-      )
-    'primary key' => array('tsn'),
-  );
-,
+      ),
+  );*/
   return $schema;
 }
 
@@ -220,10 +218,10 @@ function metabio_install(){
       ));
 }
 
-
+*/
 function metabio_disable(){
     $del = db_delete('system')->condition('name','metabio')->execute();
     $del = db_delete('metabio_dataset')->execute();
 }
-*/
+
 ?>

@@ -57,7 +57,11 @@ function metabio_node_info() {
 // Implementation of hook_menu(): used to create a page for the form
 function metabio_menu() {
   $items = array();
-
+  $items['nodes/taxo_autocomplete'] = array(
+'page callback' => 'metabio_taxo_autocomplete_callback',
+'access arguments' => user_access('access example autocomplete'),
+'type' => MENU_CALLBACK,
+);
   return $items;
 }
 
@@ -257,11 +261,19 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['biology']['taxonomic_details'] = array(
+      '#type' => 'hidden',
+      '#prefix' => '<h3>'.t('Taxonomic Details').'</h3>',
+      '#default_value' => isset($form['#node']->taxonomic_details) ? $form['#node']->taxonomic_details : "", 
+      );  
+
+
+    $form['biology']['taxonomic_details_input'] = array(
       '#type' => 'textfield',
-      '#title' => t('Add specific taxa here. Begin typing either the latin or common name to filter'),
+      '#title' => t('Add specific taxa here. Begin typing either the latin or common name to filter. Press the ENTER key when the name is selected'),
       '#size' => 100,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->taxonomic_details) ? $form['#node']->taxonomic_details : ""
+      '#prefix' => "<table id='taxotbl'></table>",
+      '#autocomplete_path' => db_table_exists('itis_names') ? 'nodes/taxo_autocomplete' : '',
       );  
 
     $form['study_details'] = array(
@@ -589,6 +601,27 @@ function _metabio_fields($node) {
       }
   }
   return $fields;
+}
+
+
+function metabio_taxo_autocomplete_callback($string = "") {
+  $matches = array();
+  if ($string) {
+    $result = db_select('ITIS_names')
+      ->fields('ITIS_names',array('tsn','latin_name','english_name','french_name'))
+      ->condition(db_or()
+      ->condition('latin_name', db_like($string) . '%', 'LIKE')
+      ->condition('english_name', db_like($string) . '%', 'LIKE')
+      ->condition('french_name', db_like($string) . '%', 'LIKE'))
+      ->range(0, 10)
+      ->execute();
+    foreach ($result as $row) {
+      ($row->english_name==='NULL')?$eng='': $eng=' - '.check_plain($row->english_name);
+      ($row->french_name==='NULL')?$fr='': $fr=' - '.check_plain($row->french_name);
+      $matches[$row->latin_name] = check_plain($row->latin_name).$eng.$fr;
+    }
+  }
+  drupal_json_output($matches);
 }
 
 ?>
