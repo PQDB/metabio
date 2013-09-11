@@ -15,7 +15,7 @@
         if(keyCode === 13) {
           e.preventDefault();
           sp = $(this).val();
-          $('#taxotbl').append(self.builTaxonomyRow(sp));
+          $('#taxotbl').append(self.buildTaxonomyRow(sp));
           self.bindDeleteButtons();
           $(this).val('');
           self.refreshTaxonomy();
