@@ -198,7 +198,6 @@
         k=0;
         kk=0;
         $.each(geoarr,function() {
-          ev=[];
           this.id=geoarr[k].split(',')[0];
             if (this.split(',')[0]!=geoarr[k+1].split(',')[0] & kk==0) {  //marker
               $('#pointbut').trigger('click');
@@ -222,7 +221,6 @@
             k=k+1;
           });
         google.maps.event.clearListeners(this.map,'click');
-        self.map.setCenter(self.map_center);
       }
     }
   }
