@@ -57,15 +57,23 @@ function metabio_node_info() {
 // Implementation of hook_menu(): used to create a page for the form
 function metabio_menu() {
   $items = array();
+
   $items['metabio/taxonomy_autocomplete'] = array(
     'page callback' => 'metabio_taxo_autocomplete_callback',
     'access arguments' => user_access('access content'),
     'type' => MENU_CALLBACK,
   );
-  return $items;
-}
 
-function metabio_init() {
+  $items['node/%node/metabio_eml'] = array(
+    'page callback' => 'metabio_eml_output_node',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('view', 1),
+    'type' => MENU_CALLBACK,
+    'file' => 'metabio.pages.inc',
+  );
+
+  return $items;
 }
 
 // Form builder. Form ID = function name
@@ -87,6 +95,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#weight' => 99,
       );
       */
+
     $form['overview'] = array(
       '#type' => 'fieldset',
       '#title' => t('overview'),
@@ -259,7 +268,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         14 => t('Bacteria')
         ),
       '#title' => t('Taxonomic information'),
-      '#default_value' => isset($form['#node']->taxonomic_information) ? $form['#node']->taxonomic_information : array()
+      '#default_value' => isset($form['#node']->taxonomic_information) && is_array($form['#node']->taxonomic_information) ? $form['#node']->taxonomic_information : array()
       );
 
     $form['biology']['taxonomic_details'] = array(
@@ -307,14 +316,14 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $form['study_details']['sampling_approaches'] = array(
       '#type' => 'checkboxes',
       '#options' => array(
-        1 => t('Direct visual obseration(e.g. Fieldwork)'), 
+        1 => t('Direct visual observation (e.g. Fieldwork)'), 
         2 => t('Indirect visual observation (e.g. photos)'),
         3 => t('Active sampling (e.g. electrofishing, plant vouchers)'),
         4 => t('Passive sampling (e.g. insect or mammal traps)'),
         5 => t('Remote sensing')
         ),
-      '#title' => t('Sampling approaches(es)'),
-      '#default_value' => isset($form['#node']->sampling_approaches) ? $form['#node']->sampling_approaches: array()
+      '#title' => t('Sampling approach(es)'),
+      '#default_value' => isset($form['#node']->sampling_approaches) && is_array($form['#node']->sampling_approaches) ? $form['#node']->sampling_approaches : array()
       );
 
     $form['study_details']['study_goals'] = array(
@@ -330,7 +339,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         8 => t('Single species')
         ),
       '#title' => t('Study goal(s)'),
-      '#default_value' => isset($form['#node']->study_goals) ? $form['#node']->study_goals : array()
+      '#default_value' => isset($form['#node']->study_goals) && is_array($form['#node']->study_goals) ? $form['#node']->study_goals : array()
       );
 
     $form['study_details']['data_types'] = array(
@@ -346,7 +355,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         8 => t('Other')
         ),
       '#title' => t('Data type(s)'),
-      '#default_value' => isset($form['#node']->data_types) ? $form['#node']->data_types : array()
+      '#default_value' => isset($form['#node']->data_types) && is_array($form['#node']->data_types) ? $form['#node']->data_types : array()
       );
 
     $form['study_details']['frequency_of_sampling'] = array(
@@ -426,7 +435,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         ),
       '#title' => t('Site environment(s)'),
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->site_environment) ? $form['#node']->site_environment : array()
+      '#default_value' => isset($form['#node']->site_environment) && is_array($form['#node']->site_environment) ? $form['#node']->site_environment : array()
       );
 
     $form['site_details']['location_name'] = array(
@@ -469,7 +478,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         5 => t('Database')
         ),
       '#title' => t('Publications'),
-      '#default_value' => isset($form['#node']->publications_types) ? $form['#node']->publications_types : array()
+      '#default_value' => isset($form['#node']->publications_types) && is_array($form['#node']->publications_types) ? $form['#node']->publications_types : array()
       );
 
     $form['citations']['publications'] = array(
@@ -595,20 +604,15 @@ function metabio_load($nodes) {
 function _metabio_fields($node) {
   $fields = array();
   foreach($GLOBALS['metabio_dataset_fields'] as $field) {
-      if(is_array($node->$field)){
-        $tmp=array_filter($node->$field);
-        if (empty($tmp)) {
-          $fields[$field]='';
-        }else{
-          $fields[$field] = json_encode($tmp);
-        }
-      }else{
-        $fields[$field] = $node->$field;
-      }
+    if(is_array($node->$field)){
+      $tmp = array_filter($node->$field);
+      $fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
+    }else{
+      $fields[$field] = $node->$field;
+    }
   }
   return $fields;
 }
-
 
 function metabio_taxo_autocomplete_callback($string = "") {
   $matches = array();

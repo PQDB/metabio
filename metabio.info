@@ -2,3 +2,4 @@ name = "Biodiversity Metadata System"
 description = "Biodiversity Metadata System"
 core = 7.x
 version = "1.0"
+dependencies[] = date

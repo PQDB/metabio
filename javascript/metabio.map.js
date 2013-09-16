@@ -1,4 +1,5 @@
-;(function($) {
+/*global jQuery, window, document, self, _gaq, Drupal, google */
+(function($) {
 
   Drupal.behaviors.metabio_map = {
 
@@ -7,17 +8,9 @@
     map: {}, map_center: {},
 
     attach: function() {
-      this.prepareMap();
       this.createMap();
+      this.loadData();
       this.attachEvents();
-      this.fillMap();
-    },
-
-    prepareMap: function() {
-      var self = this;
-
-      $('#polybut').click(function() { self.startPoly(); });
-      $('#pointbut').click(function() { self.startPoint(); });
     },
 
     createMap: function() {
@@ -29,7 +22,32 @@
         disableDoubleClickZoom: true
       });
     },
-    
+
+    loadData: function() {
+      var self = this,
+          geoarr = $("input[name='geography']").val().split(';'),
+          marker = 0,
+          vertex = 0,
+          next_id = -1,
+          prev_id = -1;
+
+      if(geoarr.length > 1) {
+        $.each(geoarr, function(i) {
+          coord = this.split(',');
+          next_id = (geoarr[i+1]) ? geoarr[i+1].split(',')[0] : -1;
+          prev_id = (geoarr[i-1]) ? geoarr[i-1].split(',')[0] : -1;
+          if (coord[0] !== prev_id && coord[0] !== next_id) {
+            self.addMarker(self.createPoint(coord));
+          } else if (coord[0] !== prev_id && coord[0] === next_id) {
+            self.createPolygon();
+            self.addVertex(self.createPoint(coord), self.id);
+          } else if (coord[0] === prev_id && coord[0] === next_id) {
+            self.addVertex(self.createPoint(coord), self.id);
+          }
+        });
+      }
+    },
+
     attachEvents: function() {
       var self = this;
 
@@ -40,37 +58,43 @@
       $(window).resize(function() {
         google.maps.event.trigger(self.map, "resize");
       });
+
+      $('#polybut').click(function() { self.createPolygon(); self.startPolygon(); });
+      $('#pointbut').click(function() { self.startPoint(); });
     },
-
-    startPoly: function() {
-      var vertex = [],
-      pid = 0,
-      poly = {},
-      self = this;
-
-      if(this.vertices.length > 0) { pid += 1; }
-      this.vertices[pid] = [];
-      this.path[pid] = new google.maps.MVCArray;
+    
+    createPoint: function(coord) {
+      return new google.maps.LatLng(coord[1],coord[2]);
+    },
+    
+    createPolygon: function() {
       this.incrementID();
+      this.vertices[this.id] = [];
+      this.path[this.id] = new google.maps.MVCArray();
 
-      poly = new google.maps.Polygon({
+      polygon = new google.maps.Polygon({
         strokeWeight: 3,
         fillColor: '#5555FF',
         editable: false
       });
-      poly.setMap(this.map);
-      poly.setPaths(new google.maps.MVCArray([this.path[pid]]));
+      polygon.setMap(this.map);
+      polygon.setPaths(new google.maps.MVCArray([this.path[this.id]]));
+    },
+
+    startPolygon: function() {
+      var self = this;
+      
       google.maps.event.clearListeners(this.map,'click');
-      google.maps.event.addListener(this.map, 'click', function(e) { self.addPoly(e, pid); });
+      google.maps.event.addListener(this.map, 'click', function(e) { self.addVertex(e.latLng, self.id); });
     },
 
     startPoint: function() {
       var self = this,
-      mark = new google.maps.Marker({});
+          mark = new google.maps.Marker({});
 
       mark.setMap(this.map);
       google.maps.event.clearListeners(this.map,'click');
-      google.maps.event.addListener(this.map, 'click', function(e) { self.addMarker(e); });
+      google.maps.event.addListener(this.map, 'click', function(e) { self.addMarker(e.latLng); });
     },
 
     displayCoordinates: function() {
@@ -100,8 +124,8 @@
       this.id = (this.vertices.length + this.markers.length === 0) ? 1 : this.id + 1;
     },
 
-    addPoly: function(e, pid) {
-      var self = this, icon = {}, vertex = {}, ispt = 0;
+    addVertex: function(position, pid) {
+      var icon = {}, vertex = {};
 
       icon = new google.maps.MarkerImage(Drupal.settings.metabio_path + '/images/icon.png',
         new google.maps.Size(12, 12),
@@ -110,13 +134,13 @@
         );
 
       vertex = new google.maps.Marker({
-        position: e.latLng,
+        position: position,
         map: this.map,
         draggable: true,
         icon: icon
       });
       
-      this.path[pid].insertAt(this.path[pid].length, e.latLng);
+      this.path[pid].insertAt(this.path[pid].length, position);
 
       vertex.title = this.id;
       this.vertices[pid].push(vertex);
@@ -127,47 +151,48 @@
     },
     
     addVertexListener: function(vertex, type) {
-      var self = this;
+      var self = this, ispt = "";
       
       switch(type) {
         case 'drag':
-        google.maps.event.addListener(vertex, 'drag', function() {
-          self.displayCoordinates();
-          $.each(self.path, function(i) {
-            $.each(this, function(j) {
-              if(self.vertices[i][j] === vertex) { self.path[i].setAt(j, vertex.getPosition()); }
+          google.maps.event.addListener(vertex, 'drag', function() {
+            self.displayCoordinates();
+            $.each(self.path, function(i) {
+              $.each(this, function(j) {
+                if(self.vertices[i][j] === vertex) { self.path[i].setAt(j, vertex.getPosition()); }
+              });
             });
           });
-        });
         break;
         
         case 'dblclick':
-        google.maps.event.addListener(vertex, 'dblclick', function() {
-          vertex.setMap(null);
-          $.each(self.vertices, function(i) {
-            $.each(this, function(j) {
-              if(vertex === this) {
-                self.vertices[i].splice(j, 1);
-                ispt = i;
+          google.maps.event.addListener(vertex, 'dblclick', function() {
+            vertex.setMap(null);
+            $.each(self.vertices, function(i) {
+              $.each(this, function(j) {
+                if(vertex === this) {
+                  self.vertices[i].splice(j, 1);
+                  ispt = i;
+                }
+              });
+            });
+            self.displayCoordinates(); 
+            $.each(self.path[ispt], function(i) {
+              if(self.path[ispt].getAt(i) && self.path[ispt].getAt(i).lat() === vertex.position.lat()) {
+                self.path[ispt].removeAt(i);
               }
             });
           });
-          self.displayCoordinates(); 
-          $.each(self.path[ispt], function(i) {
-            if(self.path[ispt].getAt(i) && self.path[ispt].getAt(i).lat() === vertex.position.lat()) {
-              self.path[ispt].removeAt(i);
-            }
-          });
-        });
         break;
       }
     },
 
-    addMarker: function(e) {
+    addMarker: function(position) {
+      var marker = {};
+
       this.incrementID();
-      var self = this,
       marker = new google.maps.Marker({
-       position: e.latLng,
+       position: position,
        map: this.map,
        draggable: true
      });
@@ -189,39 +214,8 @@
         });
         self.displayCoordinates();
       });
-    },
-
-    fillMap: function(){
-      self=this;
-      geoarr=$("input[name='geography']").val().split(';');
-      if (geoarr[0]!=''){
-        k=0;
-        kk=0;
-        $.each(geoarr,function() {
-          this.id=geoarr[k].split(',')[0];
-            if (this.split(',')[0]!=geoarr[k+1].split(',')[0] & kk==0) {  //marker
-              $('#pointbut').trigger('click');
-              kk=0;
-              add=1;
-            }else if (this.split(',')[0]==geoarr[k+1].split(',')[0] & kk==0){ // new polygon
-              $('#polybut').trigger('click');
-              kk=1;
-              add=1;
-            }else if (this.split(',')[0]!=geoarr[k+1].split(',')[0] & kk==1){ //end of polygon
-              kk=0;
-              add=0; // don't add vertex
-            }else{ // middle of polygon
-              add=1;
-            }
-            if (add==1){
-              var event = jQuery.Event("click");
-              event.latLng=new google.maps.LatLng(geoarr[k].split(',')[1],geoarr[k].split(',')[2]);
-              google.maps.event.trigger(self.map,"click",event);
-            }
-            k=k+1;
-          });
-        google.maps.event.clearListeners(this.map,'click');
-      }
     }
-  }
+
+  };
+
 }(jQuery));

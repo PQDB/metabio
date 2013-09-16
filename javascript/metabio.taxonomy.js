@@ -1,4 +1,5 @@
-;(function($) {
+/*global jQuery, window, document, self, _gaq, Drupal, google */
+(function($) {
 
   Drupal.behaviors.metabio_taxonomy = {
 
