@@ -9,7 +9,7 @@
 
     attach: function() {
       this.createMap();
-      this.loadData();
+      this.buildMapElements();
       this.attachEvents();
     },
 
@@ -23,7 +23,7 @@
       });
     },
 
-    loadData: function() {
+    buildMapElements: function() {
       var self = this,
           geoarr = $("input[name='geography']").val().split(';'),
           coord = [],
