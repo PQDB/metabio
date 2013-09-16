@@ -26,8 +26,7 @@
     loadData: function() {
       var self = this,
           geoarr = $("input[name='geography']").val().split(';'),
-          marker = 0,
-          vertex = 0,
+          coord = [],
           next_id = -1,
           prev_id = -1;
 
@@ -62,12 +61,14 @@
       $('#polybut').click(function() { self.createPolygon(); self.startPolygon(); });
       $('#pointbut').click(function() { self.startPoint(); });
     },
-    
+
     createPoint: function(coord) {
       return new google.maps.LatLng(coord[1],coord[2]);
     },
-    
+
     createPolygon: function() {
+      var polygon = {};
+
       this.incrementID();
       this.vertices[this.id] = [];
       this.path[this.id] = new google.maps.MVCArray();
@@ -83,7 +84,7 @@
 
     startPolygon: function() {
       var self = this;
-      
+
       google.maps.event.clearListeners(this.map,'click');
       google.maps.event.addListener(this.map, 'click', function(e) { self.addVertex(e.latLng, self.id); });
     },
@@ -145,14 +146,14 @@
       vertex.title = this.id;
       this.vertices[pid].push(vertex);
       this.displayCoordinates();
-      
+
       this.addVertexListener(vertex, 'drag');
       this.addVertexListener(vertex, 'dblclick');
     },
-    
+
     addVertexListener: function(vertex, type) {
       var self = this, ispt = "";
-      
+
       switch(type) {
         case 'drag':
           google.maps.event.addListener(vertex, 'drag', function() {
@@ -164,7 +165,7 @@
             });
           });
         break;
-        
+
         case 'dblclick':
           google.maps.event.addListener(vertex, 'dblclick', function() {
             vertex.setMap(null);
@@ -203,7 +204,7 @@
       this.addMarkerListener(marker);
       this.displayCoordinates();
     },
-    
+
     addMarkerListener: function(marker) {
       var self = this;
 
