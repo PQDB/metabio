@@ -5,7 +5,7 @@
 
     markers: [], vertices: [], path: [],
     id: 0,
-    map: {}, map_center: {},
+    map: {}, map_center: {}, icon: {},
 
     attach: function() {
       this.createMap();
@@ -21,6 +21,11 @@
         mapTypeId: google.maps.MapTypeId.HYBRID,
         disableDoubleClickZoom: true
       });
+      this.icon = new google.maps.MarkerImage(Drupal.settings.metabio_path + '/images/icon.png',
+        new google.maps.Size(12, 12),
+        new google.maps.Point(0,0),
+        new google.maps.Point(6, 6)
+      );
     },
 
     buildMapElements: function() {
@@ -126,19 +131,13 @@
     },
 
     addVertex: function(position, pid) {
-      var icon = {}, vertex = {};
-
-      icon = new google.maps.MarkerImage(Drupal.settings.metabio_path + '/images/icon.png',
-        new google.maps.Size(12, 12),
-        new google.maps.Point(0,0),
-        new google.maps.Point(6, 6)
-        );
+      var vertex = {};
 
       vertex = new google.maps.Marker({
         position: position,
         map: this.map,
         draggable: true,
-        icon: icon
+        icon: this.icon
       });
       
       this.path[pid].insertAt(this.path[pid].length, position);
