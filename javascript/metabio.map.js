@@ -165,17 +165,17 @@
       this.polygon_paths[this.id].insertAt(path_index, position);
       this.recordCoordinates();
 
-      this.addVertexListener(vertex, path_index, 'drag');
-      this.addVertexListener(vertex, path_index, 'dblclick');
+      this.addVertexListener(this.id, vertex, path_index, 'drag');
+      this.addVertexListener(this.id, vertex, path_index, 'dblclick');
     },
 
-    addVertexListener: function(vertex, index, type) {
+    addVertexListener: function(path, vertex, index, type) {
       var self = this;
 
       switch(type) {
         case 'drag':
           google.maps.event.addListener(vertex, 'drag', function() {
-            self.polygon_paths[self.id].setAt(index, vertex.getPosition());
+            self.polygon_paths[path].setAt(index, vertex.getPosition());
             self.recordCoordinates();
           });
         break;
@@ -183,13 +183,13 @@
         case 'dblclick':
           google.maps.event.addListener(vertex, 'dblclick', function() {
             vertex.setMap(null);
-            self.polygon_paths[self.id].removeAt(index);
+            self.polygon_paths[path].removeAt(index);
             self.recordCoordinates();
           });
         break;
       }
     },
-    
+
     createMarker: function(position, icon) {
       return new google.maps.Marker({
        position: position,

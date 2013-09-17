@@ -84,57 +84,49 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $module_path = base_path().drupal_get_path('module', 'metabio');
     drupal_add_js(array('metabio_path' => $module_path), 'setting');
 
-    /*$form['metabio_dataset'] = array(
-      '#type' => 'fieldset',
-      '#collapsible' => FALSE,
-       '#tree' =>FALSE,
-      );
-      */
-   /* $form['overviewtab']=array(
-      '#type'=>'vertical_tabs',
-      '#weight' => 99,
-      );
-      */
-
     $form['overview'] = array(
+      '#title' => t('Overview'),
       '#type' => 'fieldset',
-      '#title' => t('overview'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
       '#group' => 'overviewtab',
       '#tree' =>FALSE,
       );
+
     $form['overview']['dataset_name'] = array(
-      '#type' => 'textfield',
       '#title' => t('Dataset name'),
+      '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->dataset_name) ? $form['#node']->dataset_name : ""
       );
+
     $form['overview']['dataset_description'] = array(
-      '#type' => 'textarea',
       '#title' => t('Dataset description'),
+      '#type' => 'textarea',
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->dataset_description) ? $form['#node']->dataset_description : ""
       );
+
     $form['overview']['data_collector'] = array(
+      '#title' => t('Data collector(s)'),
       '#type' => 'textfield',
-      '#title' => t('Who collected the data?'),
       '#size' => 50,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->data_collector) ? $form['#node']->data_collector : ""
       );
     
     $form['overview']['data_holder_contact'] = array(
-      '#type' => 'fieldset', 
       '#title' => t('Contact information for data holder'),
+      '#type' => 'fieldset', 
       '#collapsible' => FALSE, 
       );
+
     $form['overview']['data_holder_contact']['data_holder_first_name'] = array(
-      '#type' => 'textfield',
       '#title' => t('First name'),
+      '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
       '#title_display' => 'invisible',
@@ -143,26 +135,28 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['overview']['data_holder_contact']['data_holder_last_name'] = array(
-      '#type' => 'textfield',
       '#title' => t('Last name'),
+      '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
       '#title_display' => 'invisible',
       '#field_prefix' => t('Last name'),
       '#default_value' => isset($form['#node']->data_holder_last_name) ? $form['#node']->data_holder_last_name : ""
       );
+
     $form['overview']['data_holder_contact']['data_holder_institution'] = array(
-      '#type' => 'textfield',
       '#title' => t('Institution'),
+      '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
       '#title_display' => 'invisible',
       '#field_prefix' => t('Institution'),
       '#default_value' => isset($form['#node']->data_holder_institution) ? $form['#node']->data_holder_institution : ""
       );
+
     $form['overview']['data_holder_contact']['data_holder_email'] = array(
-      '#type' => 'textfield',
       '#title' => t('Email'),
+      '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
       '#title_display' => 'invisible',
@@ -171,8 +165,8 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['overview']['data_holder_contact']['data_holder_phone'] = array(
+      '#title' => t('Telephone'),
       '#type' => 'textfield',
-      '#title' => t('Phone'),
       '#size' => 50,
       '#required' => FALSE,
       '#title_display' => 'invisible',
@@ -181,8 +175,8 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['overview']['data_holder_contact']['data_holder_address'] = array(
-      '#type' => 'textfield',
       '#title' => t('Address'),
+      '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
       '#title_display' => 'invisible',
@@ -226,7 +220,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['overview']['additional_comments'] = array(
-      '#title' => t('Any additional comments?'),
+      '#title' => t('Additional comments'),
       '#type' => 'textarea',
       '#cols' => 50,
       '#rows' => 6,
@@ -235,24 +229,26 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['biology'] = array(
-      '#type' => 'fieldset', 
-      '#title' => t('biology'), 
-      '#collapsible' => TRUE, 
+      '#title' => t('Biology'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
       '#collapsed' => TRUE,
-      '#tree' =>FALSE,
+      '#tree' => FALSE
       );
 
     $form['biology']['taxa_studied'] = array(
-      '#type' => 'textfield',
       '#title' => t('Taxa studied'),
+      '#type' => 'textfield',
       '#size' => 100,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->taxa_studied) ? $form['#node']->taxa_studied : ""
-      );  
+      );
+ 
     $form['biology']['taxonomic_information'] = array(
+      '#title' => t('Taxonomic information'),
       '#type' => 'checkboxes',
       '#options' => array(
-        1 => t('Mammals'), 
+        1 => t('Mammals'),
         2 => t('Marine mammals'),
         3 => t('Birds'),
         4 => t('Amphibians and reptiles'),
@@ -267,20 +263,19 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         13 => t('Unicellular organisms'),
         14 => t('Bacteria')
         ),
-      '#title' => t('Taxonomic information'),
       '#default_value' => isset($form['#node']->taxonomic_information) && is_array($form['#node']->taxonomic_information) ? $form['#node']->taxonomic_information : array()
       );
 
     $form['biology']['taxonomic_details'] = array(
       '#type' => 'hidden',
       '#prefix' => '<h3>'.t('Taxonomic Details').'</h3>',
-      '#default_value' => isset($form['#node']->taxonomic_details) ? $form['#node']->taxonomic_details : "", 
-      );  
+      '#default_value' => isset($form['#node']->taxonomic_details) ? $form['#node']->taxonomic_details : "",
+      );
 
 
     $form['biology']['taxonomic_details_input'] = array(
+      '#title' => t('Add taxa here by typing either the scientific or common name. Press the ENTER key when the name is selected'),
       '#type' => 'textfield',
-      '#title' => t('Add specific taxa here. Begin typing either the latin or common name to filter. Press the ENTER key when the name is selected'),
       '#size' => 100,
       '#required' => FALSE,
       '#prefix' => "<table id='taxotbl'></table>",
@@ -288,14 +283,15 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );  
 
     $form['study_details'] = array(
-      '#type' => 'fieldset', 
-      '#title' => t('Study details'), 
-      '#collapsible' => TRUE, 
+      '#title' => t('Study details'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#tree' =>FALSE,
       );
+
     $form['study_details']['study_design'] = array(
-      '#title' => t('Describe the study design?'),
+      '#title' => t('Describe the study design'),
       '#type' => 'textarea',
       '#cols' => 50,
       '#rows' => 6,
@@ -304,29 +300,30 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['study_details']['study_status'] = array(
+      '#title' => t('Study status'),
       '#type' => 'radios',
       '#options' => array(
         0 => t('Ongoing'), 
         1 => t('Complete')
         ),
-      '#title' => t('Study status'),
       '#default_value' => isset($form['#node']->study_status) ? $form['#node']->study_status: ""
       );
 
     $form['study_details']['sampling_approaches'] = array(
+      '#title' => t('Sampling approach(es)'),
       '#type' => 'checkboxes',
       '#options' => array(
-        1 => t('Direct visual observation (e.g. Fieldwork)'), 
+        1 => t('Direct visual observation (e.g. Fieldwork)'),
         2 => t('Indirect visual observation (e.g. photos)'),
         3 => t('Active sampling (e.g. electrofishing, plant vouchers)'),
         4 => t('Passive sampling (e.g. insect or mammal traps)'),
         5 => t('Remote sensing')
         ),
-      '#title' => t('Sampling approach(es)'),
       '#default_value' => isset($form['#node']->sampling_approaches) && is_array($form['#node']->sampling_approaches) ? $form['#node']->sampling_approaches : array()
       );
 
     $form['study_details']['study_goals'] = array(
+      '#title' => t('Study goal(s)'),
       '#type' => 'checkboxes',
       '#options' => array(
         1 => t('Individual level (e.g. behaviour, physiology, autecology)'),
@@ -338,11 +335,11 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         7 => t('Partial inventory'),
         8 => t('Single species')
         ),
-      '#title' => t('Study goal(s)'),
       '#default_value' => isset($form['#node']->study_goals) && is_array($form['#node']->study_goals) ? $form['#node']->study_goals : array()
       );
 
     $form['study_details']['data_types'] = array(
+      '#title' => t('Data type(s)'),
       '#type' => 'checkboxes',
       '#options' => array(
         1 => t('Species list'), 
@@ -354,7 +351,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         7 => t('Genetics'),
         8 => t('Other')
         ),
-      '#title' => t('Data type(s)'),
       '#default_value' => isset($form['#node']->data_types) && is_array($form['#node']->data_types) ? $form['#node']->data_types : array()
       );
 
@@ -378,7 +374,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#default_value' => isset($form['#node']->first_year) ? $form['#node']->first_year : ""
       );
 
-
     $form['study_details']['last_year'] = array(
       '#title' => t('Last year of data collection'),
       '#type' => 'date_select',
@@ -390,25 +385,24 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#default_value' => isset($form['#node']->last_year) ? $form['#node']->last_year : ""
       );
 
-
     $form['site_details'] = array(
-      '#type' => 'fieldset', 
-      '#title' => t('Site details'), 
-      '#collapsible' => TRUE, 
+      '#title' => t('Site details'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
       '#collapsed' => TRUE,
-      '#tree' =>FALSE,
+      '#tree' =>FALSE
       );
 
     $form['site_details']['number_of_sites'] = array(
-      '#type' => 'textfield',
       '#title' => t('Number of sites included in the study'),
+      '#type' => 'textfield',
       '#size' => 100,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->number_of_sites) ? $form['#node']->number_of_sites : ""
       );
 
     $form['site_details']['site_description'] = array(
-      '#title' => t('Decribe the site(s) (including distribution of sites if more than one)'),
+      '#title' => t('Describe the site(s) (including distribution of sites if more than one)'),
       '#type' => 'textarea',
       '#cols' => 50,
       '#rows' => 6,
@@ -426,6 +420,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['site_details']['site_environment'] = array(
+      '#title' => t('Site environment(s)'),
       '#type' => 'checkboxes',
       '#options' => array(
         1 => t('Aquatic'), 
@@ -433,22 +428,21 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         3 => t('Marine'),
         4 => t('Aerial')
         ),
-      '#title' => t('Site environment(s)'),
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->site_environment) && is_array($form['#node']->site_environment) ? $form['#node']->site_environment : array()
       );
 
     $form['site_details']['location_name'] = array(
-      '#type' => 'textfield',
       '#title' => t('Location name'),
+      '#type' => 'textfield',
       '#size' => 100,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->location_name) ? $form['#node']->location_name : ""
       );
 
     $form['site_details']['geography'] = array(
-      '#type' => 'hidden',
       '#title' => t('Geography'),
+      '#type' => 'hidden',
       '#size' => 200,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->geography) ? $form['#node']->geography : "",
@@ -459,14 +453,15 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['citations'] = array(
-      '#type' => 'fieldset', 
-      '#title' => t('citations'), 
-      '#collapsible' => TRUE, 
+      '#title' => t('Citations'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
       '#collapsed' => TRUE,
-      '#tree' =>FALSE,
+      '#tree' =>FALSE
       );
 
     $form['citations']['publications_types'] = array(
+      '#title' => t('Publications'),
       '#type' => 'checkboxes',
       '#options' => array(
         1 => t('Publication(s) in peer reviewed literature'), 
@@ -475,7 +470,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         4 => t('Unpublished'),
         5 => t('Database')
         ),
-      '#title' => t('Publications'),
       '#default_value' => isset($form['#node']->publications_types) && is_array($form['#node']->publications_types) ? $form['#node']->publications_types : array()
       );
 
@@ -507,35 +501,35 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $form['citations']['specimens'] = array(
+      '#title' => t('Specimens'),
       '#type' => 'checkboxes',
       '#options' => array(
-        1 => t('Specimens in a known collection'), 
+        1 => t('Specimens in a known collection'),
         2 => t('Specimens not in a known collection'),
         3 => t('No specimens collected')
         ),
-      '#title' => t('Specimens'),
       '#default_value' => isset($form['#node']->specimens) ? $form['#node']->specimens : array()
       );
 
     $form['citations']['collections'] = array(
+      '#title' => t('Name of collection(s)'),
       '#type' => 'textarea',
       '#rows' => 6,
       '#cols' => 50,
-      '#title' => t('Name of collection(s)'),
       '#default_value' => isset($form['#node']->collections) ? $form['#node']->collections : array()
       );
 
     $form['filelist'] = array(
-      '#type' => 'fieldset', 
-      '#title' => t('Files'), 
-      '#collapsible' => TRUE, 
-      '#collapsed' => TRUE, 
-      '#tree' =>FALSE,
+      '#title' => t('Files'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#tree' =>FALSE
       );
 
     $form['filelist']['files']= array(
-      '#type' => 'file',
       '#title' => t('Choose a file'),
+      '#type' => 'file',
       '#title_display' => 'invisible',
       '#size' => 22,
       '#default_value' => isset($form['#node']->files) ? $form['#node']->files : ""
