@@ -626,7 +626,8 @@ function metabio_taxo_autocomplete_callback($string = "") {
 
 function metabio_coordinate_conversion_callback($string = "") {
   $converted_coordinates = array();
-  $coordinates = explode("\n", $string);
+  $input = ($string) ? $string : $_POST['coordinates'];
+  $coordinates = explode("\n", $input);
   foreach($coordinates as $coordinate){
     $converted_coordinates[] = _make_coordinates($coordinate);
   }
