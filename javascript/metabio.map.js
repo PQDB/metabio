@@ -119,7 +119,7 @@
     buildGeoJSON: function() {
       var self = this,
           geojson = {
-            type : "featureCollection",
+            type : "FeatureCollection",
             features: []
           };
 
@@ -132,6 +132,7 @@
       });
 
       this.geography.val(JSON.stringify(geojson));
+      console.log(this.geography.val());
     },
 
     buildFeature: function(data, type) {
