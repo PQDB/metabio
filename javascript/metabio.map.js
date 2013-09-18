@@ -73,8 +73,11 @@
           type: "POST",
           success: function(result){
             $.each(result,function(){
-              self.addMarker(self.createPoint([this.split(', ')[1], this.split(', ')[0]]));
+              if (this[0]!=null){
+              self.addMarker(self.createPoint(this.reverse()));
+              }
             });
+            $('#inputcoords').val('');
           }});
       });
       $('#polybut').click(function(e) {
