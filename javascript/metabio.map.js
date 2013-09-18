@@ -4,13 +4,14 @@
   Drupal.behaviors.metabio_map = {
 
     map: {}, map_center: {}, marker_icon: {}, polygon_icon: {},
-    markers: [], polygons: [],
-    geography: "",
+    id: 0,
+    markers: [], polygon_paths: [],
+    geography: {},
 
     attach: function() {
       this.geography = $("input[name='geography']");
       this.createMap();
-      this.readGeoJSON();
+      this.buildMapElements();
       this.attachEvents();
     },
 
@@ -34,27 +35,32 @@
       };
     },
 
-    readGeoJSON: function() {
+    buildMapElements: function() {
       var self = this,
-          geojson = (this.geography.val().length > 0) ? $.parseJSON(this.geography.val()) : { features : []},
-          polygon = {};
+      geoarr = this.geography.val().split('\n'),
+      coord = [],
+      next_id = -1,
+      prev_id = -1;
 
-      $.each(geojson.features, function() {
-        if(this.geometry.type === "Point") {
-          self.addMarker(self.createPoint(this.geometry.coordinates));
-        } else if (this.geometry.type === "Polygon") {
-          polygon = self.createPolygon();
-          this.geometry.coordinates[0].pop();
-          $.each(this.geometry.coordinates[0], function() {
-            self.addVertex(polygon, self.createPoint(this));
-          });
-        }
-      });
+      if(geoarr.length > 1) {
+        $.each(geoarr, function(i) {
+          coord = this.split(',');
+          next_id = (geoarr[i+1]) ? geoarr[i+1].split(',')[0] : -1;
+          prev_id = (geoarr[i-1]) ? geoarr[i-1].split(',')[0] : -1;
+          if (coord[0] !== prev_id && coord[0] !== next_id) { //add markers
+            self.addMarker(self.createPoint(coord));
+          } else if (coord[0] !== prev_id && coord[0] === next_id) { //create a polygon and add first vertex
+            self.createPolygon();
+            self.addVertex(self.createPoint(coord), self.id);
+          } else if (coord[0] === prev_id && coord[0] === next_id) { //add vertices, last vertex is same as first so not needed
+            self.addVertex(self.createPoint(coord), self.id);
+          }
+        });
+      }
     },
 
     attachEvents: function() {
-      var self = this,
-          polygon = {};
+      var self = this;
 
       $('#edit-site-details').find("legend a").click(function() {
         google.maps.event.trigger(self.map, "resize");
@@ -63,12 +69,25 @@
       $(window).resize(function() {
         google.maps.event.trigger(self.map, "resize");
       });
-
+      $('#inputcoordsbut').click(function(e) {
+        e.preventDefault();
+        coordinate_list=$('#inputcoords').val();
+        $.ajax({
+          url: Drupal.settings.metabio_callback_base_url + "/coordinate_conversion/",
+          data: { coordinates:coordinate_list },
+          dataType: "json",
+          type: "POST",
+          success: function(result){
+            $.each(result,function(){
+              self.addMarker(self.createPoint([this.split(', ')[1], this.split(', ')[0]]));
+            });
+          }});
+      });
       $('#polybut').click(function(e) {
         e.preventDefault();
         self.changeCursor();
-        polygon = self.createPolygon();
-        self.startPolygon(polygon);
+        self.createPolygon();
+        self.startPolygon();
       });
       $('#pointbut').click(function(e) {
         e.preventDefault();
@@ -82,12 +101,15 @@
     },
 
     createPoint: function(coord) {
-      return new google.maps.LatLng(coord[1],coord[0]);
+      return new google.maps.LatLng(coord[1],coord[2]);
     },
 
     createPolygon: function() {
-      var polygon = {},
-          paths = new google.maps.MVCArray();
+      var polygon = {};
+
+      this.incrementID();
+      this.polygon_paths[this.id] = new google.maps.MVCArray();
+      this.polygon_paths[this.id].metabio_title = this.id;
 
       polygon = new google.maps.Polygon({
         strokeWeight: 3,
@@ -95,75 +117,69 @@
         editable: false
       });
       polygon.setMap(this.map);
-      polygon.setPaths(new google.maps.MVCArray([paths]));
-      this.polygons.push(polygon);
-      return polygon;
+      polygon.setPaths(new google.maps.MVCArray([this.polygon_paths[this.id]]));
     },
 
-    startPolygon: function(polygon) {
+    startPolygon: function() {
       var self = this;
 
       google.maps.event.clearListeners(this.map, 'click');
-      google.maps.event.addListener(this.map, 'click', function(e) { self.addVertex(polygon, e.latLng); });
+      google.maps.event.addListener(this.map, 'click', function(e) { self.addVertex(e.latLng); });
     },
 
     startPoint: function() {
       var self = this,
-          mark = new google.maps.Marker({});
+      mark = new google.maps.Marker({});
 
       mark.setMap(this.map);
       google.maps.event.clearListeners(this.map, 'click');
       google.maps.event.addListener(this.map, 'click', function(e) { self.addMarker(e.latLng); });
     },
 
-    buildGeoJSON: function() {
-      var self = this,
-          geojson = {
-            type : "FeatureCollection",
-            features: []
-          };
+    recordCoordinates: function() {
+      var self = this, metabio_title = "", coords = [], first = {};
 
       $.each(this.markers, function() {
-        geojson.features.push(self.buildFeature(this, "Point"));
+        coords.push(self.buildCoordinate(this));
       });
 
-      $.each(this.polygons, function() {
-        geojson.features.push(self.buildFeature(this.getPath().getArray(), "Polygon"));
-      });
-
-      this.geography.val(JSON.stringify(geojson));
-    },
-
-    buildFeature: function(data, type) {
-      var coords = [];
-      
-      switch(type) {
-        case 'Point':
-          coords.push(data.position.lng());
-          coords.push(data.position.lat());
-        break;
-        
-        case 'Polygon':
-          coords.push([]);
-          $.each(data, function() {
-            coords[0].push([this.lng(), this.lat()]);
+      $.each(this.polygon_paths, function() {
+        if(this.hasOwnProperty('metabio_title')) {
+          metabio_title = this.metabio_title;
+          $.each(this.getArray(), function() {
+            this.metabio_title = metabio_title;
+            coords.push(self.buildCoordinate(this));
           });
-          coords[0].push([data[0].lng(), data[0].lat()]);
-        break;
-      }
-
-      return { type: "Feature", geometry: { type : type, coordinates : coords }, properties: {} };
+          if(this.length > 1) {
+            first = this.getArray()[0];
+            first.metabio_title = metabio_title;
+            coords.push(self.buildCoordinate(first));
+          }
+        }
+      });
+      this.geography.val(coords.join("\n"));
     },
 
-    addVertex: function(polygon, position) {
+    buildCoordinate: function(data) {
+      var lat = (data.hasOwnProperty('position')) ? data.position.lat() : data.lat(),
+      lng = (data.hasOwnProperty('position')) ? data.position.lng() : data.lng();
+
+      return data.metabio_title + ',' + lat + ',' + lng;
+    },
+
+    incrementID: function() {
+      this.id = (this.markers.length + this.polygon_paths.length === 0) ? 1 : this.id + 1;
+    },
+
+    addVertex: function(position) {
       var vertex = this.createMarker(position, this.polygon_icon),
-          path = polygon.getPath();
+      path_index = this.polygon_paths[this.id].length;
 
-      path.insertAt(path.length, position);
-      this.buildGeoJSON();
+      this.polygon_paths[this.id].insertAt(path_index, position);
+      this.recordCoordinates();
 
-      this.addVertexListener(path, vertex, path.length-1, 'drag');
-      this.addVertexListener(path, vertex, path.length-1, 'dblclick');
+      this.addVertexListener(this.id, vertex, path_index, 'drag');
+      this.addVertexListener(this.id, vertex, path_index, 'dblclick');
     },
 
     addVertexListener: function(path, vertex, index, type) {
@@ -171,18 +187,18 @@
 
       switch(type) {
         case 'drag':
-          google.maps.event.addListener(vertex, 'drag', function() {
-            path.setAt(index, vertex.getPosition());
-            self.buildGeoJSON();
-          });
+        google.maps.event.addListener(vertex, 'drag', function() {
+          self.polygon_paths[path].setAt(index, vertex.getPosition());
+          self.recordCoordinates();
+        });
         break;
 
         case 'dblclick':
-          google.maps.event.addListener(vertex, 'dblclick', function() {
-            vertex.setMap(null);
-            path.removeAt(index);
-            self.buildGeoJSON();
-          });
+        google.maps.event.addListener(vertex, 'dblclick', function() {
+          vertex.setMap(null);
+          self.polygon_paths[path].removeAt(index);
+          self.recordCoordinates();
+        });
         break;
       }
     },
@@ -199,9 +215,12 @@
     addMarker: function(position) {
       var marker = {};
 
+      this.incrementID();
       marker = this.createMarker(position, this.marker_icon);
+      marker.metabio_title = this.id;
       this.markers.push(marker);
-      this.buildGeoJSON();
+      this.recordCoordinates();
+
       this.addMarkerListener(marker);
     },
 
@@ -213,7 +232,7 @@
         $.each(self.markers, function(i) {
           if(marker === this) {
             self.markers.splice(i,1);
-            self.buildGeoJSON();
+            self.recordCoordinates();
           }
         });
       });
