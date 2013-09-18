@@ -626,12 +626,16 @@ function metabio_taxo_autocomplete_callback($string = "") {
 
 function metabio_coordinate_conversion_callback($string = "") {
   $converted_coordinates = array();
-  $input = ($string) ? $string : $_POST['coordinates'];
+  $input = ($string) ? $string : _remove_empty_lines($_POST['coordinates']);
   $coordinates = explode("\n", $input);
   foreach($coordinates as $coordinate){
     $converted_coordinates[] = _make_coordinates($coordinate);
   }
   drupal_json_output($converted_coordinates);
+}
+
+function _remove_empty_lines($string) {
+  return preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $string);
 }
 
 function _make_coordinates($point) {
