@@ -138,7 +138,7 @@
       var coords = [];
       if (type === "Point") {
         coords = [data.position.lng(), data.position.lat()];
-      } else {
+      }  else if (type === "Polygon") {
         $.each(data, function() {
           coords.push([this.lng(), this.lat()]);
         });
