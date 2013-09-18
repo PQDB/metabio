@@ -132,7 +132,6 @@
       });
 
       this.geography.val(JSON.stringify(geojson));
-      console.log(this.geography.val());
     },
 
     buildFeature: function(data, type) {
@@ -140,18 +139,20 @@
       
       switch(type) {
         case 'Point':
-          coords = [data.position.lng(), data.position.lat()];
+          coords.push(data.position.lng());
+          coords.push(data.position.lat());
         break;
         
         case 'Polygon':
+          coords.push([]);
           $.each(data, function() {
-            coords.push([this.lng(), this.lat()]);
+            coords[0].push([this.lng(), this.lat()]);
           });
-          coords.push([data[0].lng(), data[0].lat()]);
+          coords[0].push([data[0].lng(), data[0].lat()]);
         break;
       }
 
-      return { type: "Feature", geometry: { type : type, coordinates : coords } };
+      return { type: "Feature", geometry: { type : type, coordinates : coords }, properties: {} };
     },
 
     addVertex: function(polygon, position) {
