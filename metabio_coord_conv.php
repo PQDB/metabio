@@ -15,7 +15,7 @@ function make_coordinates($point) {
       $coord = preg_split("/[,;]/", $loc);
       if (!array_key_exists(1, $coord)) { return array(null, null); }
       $coord = (preg_match('/[EWO]/', $coord[1]) != 0) ? $coord : array_reverse($coord);
-      return array(self::dms_to_deg(trim($coord[0])),self::dms_to_deg(trim($coord[1])));
+      return array(dms_to_deg(trim($coord[0])),dms_to_deg(trim($coord[1])));
     } else {
       return preg_split("/[\s,;]+/",$loc); //split the coords by a space, comma, semicolon
     }
