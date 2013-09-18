@@ -136,13 +136,18 @@
 
     buildFeature: function(data, type) {
       var coords = [];
-      if (type === "Point") {
-        coords = [data.position.lng(), data.position.lat()];
-      }  else if (type === "Polygon") {
-        $.each(data, function() {
-          coords.push([this.lng(), this.lat()]);
-        });
-        coords.push([data[0].lng(), data[0].lat()]);
+      
+      switch(type) {
+        case 'Point':
+          coords = [data.position.lng(), data.position.lat()];
+        break;
+        
+        case 'Polygon':
+          $.each(data, function() {
+            coords.push([this.lng(), this.lat()]);
+          });
+          coords.push([data[0].lng(), data[0].lat()]);
+        break;
       }
 
       return { type: "Feature", geometry: { type : type, coordinates : coords } };
