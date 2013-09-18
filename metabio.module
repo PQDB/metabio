@@ -583,7 +583,7 @@ function metabio_load($nodes) {
     $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
     foreach($result as $record) {
       foreach($GLOBALS['metabio_dataset_fields'] as $field) {
-        if (is_array(json_decode($record->{$field},true))){ 
+        if ($field !== "geography" && is_array(json_decode($record->{$field},true))){ 
         $nodes[$record->nid]->{$field} = array_keys(json_decode($record->{$field},true));
         }else{
         $nodes[$record->nid]->{$field} = $record->{$field};
