@@ -44,8 +44,8 @@
           self.addMarker(self.createPoint(this.geometry.coordinates));
         } else if (this.geometry.type === "Polygon") {
           polygon = self.createPolygon();
-          this.geometry.coordinates.pop();
-          $.each(this.geometry.coordinates, function() {
+          this.geometry.coordinates[0].pop();
+          $.each(this.geometry.coordinates[0], function() {
             self.addVertex(polygon, self.createPoint(this));
           });
         }
