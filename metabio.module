@@ -80,6 +80,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
 
     $module_path = base_path().drupal_get_path('module', 'metabio');
     drupal_add_js(array('metabio_path' => $module_path), 'setting');
+    drupal_add_js(array('metabio_callback_base_url' => base_path().'metabio'), 'setting');
 
     $form['overview'] = array(
       '#title' => t('Overview'),

@@ -75,6 +75,10 @@
         self.changeCursor();
         self.startPoint();
       });
+      $('#inputcoordsbut').click(function(e) {
+        e.preventDefault();
+        self.addCoordinates();
+      });
     },
     
     changeCursor: function() {
@@ -216,6 +220,22 @@
             self.buildGeoJSON();
           }
         });
+      });
+    },
+
+    addCoordinates: function() {
+      var self = this,
+          coordinate_list = $('#inputcoords').val();
+
+      $.ajax({
+        url: Drupal.settings.metabio_callback_base_url + "/coordinate_conversion/",
+        data: { coordinates : coordinate_list },
+        type: "POST",
+        success: function(result){
+          $.each(result, function() {
+            self.addMarker(self.createPoint(this.reverse()));
+          });
+        }
       });
     }
 
