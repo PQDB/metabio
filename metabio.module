@@ -638,12 +638,14 @@ function metabio_coordinate_conversion_callback($string = "") {
   $input = ($string) ? $string : _remove_empty_lines($_POST['coordinates']);
   $coordinates = explode("\n", $input);
   foreach($coordinates as $coordinate) {
-    $converted = _make_coordinates($coordinate);
-    $status = (_check_coordinate($converted)) ? 'success' : 'fail';
-    $converted_coordinates[$coordinate] = array(
-      'status' => $status,
-      'converted' => $converted
-    );
+    if(!array_key_exists($coordinate, $converted_coordinates)) {
+      $converted = _make_coordinates($coordinate);
+      $status = (_check_coordinate($converted)) ? 'success' : 'fail';
+      $converted_coordinates[$coordinate] = array(
+        'status' => $status,
+        'converted' => $converted
+      );
+    }
   }
   drupal_json_output($converted_coordinates);
 }
