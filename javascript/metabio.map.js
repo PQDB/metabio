@@ -40,14 +40,18 @@
           polygon = {};
 
       $.each(geojson.features, function() {
-        if(this.geometry.type === "Point") {
-          self.addMarker(self.createPoint(this.geometry.coordinates));
-        } else if (this.geometry.type === "Polygon") {
-          polygon = self.createPolygon();
-          this.geometry.coordinates[0].pop();
-          $.each(this.geometry.coordinates[0], function() {
-            self.addVertex(polygon, self.createPoint(this));
-          });
+        switch (this.geometry.type) {
+          case 'Point':
+            self.addMarker(self.createPoint(this.geometry.coordinates));
+          break;
+
+          case 'Polygon':
+            polygon = self.createPolygon();
+            this.geometry.coordinates[0].pop();
+            $.each(this.geometry.coordinates[0], function() {
+              self.addVertex(polygon, self.createPoint(this));
+            });
+          break;
         }
       });
     },
@@ -62,23 +66,6 @@
       });
       $(window).resize(function() {
         google.maps.event.trigger(self.map, "resize");
-      });
-      $('#inputcoordsbut').click(function(e) {
-        e.preventDefault();
-        coordinate_list=$('#inputcoords').val();
-        $.ajax({
-          url: Drupal.settings.metabio_callback_base_url + "/coordinate_conversion/",
-          data: { coordinates:coordinate_list },
-          dataType: "json",
-          type: "POST",
-          success: function(result){
-            $.each(result,function(){
-              if (this[0]!=null){
-              self.addMarker(self.createPoint(this.reverse()));
-              }
-            });
-            $('#inputcoords').val('');
-          }});
       });
       $('#polybut').click(function(e) {
         e.preventDefault();
@@ -241,16 +228,19 @@
 
     addCoordinates: function() {
       var self = this,
-          coordinate_list = $('#inputcoords').val();
+          coordinate_list = $('#inputcoords');
 
       $.ajax({
         url: Drupal.settings.metabio_callback_base_url + "/coordinate_conversion/",
-        data: { coordinates : coordinate_list },
+        data: { coordinates : coordinate_list.val() },
         type: "POST",
         success: function(result){
           $.each(result, function() {
-            self.addMarker(self.createPoint(this.reverse()));
+            if (this[0] !== null) {
+              self.addMarker(self.createPoint(this.reverse()));
+            }
           });
+          coordinate_list.val("");
         }
       });
     }
