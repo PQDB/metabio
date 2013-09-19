@@ -13,3 +13,7 @@
 #inputcoordsbut{
   display:block;
 }
+#coorderror{
+  font-size:large;
+  color:red;
+}

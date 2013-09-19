@@ -36,21 +36,21 @@
 
     readGeoJSON: function() {
       var self = this,
-          geojson = (this.geography.val().length > 0) ? $.parseJSON(this.geography.val()) : { features : []},
-          polygon = {};
+      geojson = (this.geography.val().length > 0) ? $.parseJSON(this.geography.val()) : { features : []},
+      polygon = {};
 
       $.each(geojson.features, function() {
         switch (this.geometry.type) {
           case 'Point':
-            self.addMarker(self.createPoint(this.geometry.coordinates));
+          self.addMarker(self.createPoint(this.geometry.coordinates));
           break;
 
           case 'Polygon':
-            polygon = self.createPolygon();
-            this.geometry.coordinates[0].pop();
-            $.each(this.geometry.coordinates[0], function() {
-              self.addVertex(polygon, self.createPoint(this));
-            });
+          polygon = self.createPolygon();
+          this.geometry.coordinates[0].pop();
+          $.each(this.geometry.coordinates[0], function() {
+            self.addVertex(polygon, self.createPoint(this));
+          });
           break;
         }
       });
@@ -58,7 +58,7 @@
 
     attachEvents: function() {
       var self = this,
-          polygon = {};
+      polygon = {};
 
       $('#edit-site-details').find("legend a").click(function() {
         google.maps.event.trigger(self.map, "resize");
@@ -94,7 +94,7 @@
 
     createPolygon: function() {
       var polygon = {},
-          paths = new google.maps.MVCArray();
+      paths = new google.maps.MVCArray();
 
       polygon = new google.maps.Polygon({
         strokeWeight: 3,
@@ -116,7 +116,7 @@
 
     startPoint: function() {
       var self = this,
-          mark = new google.maps.Marker({});
+      mark = new google.maps.Marker({});
 
       mark.setMap(this.map);
       google.maps.event.clearListeners(this.map, 'click');
@@ -125,10 +125,10 @@
 
     buildGeoJSON: function() {
       var self = this,
-          geojson = {
-            type : "FeatureCollection",
-            features: []
-          };
+      geojson = {
+        type : "FeatureCollection",
+        features: []
+      };
 
       $.each(this.markers, function() {
         geojson.features.push(self.buildFeature(this, "Point"));
@@ -146,16 +146,16 @@
       
       switch(type) {
         case 'Point':
-          coords.push(data.position.lng());
-          coords.push(data.position.lat());
+        coords.push(data.position.lng());
+        coords.push(data.position.lat());
         break;
         
         case 'Polygon':
-          coords.push([]);
-          $.each(data, function() {
-            coords[0].push([this.lng(), this.lat()]);
-          });
-          coords[0].push([data[0].lng(), data[0].lat()]);
+        coords.push([]);
+        $.each(data, function() {
+          coords[0].push([this.lng(), this.lat()]);
+        });
+        coords[0].push([data[0].lng(), data[0].lat()]);
         break;
       }
 
@@ -164,7 +164,7 @@
 
     addVertex: function(polygon, position) {
       var vertex = this.createMarker(position, this.polygon_icon),
-          path = polygon.getPath();
+      path = polygon.getPath();
 
       path.insertAt(path.length, position);
       this.buildGeoJSON();
@@ -178,18 +178,18 @@
 
       switch(type) {
         case 'drag':
-          google.maps.event.addListener(vertex, 'drag', function() {
-            path.setAt(index, vertex.getPosition());
-            self.buildGeoJSON();
-          });
+        google.maps.event.addListener(vertex, 'drag', function() {
+          path.setAt(index, vertex.getPosition());
+          self.buildGeoJSON();
+        });
         break;
 
         case 'dblclick':
-          google.maps.event.addListener(vertex, 'dblclick', function() {
-            vertex.setMap(null);
-            path.removeAt(index);
-            self.buildGeoJSON();
-          });
+        google.maps.event.addListener(vertex, 'dblclick', function() {
+          vertex.setMap(null);
+          path.removeAt(index);
+          self.buildGeoJSON();
+        });
         break;
       }
     },
@@ -228,7 +228,7 @@
 
     addCoordinates: function() {
       var self = this,
-          coordinate_list = $('#inputcoords');
+      coordinate_list = $('#inputcoords');
 
       $.ajax({
         url: Drupal.settings.metabio_callback_base_url + "/coordinate_conversion/",
@@ -237,7 +237,12 @@
         success: function(result){
           $.each(result, function() {
             if (this[0] !== null) {
-              self.addMarker(self.createPoint(this.reverse()));
+              ptll=self.createPoint(this.reverse());
+              if(!isNaN(ptll.lat())){
+                self.addMarker(ptll);
+              }else{
+                $('#coorderror').show().delay(5000).fadeOut();
+              }
             }
           });
           coordinate_list.val("");
