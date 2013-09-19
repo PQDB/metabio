@@ -539,11 +539,11 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       $module_path . '/javascript/metabio.map.js',
       $module_path . '/javascript/metabio.taxonomy.js',
     );
-    
     $form['#attached']['js'] = $js_files;
     $form['#validate'][] = 'metabio_form_validate';
     $form['#submit'][] = 'metabio_form_submit';
   }
+  drupal_add_js(array('metabio_callback_base_url' => base_path().'metabio'), 'setting');
 }
 
 

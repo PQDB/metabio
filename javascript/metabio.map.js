@@ -63,7 +63,23 @@
       $(window).resize(function() {
         google.maps.event.trigger(self.map, "resize");
       });
-
+      $('#inputcoordsbut').click(function(e) {
+        e.preventDefault();
+        coordinate_list=$('#inputcoords').val();
+        $.ajax({
+          url: Drupal.settings.metabio_callback_base_url + "/coordinate_conversion/",
+          data: { coordinates:coordinate_list },
+          dataType: "json",
+          type: "POST",
+          success: function(result){
+            $.each(result,function(){
+              if (this[0]!=null){
+              self.addMarker(self.createPoint(this.reverse()));
+              }
+            });
+            $('#inputcoords').val('');
+          }});
+      });
       $('#polybut').click(function(e) {
         e.preventDefault();
         self.changeCursor();
