@@ -688,7 +688,7 @@ function _dms_to_deg($dms) {
 
 function _check_coordinate($coord) {
   $output = false;
-  if($coord[0] <= 90 && $coord[0] >= -90 && $coord[1] <= 180 && $coord[1] >= -180) { $output = true; }
+  if(is_numeric($coord[0]) && is_numeric($coord[1]) && $coord[0] <= 90 && $coord[0] >= -90 && $coord[1] <= 180 && $coord[1] >= -180) { $output = true; }
   return $output;
 }
 
