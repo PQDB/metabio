@@ -234,21 +234,19 @@
     addCoordinates: function() {
       var self = this,
           coordinate_list = $('#inputcoords'),
-          ptll = "";
+          coordinate_error = $('#coorderror').hide();
 
+      coordinate_error.find("span").remove();
       $.ajax({
         url: Drupal.settings.metabio_callback_base_url + "/coordinate_conversion/",
         data: { coordinates : coordinate_list.val() },
         type: "POST",
         success: function(result){
-          $.each(result, function() {
-            if (this[0] !== null) {
-              ptll = self.createPoint(this.reverse());
-              if(!isNaN(ptll.lat())) {
-                self.addMarker(ptll);
-              } else {
-                $('#coorderror').show().delay(5000).fadeOut();
-              }
+          $.each(result, function(key,value) {
+            if(this.status === "fail") {
+              coordinate_error.append("<span>"+key+"</span>").show();
+            } else {
+              self.addMarker(self.createPoint(value.converted.reverse()));
             }
           });
           coordinate_list.val("");

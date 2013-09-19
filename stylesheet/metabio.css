@@ -17,4 +17,9 @@
   font-size:large;
   color:red;
   display:none;
+  margin:1em 0;
+}
+
+#coorderror span{
+  display:block;
 }

@@ -444,7 +444,13 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#size' => 200,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->geography) ? $form['#node']->geography : "",
-      '#prefix' => '<h3>'.t('Define extent/location of study site(s)').'</h3><p>'.t('Add geographic coordinates of each study site in the box below, one coordinate per line or add the sites directly on the map below.').'<textarea id="inputcoords"></textarea><div id="coorderror">Coordinate(s) not recognized!</div><button type="button" id="inputcoordsbut" class="metabio-button">'.t('Add to map').'</button></p><p>'.t('For points, single-click to delete. For polygons, double-click on a node to delete, click and drag to relocate.').'</p>',
+      '#prefix' => '<h3>'.t('Define extent/location of study site(s)').'</h3>
+        <p>'.t('Add geographic coordinates of each study site in the box below, one coordinate per line or add the sites directly on the map below.').'
+          <textarea id="inputcoords"></textarea>
+          <div id="coorderror">'.t('Coordinate(s) not recognized!').'</div>
+          <button type="button" id="inputcoordsbut" class="metabio-button">'.t('Add to map').'</button>
+        </p>
+        <p>'.t('For points, single-click to delete. For polygons, double-click on a node to delete, click and drag to relocate.').'</p>',
       '#suffix' => '<p>
         <button type="button" id="polybut">'.t('Add polygon').'</button>
         <button type="button" id="pointbut">'.t('Add point(s)').'</button>
@@ -631,8 +637,13 @@ function metabio_coordinate_conversion_callback($string = "") {
   $converted_coordinates = array();
   $input = ($string) ? $string : _remove_empty_lines($_POST['coordinates']);
   $coordinates = explode("\n", $input);
-  foreach($coordinates as $coordinate){
-    $converted_coordinates[] = _make_coordinates($coordinate);
+  foreach($coordinates as $coordinate) {
+    $converted = _make_coordinates($coordinate);
+    $status = (_check_coordinate($converted)) ? 'success' : 'fail';
+    $converted_coordinates[$coordinate] = array(
+      'status' => $status,
+      'converted' => $converted
+    );
   }
   drupal_json_output($converted_coordinates);
 }
@@ -673,6 +684,12 @@ function _dms_to_deg($dms) {
     $s = isset($parts[2]) ? (float)$parts[2] : 0;
     $dec = ($d + ($m/60) + ($s/3600))*$neg; 
     return $dec;
+}
+
+function _check_coordinate($coord) {
+  $output = false;
+  if($coord[0] <= 90 && $coord[0] >= -90 && $coord[1] <= 180 && $coord[1] >= -180) { $output = true; }
+  return $output;
 }
 
 ?>
