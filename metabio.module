@@ -444,9 +444,12 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#size' => 200,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->geography) ? $form['#node']->geography : "",
-      '#prefix' => '<h3>'.t('Define extent/location of study site(s)').'</h3><p>'.t('Add geographic coordinates of each study site in the box below, one coordinate per line or add the sites directly on the map below.').'<textarea id="inputcoords"></textarea><div id="coorderror" style="display:none;">Coordinate(s) not recognized!</div><button type="button" id="inputcoordsbut" class="metabio-button">'.t('Add to map').'</button></p><p>'.t('For points, single-click to delete. For polygons, double-click on a node to delete, click and drag to relocate.').'</p>',
-      '#suffix' => '<p><button type="button" id="polybut">'.t('Add polygon').'</button>
-      <button type="button" id="pointbut">'.t('Add point(s)').'</button></p>
+      '#prefix' => '<h3>'.t('Define extent/location of study site(s)').'</h3><p>'.t('Add geographic coordinates of each study site in the box below, one coordinate per line or add the sites directly on the map below.').'<textarea id="inputcoords"></textarea><div id="coorderror">Coordinate(s) not recognized!</div><button type="button" id="inputcoordsbut" class="metabio-button">'.t('Add to map').'</button></p><p>'.t('For points, single-click to delete. For polygons, double-click on a node to delete, click and drag to relocate.').'</p>',
+      '#suffix' => '<p>
+        <button type="button" id="polybut">'.t('Add polygon').'</button>
+        <button type="button" id="pointbut">'.t('Add point(s)').'</button>
+        <button type="button" id="metabio-clear">'.t('Clear all').'</button>
+      </p>
       <div id="map" width="700" height="500"></div>'
       );
 
@@ -639,15 +642,16 @@ function _remove_empty_lines($string) {
 }
 
 function _make_coordinates($point) {
-    $loc = preg_replace('/[\p{Z}\s]/u', ' ', $point);
-    $loc = trim(preg_replace('/[^\d\s,;.\-NSEWO°ºdms\'"]/i', '', $loc));
+    $loc = preg_replace('/\t/', '|', $point); //replace tabs with pipes
+    $loc = preg_replace('/[\p{Z}\s]/u', ' ', $loc); //remove all extra spaces
+    $loc = trim(preg_replace('/[^\|\d\s,;.\-NSEWO°ºdms\'"]/i', '', $loc));
     if(preg_match('/[NSEWO]/', $loc) != 0) {
-      $coord = preg_split("/[,;]/", $loc);
+      $coord = preg_split("/[\|,;]/", $loc); //split the coords by a pipe, comma, semicolon
       if (!array_key_exists(1, $coord)) { return array(null, null); }
       $coord = (preg_match('/[EWO]/', $coord[1]) != 0) ? $coord : array_reverse($coord);
       return array(_dms_to_deg(trim($coord[0])),_dms_to_deg(trim($coord[1])));
     } else {
-      return preg_split("/[\s,;]+/",$loc); //split the coords by a space, comma, semicolon
+      return preg_split("/[\|\s,;]+/",$loc); //split the coords by a pipe, space, comma, semicolon
     }
 }
 

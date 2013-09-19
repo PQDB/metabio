@@ -4,7 +4,7 @@
   Drupal.behaviors.metabio_map = {
 
     map: {}, map_center: {}, marker_icon: {}, polygon_icon: {},
-    markers: [], polygons: [],
+    markers: [], polygons: [], polygon_vertices: [],
     geography: "",
 
     attach: function() {
@@ -81,6 +81,10 @@
       $('#inputcoordsbut').click(function(e) {
         e.preventDefault();
         self.addCoordinates();
+      });
+      $('#metabio-clear').click(function(e) {
+        e.preventDefault();
+        self.clearOverlays();
       });
     },
     
@@ -167,6 +171,7 @@
       path = polygon.getPath();
 
       path.insertAt(path.length, position);
+      this.polygon_vertices.push(vertex);
       this.buildGeoJSON();
 
       this.addVertexListener(path, vertex, path.length-1, 'drag');
@@ -228,7 +233,8 @@
 
     addCoordinates: function() {
       var self = this,
-      coordinate_list = $('#inputcoords');
+          coordinate_list = $('#inputcoords'),
+          ptll = "";
 
       $.ajax({
         url: Drupal.settings.metabio_callback_base_url + "/coordinate_conversion/",
@@ -237,10 +243,10 @@
         success: function(result){
           $.each(result, function() {
             if (this[0] !== null) {
-              ptll=self.createPoint(this.reverse());
-              if(!isNaN(ptll.lat())){
+              ptll = self.createPoint(this.reverse());
+              if(!isNaN(ptll.lat())) {
                 self.addMarker(ptll);
-              }else{
+              } else {
                 $('#coorderror').show().delay(5000).fadeOut();
               }
             }
@@ -248,6 +254,27 @@
           coordinate_list.val("");
         }
       });
+    },
+    
+    clearOverlays: function() {
+      var self = this;
+      
+      $.each(this.markers, function() {
+        this.setMap(null);
+      });
+      
+      $.each(this.polygons, function() {
+        this.getPath().clear();
+      });
+      
+      $.each(this.polygon_vertices, function() {
+        this.setMap(null);
+      });
+      
+      this.markers = [];
+      this.polygons = [];
+      this.polygon_vertices = [];
+      this.geography.val("");
     }
 
   };
