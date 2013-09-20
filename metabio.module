@@ -659,12 +659,12 @@ function metabio_form_validate($form, &$form_state) {
 // Form submit handler.
 function metabio_form_submit($form, &$form_state) {
   $form_state['values']['title'] = $form_state['values']['dataset_name'];
-      foreach ($form_state['values'] as $key => $value) {
-        $fids=array();
-      if (strpos($key,"file_")!==false & $value!=0) {
-        $fids[]=$value;
-      }
+  foreach ($form_state['values'] as $key => $value) {
+    $fids=array();
+    if (strpos($key,"file_")!==false & $value!=0) {
+      $fids[]=$value;
     }
+  }
   $form_state['values']['files']=implode(';',$fids);
 }
 
@@ -765,47 +765,52 @@ function _remove_empty_lines($string) {
 }
 
 function _make_coordinates($point) {
-    $loc = preg_replace('/\t/', '|', $point); //replace tabs with pipes
-    $loc = preg_replace('/[\p{Z}\s]/u', ' ', $loc); //remove all extra spaces
-    $loc = trim(preg_replace('/[^\|\d\s,;.\-NSEWO°ºdms\'"]/i', '', $loc));
-    if(preg_match('/[NSEWO]/', $loc) != 0) {
-      $coord = preg_split("/[\|,;]/", $loc); //split the coords by a pipe, comma, semicolon
-      if (!array_key_exists(1, $coord)) { return array(null, null); }
-      $coord = (preg_match('/[EWO]/', $coord[1]) != 0) ? $coord : array_reverse($coord);
-      return array(_dms_to_deg(trim($coord[0])),_dms_to_deg(trim($coord[1])));
-    } else {
-      return preg_split("/[\|\s,;]+/",$loc); //split the coords by a pipe, space, comma, semicolon
-    }
+  $loc = preg_replace('/\t/', '|', $point); //replace tabs with pipes
+  $loc = preg_replace('/[\p{Z}\s]/u', ' ', $loc); //remove all extra spaces
+  $loc = trim(preg_replace('/[^\|\d\s,;.\-NSEWO°ºdms\'"]/i', '', $loc));
+  if(preg_match('/[NSEWO]/', $loc) != 0) {
+    $coord = preg_split("/[\|,;]/", $loc); //split the coords by a pipe, comma, semicolon
+    if (!array_key_exists(1, $coord)) { return array(null, null); }
+    $coord = (preg_match('/[EWO]/', $coord[1]) != 0) ? $coord : array_reverse($coord);
+    return array(_dms_to_deg(trim($coord[0])),_dms_to_deg(trim($coord[1])));
+  } else {
+    return preg_split("/[\|\s,;]+/",$loc); //split the coords by a pipe, space, comma, semicolon
   }
+}
 
 
-  function _dms_to_deg($dms) {
-    $dms = stripslashes($dms);
-    $neg = (preg_match('/[SWO]/i', $dms) == 0) ? 1 : -1;
-    $dms = preg_replace('/(^\s?-)|(\s?[NSEWO]\s?)/i','', $dms);
-    $pattern = "/(\\d*\\.?\\d+)(?:[°ºd: ]+)(\\d*\\.?\\d+)*(?:['m′: ])*(\\d*\\.?\\d+)*[\"s″ ]?/i";
-    $parts = preg_split($pattern, $dms, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-    if (!$parts) { return; }
-    // parts: 0 = degree, 1 = minutes, 2 = seconds
-    $d = isset($parts[0]) ? (float)$parts[0] : 0;
-    $m = isset($parts[1]) ? (float)$parts[1] : 0;
-    if(strpos($dms, ".") > 1 && isset($parts[2])) {
-      $m = (float)($parts[1] . '.' . $parts[2]);
-      unset($parts[2]);
-    }
-    $s = isset($parts[2]) ? (float)$parts[2] : 0;
-    $dec = ($d + ($m/60) + ($s/3600))*$neg; 
-    return $dec;
+function _dms_to_deg($dms) {
+  $dms = stripslashes($dms);
+  $neg = (preg_match('/[SWO]/i', $dms) == 0) ? 1 : -1;
+  $dms = preg_replace('/(^\s?-)|(\s?[NSEWO]\s?)/i','', $dms);
+  $pattern = "/(\\d*\\.?\\d+)(?:[°ºd: ]+)(\\d*\\.?\\d+)*(?:['m′: ])*(\\d*\\.?\\d+)*[\"s″ ]?/i";
+  $parts = preg_split($pattern, $dms, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+  if (!$parts) { return; }
+  // parts: 0 = degree, 1 = minutes, 2 = seconds
+  $d = isset($parts[0]) ? (float)$parts[0] : 0;
+  $m = isset($parts[1]) ? (float)$parts[1] : 0;
+  if(strpos($dms, ".") > 1 && isset($parts[2])) {
+    $m = (float)($parts[1] . '.' . $parts[2]);
+    unset($parts[2]);
   }
+  $s = isset($parts[2]) ? (float)$parts[2] : 0;
+  $dec = ($d + ($m/60) + ($s/3600))*$neg; 
+  return $dec;
+}
 
-  function _check_coordinate($coord) {
-    $output = false;
-    if(is_numeric($coord[0]) && is_numeric($coord[1]) && $coord[0] <= 90 && $coord[0] >= -90 && $coord[1] <= 180 && $coord[1] >= -180) { $output = true; }
-    return $output;
-  }
+function _check_coordinate($coord) {
+  $output = false;
+  if(is_numeric($coord[0])
+    && is_numeric($coord[1])
+    && $coord[0] <= 90 
+    && $coord[0] >= -90 
+    && $coord[1] <= 180 
+    && $coord[1] >= -180) { $output = true; }
+  return $output;
+}
 
-  function ajax_addfiles_callback($form, $form_state) {
-    return $form['filesfield']['filelist'];
-  }
+function ajax_addfiles_callback($form, $form_state) {
+  return $form['filesfield']['filelist'];
+}
 
-  ?>
+?>
