@@ -623,7 +623,11 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         '#size' => 22,
         '#default_value' => isset($filesindb[$i]) ? $filesindb[$i] : "",
         '#upload_location' => 'public://metabio_files/',
-        );
+        '#upload_validators' => array(
+          'file_validate_extensions' => array('gif png jpg jpeg pdf xls xlsx doc docx csv csvt odf'),
+          // Pass the maximum file size in bytes
+        ),
+      );
     }
 
     $form['filesfield']['addnewfile'] = array(
@@ -698,6 +702,7 @@ function metabio_delete($node) {
 }
 
 function metabio_load($nodes) {
+  variable_set('file_extensions', '');
   if($nodes[key($nodes)]->type=='metabio'){
     $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
     foreach($result as $record) {
