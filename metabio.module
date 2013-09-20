@@ -118,15 +118,17 @@ function metabio_theme($existing, $type, $theme, $path) {
 
 function template_preprocess_metabio(&$variables) {
   $data = $variables['elements']['#metabio'];
-  $variables['geography'] = theme('metabio_geography', $data);
+  foreach (element_children($data) as $key) {
+    $variables['content'][$key] = $data[$key];
+  }
 }
 
-function theme_metabio_geography($variables) {
+function theme_metabio_geography($content) {
   drupal_add_js('http://maps.google.com/maps/api/js?sensor=false');
   drupal_add_js(base_path().drupal_get_path('module', 'metabio') . '/javascript/metabio.map.js');
   drupal_add_js(array('metabio_mode' => 'view'), 'setting');
-  $output  = '<div id="map" width="700" height="500"></div>';
-  $output .= '<input name="geography" value="' . htmlentities($variables['geography']) . '" style="display:none;"></input>';
+  $output = '<div id="map" width="700" height="500"></div>';
+  $output .= '<input name="geography" value="' . htmlentities($content['content']) . '" style="display:none;"></input>';
   return $output;
 }
 
