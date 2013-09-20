@@ -603,9 +603,11 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       );
 
     $numuploads = 0;
-    foreach ($form_state['values'] as $key => $value) {
-      if (strpos($key,"file_")!==false) {
+    if(array_key_exists('values',$form_state)){
+      foreach ($form_state['values'] as $key => $value) {
+        if (strpos($key,"file_")!==false) {
         $numuploads++;
+        }
       }
     }
 
