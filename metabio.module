@@ -638,7 +638,6 @@ $js_files = array(
   $module_path . '/javascript/metabio.taxonomy.js',
   );
 $form['#attached']['js'] = $js_files;
-
 $form['#validate'][] = 'metabio_form_validate';
 $form['#submit'][] = 'metabio_form_submit';
 }
@@ -654,31 +653,18 @@ function metabio_form_validate($form, &$form_state) {
 // Form submit handler.
 function metabio_form_submit($form, &$form_state) {
   $form_state['values']['title'] = $form_state['values']['dataset_name'];
-<<<<<<< HEAD
       foreach ($form_state['values'] as $key => $value) {
+        $fids=array();
       if (strpos($key,"file_")!==false & $value!=0) {
         $fids[]=$value;
       }
     }
   $form_state['values']['files']=implode(';',$fids);
-=======
-  $fids = array();
-  foreach ($form_state['values'] as $key => $value) {
-      if (strpos($key,"file_") !== false & $value != 0) {
-          $file = file_load($value);
-          $file->status = FILE_STATUS_PERMANENT;
-          file_save($file);
-          $fids[] = $value;
-      }
-  }
-  $form_state['values']['files'] = implode(';',$fids);
->>>>>>> 977ad6e41fe952e57d732d7b8548088ebece2614
 }
 
 
 function metabio_insert($node) {
   if($node->type=='metabio'){
-    $fids=[];
     foreach ($node as $key => $value) {
       if (strpos($key,"file_")!==false & $value!=0) {
         $file = file_load($value);
@@ -710,7 +696,7 @@ function metabio_load($nodes) {
       foreach($GLOBALS['metabio_dataset_fields'] as $field) {
         if ($field !== "geography" && is_array(json_decode($record->{$field},true))){ 
           $nodes[$record->nid]->metabio[$field] = array_keys(json_decode($record->{$field},true));
-        } else {
+        } else{
           $nodes[$record->nid]->metabio[$field] = $record->{$field};
         }
       }
@@ -724,7 +710,7 @@ function _metabio_fields($node) {
     if(is_array($node->$field)){
       $tmp = array_filter($node->$field);
       $fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
-    } else {
+    }else{
       $fields[$field] = $node->$field;
     }
   }
