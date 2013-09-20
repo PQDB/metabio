@@ -42,15 +42,15 @@
       $.each(geojson.features, function() {
         switch (this.geometry.type) {
           case 'Point':
-          self.addMarker(self.createPoint(this.geometry.coordinates));
+            self.addMarker(self.createPoint(this.geometry.coordinates));
           break;
 
           case 'Polygon':
-          polygon = self.createPolygon();
-          this.geometry.coordinates[0].pop();
-          $.each(this.geometry.coordinates[0], function() {
-            self.addVertex(polygon, self.createPoint(this));
-          });
+            polygon = self.createPolygon();
+            this.geometry.coordinates[0].pop();
+            $.each(this.geometry.coordinates[0], function() {
+              self.addVertex(polygon, self.createPoint(this));
+            });
           break;
         }
       });
@@ -150,16 +150,16 @@
       
       switch(type) {
         case 'Point':
-        coords.push(data.position.lng());
-        coords.push(data.position.lat());
+          coords.push(data.position.lng());
+          coords.push(data.position.lat());
         break;
         
         case 'Polygon':
-        coords.push([]);
-        $.each(data, function() {
-          coords[0].push([this.lng(), this.lat()]);
-        });
-        coords[0].push([data[0].lng(), data[0].lat()]);
+          coords.push([]);
+          $.each(data, function() {
+            coords[0].push([this.lng(), this.lat()]);
+          });
+          coords[0].push([data[0].lng(), data[0].lat()]);
         break;
       }
 
@@ -174,8 +174,11 @@
       this.polygon_vertices.push(vertex);
       this.buildGeoJSON();
 
-      this.addVertexListener(path, vertex, path.length-1, 'drag');
-      this.addVertexListener(path, vertex, path.length-1, 'dblclick');
+      if(this.isEditMode()) {
+        this.addVertexListener(path, vertex, path.length-1, 'drag');
+        this.addVertexListener(path, vertex, path.length-1, 'dblclick');
+      }
+
     },
 
     addVertexListener: function(path, vertex, index, type) {
@@ -201,11 +204,11 @@
 
     createMarker: function(position, icon) {
       return new google.maps.Marker({
-       position: position,
-       map: this.map,
-       draggable: true,
-       icon: icon
-     });
+        position: position,
+        map: this.map,
+        draggable: (this.isEditMode()) ? true : false,
+        icon: icon
+      });
     },
 
     addMarker: function(position) {
@@ -214,7 +217,10 @@
       marker = this.createMarker(position, this.marker_icon);
       this.markers.push(marker);
       this.buildGeoJSON();
-      this.addMarkerListener(marker);
+      
+      if(this.isEditMode()) {
+        this.addMarkerListener(marker);
+      }
     },
 
     addMarkerListener: function(marker) {
@@ -273,6 +279,14 @@
       this.polygons = [];
       this.polygon_vertices = [];
       this.geography.val("");
+    },
+    
+    isEditMode: function() {
+      if(Drupal.settings.hasOwnProperty('metabio_mode') && Drupal.settings.metabio_mode === 'edit') {
+        return true;
+      } else {
+        return false;
+      }
     }
 
   };
