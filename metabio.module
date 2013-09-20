@@ -655,16 +655,16 @@ function metabio_form_validate($form, &$form_state) {
 // Form submit handler.
 function metabio_form_submit($form, &$form_state) {
   $form_state['values']['title'] = $form_state['values']['dataset_name'];
-  $fids=[];
+  $fids = array();
   foreach ($form_state['values'] as $key => $value) {
-      if (strpos($key,"file_")!==false & $value!=0) {
+      if (strpos($key,"file_") !== false & $value != 0) {
           $file = file_load($value);
           $file->status = FILE_STATUS_PERMANENT;
           file_save($file);
-          $fids[]=$value;
+          $fids[] = $value;
       }
   }
-  $form_state['values']['files']=implode(';',$fids);
+  $form_state['values']['files'] = implode(';',$fids);
 }
 
 
@@ -693,7 +693,7 @@ function metabio_load($nodes) {
       foreach($GLOBALS['metabio_dataset_fields'] as $field) {
         if ($field !== "geography" && is_array(json_decode($record->{$field},true))){ 
           $nodes[$record->nid]->metabio[$field] = array_keys(json_decode($record->{$field},true));
-        } else{
+        } else {
           $nodes[$record->nid]->metabio[$field] = $record->{$field};
         }
       }
@@ -707,7 +707,7 @@ function _metabio_fields($node) {
     if(is_array($node->$field)){
       $tmp = array_filter($node->$field);
       $fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
-    }else{
+    } else {
       $fields[$field] = $node->$field;
     }
   }
