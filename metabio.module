@@ -163,7 +163,7 @@ function theme_metabio_contact($content) {
   $output .= '<li>' . $content['content']['overview']['data_holder_address'] . '</li>';
   $output .= '<li>' . $content['content']['overview']['data_holder_phone'] . '</li>';
   $output .= '<li>' . $content['content']['overview']['data_holder_email'] . '</li>';
-  $output .= '</li>';
+  $output .= '</ul>';
   $output .= '</div>';
   return $output;
 }
