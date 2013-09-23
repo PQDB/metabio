@@ -1,43 +1,56 @@
 <?php
 $GLOBALS['metabio_dataset_fields'] = array(
-  'dataset_name', 
-  'dataset_description', 
-  'data_collector', 
-  'data_holder_first_name',
-  'data_holder_last_name',
-  'data_holder_institution',
-  'data_holder_email',
-  'data_holder_phone',
-  'data_holder_address',
-  'other_institutions',
-  'funding_sources',
-  'dataset_format',
-  'responsible_person',
-  'additional_comments',
-  'taxa_studied',
-  'taxonomic_information', 
-  'taxonomic_details',
-  'study_design',
-  'study_status',
-  'sampling_approaches',
-  'study_goals',
-  'data_types',
-  'frequency_of_sampling',
-  'first_year',
-  'last_year',
-  'number_of_sites',
-  'site_description',
-  'site_habitat',
-  'site_environment',
-  'location_name',
-  'geography',
-  'publications_types',
-  'publications',
-  'publications_hyperlinks',
-  'publications_dois',
-  'collections',
-  'files',
-  );
+  'overview' => array(
+    'dataset_name',
+    'dataset_description',
+    'data_collector', 
+    'data_holder_first_name',
+    'data_holder_last_name',
+    'data_holder_institution',
+    'data_holder_email',
+    'data_holder_phone',
+    'data_holder_address',
+    'other_institutions',
+    'funding_sources',
+    'dataset_format',
+    'responsible_person',
+    'additional_comments'
+  ),
+  'biology' => array(
+    'taxa_studied',
+    'taxonomic_information', 
+    'taxonomic_details'
+  ),
+  'study_details' => array(
+    'study_design',
+    'study_status',
+    'sampling_approaches',
+    'study_goals',
+    'data_types',
+    'frequency_of_sampling',
+    'first_year',
+    'last_year'
+  ),
+  'site_details' => array(
+    'number_of_sites',
+    'site_description',
+    'site_habitat',
+    'site_environment',
+    'location_name',
+    'geography'
+  ),
+  'citations' => array(
+    'publications_types',
+    'publications',
+    'publications_hyperlinks',
+    'publications_dois',
+    'specimens',
+    'collections'
+  ),
+  'files' => array(
+    'files'
+  )
+);
 
 /**
  * Implements hook_node_info().
@@ -110,6 +123,10 @@ function metabio_theme($existing, $type, $theme, $path) {
     'render element' => 'elements',
     'path' => $path . '/templates',
     );
+  
+  $info['metabio_contact'] = array(
+    'render element' => 'element'
+  );
 
   $info['metabio_geography'] = array(
     'render element' => 'element'
@@ -120,8 +137,11 @@ function metabio_theme($existing, $type, $theme, $path) {
 
 function template_preprocess_metabio(&$variables) {
   $data = $variables['elements']['#metabio'];
-  foreach (element_children($data) as $key) {
-    $variables['content'][$key] = $data[$key];
+  foreach ($data as $section => $fields) {
+    foreach($fields as $key => $value) {
+      $value = ($key === 'geography') ? $data[$section][$key] : check_plain($data[$section][$key]);
+      $variables['content'][$section][$key] = $value;
+    }
   }
 }
 
@@ -129,8 +149,22 @@ function theme_metabio_geography($content) {
   drupal_add_js('http://maps.google.com/maps/api/js?sensor=false');
   drupal_add_js(base_path().drupal_get_path('module', 'metabio') . '/javascript/metabio.map.js');
   drupal_add_js(array('metabio_mode' => 'view'), 'setting');
-  $output = '<div id="map" width="700" height="500"></div>';
+  $output  = '<div id="map" width="700" height="500"></div>';
   $output .= '<input name="geography" value="' . htmlentities($content['content']) . '" style="display:none;"></input>';
+  return $output;
+}
+
+function theme_metabio_contact($content) {
+  $output  = '<div class="metabio-contact">';
+  $output .= '<h3 class="metabio-subsection-heading">' . t('Contact') . '</h3>';
+  $output .= '<ul>';
+  $output .= '<li>' . $content['content']['overview']['data_holder_first_name'] . " " . $content['content']['data_holder_last_name'] . '</li>';
+  $output .= '<li>' . $content['content']['overview']['data_holder_institution'] . '</li>';
+  $output .= '<li>' . $content['content']['overview']['data_holder_address'] . '</li>';
+  $output .= '<li>' . $content['content']['overview']['data_holder_phone'] . '</li>';
+  $output .= '<li>' . $content['content']['overview']['data_holder_email'] . '</li>';
+  $output .= '</li>';
+  $output .= '</div>';
   return $output;
 }
 
@@ -155,7 +189,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['dataset_name']) ? $form['#node']->metabio['dataset_name'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['dataset_name']) ? $form['#node']->metabio['overview']['dataset_name'] : ""
       );
 
     $form['overview']['dataset_description'] = array(
@@ -164,7 +198,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['dataset_description']) ? $form['#node']->metabio['dataset_description'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['dataset_description']) ? $form['#node']->metabio['overview']['dataset_description'] : ""
       );
 
     $form['overview']['data_collector'] = array(
@@ -172,7 +206,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['data_collector']) ? $form['#node']->metabio['data_collector'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['data_collector']) ? $form['#node']->metabio['overview']['data_collector'] : ""
       );
     
     $form['overview']['data_holder_contact'] = array(
@@ -188,7 +222,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#required' => FALSE,
       '#title_display' => 'invisible',
       '#field_prefix' => t('First name'),
-      '#default_value' => isset($form['#node']->metabio['data_holder_first_name']) ? $form['#node']->metabio['data_holder_first_name'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_first_name']) ? $form['#node']->metabio['overview']['data_holder_first_name'] : ""
       );
 
     $form['overview']['data_holder_contact']['data_holder_last_name'] = array(
@@ -198,7 +232,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#required' => FALSE,
       '#title_display' => 'invisible',
       '#field_prefix' => t('Last name'),
-      '#default_value' => isset($form['#node']->metabio['data_holder_last_name']) ? $form['#node']->metabio['data_holder_last_name'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_last_name']) ? $form['#node']->metabio['overview']['data_holder_last_name'] : ""
       );
 
     $form['overview']['data_holder_contact']['data_holder_institution'] = array(
@@ -208,7 +242,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#required' => FALSE,
       '#title_display' => 'invisible',
       '#field_prefix' => t('Institution'),
-      '#default_value' => isset($form['#node']->metabio['data_holder_institution']) ? $form['#node']->metabio['data_holder_institution'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_institution']) ? $form['#node']->metabio['overview']['data_holder_institution'] : ""
       );
 
     $form['overview']['data_holder_contact']['data_holder_email'] = array(
@@ -218,7 +252,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#required' => FALSE,
       '#title_display' => 'invisible',
       '#field_prefix' => t('Email'),
-      '#default_value' => isset($form['#node']->metabio['data_holder_email']) ? $form['#node']->metabio['data_holder_email'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_email']) ? $form['#node']->metabio['overview']['data_holder_email'] : ""
       );
 
     $form['overview']['data_holder_contact']['data_holder_phone'] = array(
@@ -228,7 +262,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#required' => FALSE,
       '#title_display' => 'invisible',
       '#field_prefix' => t('Phone'),
-      '#default_value' => isset($form['#node']->metabio['data_holder_phone']) ? $form['#node']->metabio['data_holder_phone'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_phone']) ? $form['#node']->metabio['overview']['data_holder_phone'] : ""
       );
 
     $form['overview']['data_holder_contact']['data_holder_address'] = array(
@@ -238,7 +272,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#required' => FALSE,
       '#title_display' => 'invisible',
       '#field_prefix' => t('Address'),
-      '#default_value' => isset($form['#node']->metabio['data_holder_address']) ? $form['#node']->metabio['data_holder_address'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_address']) ? $form['#node']->metabio['overview']['data_holder_address'] : ""
       );
 
     $form['overview']['other_institutions'] = array(
@@ -247,7 +281,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['other_institutions']) ? $form['#node']->metabio['other_institutions'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['other_institutions']) ? $form['#node']->metabio['overview']['other_institutions'] : ""
       );
 
     $form['overview']['funding_sources'] = array(
@@ -256,7 +290,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['funding_sources']) ? $form['#node']->metabio['funding_sources'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['funding_sources']) ? $form['#node']->metabio['overview']['funding_sources'] : ""
       );
 
     $form['overview']['dataset_format'] = array(
@@ -265,7 +299,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['dataset_format']) ? $form['#node']->metabio['dataset_format'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['dataset_format']) ? $form['#node']->metabio['overview']['dataset_format'] : ""
       );
 
     $form['overview']['responsible_person'] = array(
@@ -273,7 +307,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['responsible_person']) ? $form['#node']->metabio['responsible_person'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['responsible_person']) ? $form['#node']->metabio['overview']['responsible_person'] : ""
       );
 
     $form['overview']['additional_comments'] = array(
@@ -282,7 +316,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['additional_comments']) ? $form['#node']->metabio['additional_comments'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['additional_comments']) ? $form['#node']->metabio['overview']['additional_comments'] : ""
       );
 
     $form['biology'] = array(
@@ -298,7 +332,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 100,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['taxa_studied']) ? $form['#node']->metabio['taxa_studied'] : ""
+      '#default_value' => isset($form['#node']->metabio['biology']['taxa_studied']) ? $form['#node']->metabio['biology']['taxa_studied'] : ""
       );
 
     $form['biology']['taxonomic_information'] = array(
@@ -320,13 +354,13 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         13 => t('Unicellular organisms'),
         14 => t('Bacteria')
         ),
-      '#default_value' => isset($form['#node']->metabio['taxonomic_information']) && is_array($form['#node']->metabio['taxonomic_information']) ? $form['#node']->metabio['taxonomic_information'] : array()
+      '#default_value' => isset($form['#node']->metabio['biology']['taxonomic_information']) && is_array($form['#node']->metabio['biology']['taxonomic_information']) ? $form['#node']->metabio['biology']['taxonomic_information'] : array()
       );
 
     $form['biology']['taxonomic_details'] = array(
       '#type' => 'hidden',
       '#prefix' => '<h3>'.t('Taxonomic Details').'</h3>',
-      '#default_value' => isset($form['#node']->metabio['taxonomic_details']) ? $form['#node']->metabio['taxonomic_details'] : "",
+      '#default_value' => isset($form['#node']->metabio['biology']['taxonomic_details']) ? $form['#node']->metabio['biology']['taxonomic_details'] : "",
       );
 
 
@@ -353,7 +387,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['study_design']) ? $form['#node']->metabio['study_design'] : ""
+      '#default_value' => isset($form['#node']->metabio['study_details']['study_design']) ? $form['#node']->metabio['study_details']['study_design'] : ""
       );
 
     $form['study_details']['study_status'] = array(
@@ -363,7 +397,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         0 => t('Ongoing'), 
         1 => t('Complete')
         ),
-      '#default_value' => isset($form['#node']->metabio['study_status']) ? $form['#node']->metabio['study_status'] : ""
+      '#default_value' => isset($form['#node']->metabio['study_details']['study_status']) ? $form['#node']->metabio['study_details']['study_status'] : ""
       );
 
     $form['study_details']['sampling_approaches'] = array(
@@ -376,7 +410,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         4 => t('Passive sampling (e.g. insect or mammal traps)'),
         5 => t('Remote sensing')
         ),
-      '#default_value' => isset($form['#node']->metabio['sampling_approaches']) && is_array($form['#node']->metabio['sampling_approaches']) ? $form['#node']->metabio['sampling_approaches'] : array()
+      '#default_value' => isset($form['#node']->metabio['study_details']['sampling_approaches']) && is_array($form['#node']->metabio['study_details']['sampling_approaches']) ? $form['#node']->metabio['study_details']['sampling_approaches'] : array()
       );
 
     $form['study_details']['study_goals'] = array(
@@ -392,7 +426,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         7 => t('Partial inventory'),
         8 => t('Single species')
         ),
-      '#default_value' => isset($form['#node']->metabio['study_goals']) && is_array($form['#node']->metabio['study_goals']) ? $form['#node']->metabio['study_goals'] : array()
+      '#default_value' => isset($form['#node']->metabio['study_details']['study_goals']) && is_array($form['#node']->metabio['study_details']['study_goals']) ? $form['#node']->metabio['study_details']['study_goals'] : array()
       );
 
     $form['study_details']['data_types'] = array(
@@ -408,7 +442,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         7 => t('Genetics'),
         8 => t('Other')
         ),
-      '#default_value' => isset($form['#node']->metabio['data_types']) && is_array($form['#node']->metabio['data_types']) ? $form['#node']->metabio['data_types'] : array()
+      '#default_value' => isset($form['#node']->metabio['study_details']['data_types']) && is_array($form['#node']->metabio['study_details']['data_types']) ? $form['#node']->metabio['study_details']['data_types'] : array()
       );
 
     $form['study_details']['frequency_of_sampling'] = array(
@@ -417,7 +451,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['frequency_of_sampling']) ? $form['#node']->metabio['frequency_of_sampling'] : ""
+      '#default_value' => isset($form['#node']->metabio['study_details']['frequency_of_sampling']) ? $form['#node']->metabio['study_details']['frequency_of_sampling'] : ""
       );
 
     $form['study_details']['first_year'] = array(
@@ -428,7 +462,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#date_year_range' => '-100:0',
       '#required' => FALSE,
       '#date_label_position' => 'within',
-      '#default_value' => isset($form['#node']->metabio['first_year']) ? $form['#node']->metabio['first_year'] : ""
+      '#default_value' => isset($form['#node']->metabio['study_details']['first_year']) ? $form['#node']->metabio['study_details']['first_year'] : ""
       );
 
     $form['study_details']['last_year'] = array(
@@ -439,7 +473,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#date_year_range' => '-100:0',
       '#required' => FALSE,
       '#date_label_position' => 'within',
-      '#default_value' => isset($form['#node']->metabio['last_year']) ? $form['#node']->metabio['last_year'] : ""
+      '#default_value' => isset($form['#node']->metabio['study_details']['last_year']) ? $form['#node']->metabio['study_details']['last_year'] : ""
       );
 
     $form['site_details'] = array(
@@ -455,7 +489,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 100,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['number_of_sites']) ? $form['#node']->metabio['number_of_sites'] : ""
+      '#default_value' => isset($form['#node']->metabio['site_details']['number_of_sites']) ? $form['#node']->metabio['site_details']['number_of_sites'] : ""
       );
 
     $form['site_details']['site_description'] = array(
@@ -464,7 +498,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['site_description']) ? $form['#node']->metabio['site_description'] : ""
+      '#default_value' => isset($form['#node']->metabio['site_details']['site_description']) ? $form['#node']->metabio['site_details']['site_description'] : ""
       );
 
     $form['site_details']['site_habitat'] = array(
@@ -473,7 +507,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['site_habitat']) ? $form['#node']->metabio['site_habitat'] : ""
+      '#default_value' => isset($form['#node']->metabio['site_details']['site_habitat']) ? $form['#node']->metabio['site_details']['site_habitat'] : ""
       );
 
     $form['site_details']['site_environment'] = array(
@@ -486,7 +520,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         4 => t('Aerial')
         ),
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['site_environment']) && is_array($form['#node']->metabio['site_environment']) ? $form['#node']->metabio['site_environment'] : array()
+      '#default_value' => isset($form['#node']->metabio['site_details']['site_environment']) && is_array($form['#node']->metabio['site_details']['site_environment']) ? $form['#node']->metabio['site_environment'] : array()
       );
 
     $form['site_details']['location_name'] = array(
@@ -494,7 +528,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 100,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['location_name']) ? $form['#node']->metabio['location_name'] : ""
+      '#default_value' => isset($form['#node']->metabio['site_details']['location_name']) ? $form['#node']->metabio['site_details']['location_name'] : ""
       );
 
     $form['site_details']['geography'] = array(
@@ -502,7 +536,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'hidden',
       '#size' => 200,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['geography']) ? $form['#node']->metabio['geography'] : "",
+      '#default_value' => isset($form['#node']->metabio['site_details']['geography']) ? $form['#node']->metabio['site_details']['geography'] : "",
       '#prefix' => '<h3>'.t('Define extent/location of study site(s)').'</h3>
         <p>'.t('Add geographic coordinates of each study site in the box below, one coordinate per line or add the sites directly on the map below.').'
           <textarea id="inputcoords"></textarea>
@@ -536,7 +570,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         4 => t('Unpublished'),
         5 => t('Database')
         ),
-      '#default_value' => isset($form['#node']->metabio['publications_types']) && is_array($form['#node']->metabio['publications_types']) ? $form['#node']->metabio['publications_types'] : array()
+      '#default_value' => isset($form['#node']->metabio['citations']['publications_types']) && is_array($form['#node']->metabio['citations']['publications_types']) ? $form['#node']->metabio['citations']['publications_types'] : array()
       );
 
     $form['citations']['publications'] = array(
@@ -545,7 +579,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['publications']) ? $form['#node']->metabio['publications'] : ""
+      '#default_value' => isset($form['#node']->metabio['citations']['publications']) ? $form['#node']->metabio['citations']['publications'] : ""
       );
 
     $form['citations']['publications_hyperlinks'] = array(
@@ -554,7 +588,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['publications_hyperlinks']) ? $form['#node']->metabio['publications_hyperlinks'] : ""
+      '#default_value' => isset($form['#node']->metabio['citations']['publications_hyperlinks']) ? $form['#node']->metabio['citations']['publications_hyperlinks'] : ""
       );
 
     $form['citations']['publications_dois'] = array(
@@ -563,7 +597,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#cols' => 50,
       '#rows' => 6,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['publications_dois']) ? $form['#node']->metabio['publications_dois'] : ""
+      '#default_value' => isset($form['#node']->metabio['citations']['publications_dois']) ? $form['#node']->metabio['citations']['publications_dois'] : ""
       );
 
     $form['citations']['specimens'] = array(
@@ -574,7 +608,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         2 => t('Specimens not in a known collection'),
         3 => t('No specimens collected')
         ),
-      '#default_value' => isset($form['#node']->metabio['specimens']) ? $form['#node']->metabio['specimens'] : array()
+      '#default_value' => isset($form['#node']->metabio['citations']['specimens']) ? $form['#node']->metabio['citations']['specimens'] : array()
       );
 
     $form['citations']['collections'] = array(
@@ -582,7 +616,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textarea',
       '#rows' => 6,
       '#cols' => 50,
-      '#default_value' => isset($form['#node']->metabio['collections']) ? $form['#node']->metabio['collections'] : array()
+      '#default_value' => isset($form['#node']->metabio['citations']['collections']) ? $form['#node']->metabio['citations']['collections'] : array()
       );
 
     $form['filesfield'] = array(
@@ -611,8 +645,8 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       }
     }
 
-    if (isset($form['#node']->metabio['files']) && $numuploads == 0){
-      $filesindb = explode(';',$form['#node']->metabio['files']);
+    if (isset($form['#node']->metabio['files']['files']) && $numuploads == 0){
+      $filesindb = explode(';',$form['#node']->metabio['files']['files']);
       $numuploads = count($filesindb);
     }
 
@@ -706,11 +740,13 @@ function metabio_load($nodes) {
   if($nodes[key($nodes)]->type=='metabio'){
     $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
     foreach($result as $record) {
-      foreach($GLOBALS['metabio_dataset_fields'] as $field) {
-        if ($field !== "geography" && is_array(json_decode($record->{$field},true))){ 
-          $nodes[$record->nid]->metabio[$field] = array_keys(json_decode($record->{$field},true));
-        } else{
-          $nodes[$record->nid]->metabio[$field] = $record->{$field};
+      foreach($GLOBALS['metabio_dataset_fields'] as $group => $fields) {
+        foreach($fields as $field) {
+          if ($field !== "geography" && is_array(json_decode($record->{$field},true))){ 
+            $nodes[$record->nid]->metabio[$group][$field] = array_keys(json_decode($record->{$field},true));
+          } else{
+            $nodes[$record->nid]->metabio[$group][$field] = $record->{$field};
+          }
         }
       }
     }
@@ -718,16 +754,18 @@ function metabio_load($nodes) {
 }
 
 function _metabio_fields($node) {
-  $fields = array();
-  foreach($GLOBALS['metabio_dataset_fields'] as $field) {
-    if(is_array($node->$field)){
-      $tmp = array_filter($node->$field);
-      $fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
-    } else {
-      $fields[$field] = $node->$field;
+  $db_fields = array();
+  foreach($GLOBALS['metabio_dataset_fields'] as $group => $fields) {
+    foreach($fields as $field) {
+      if(is_array($node->$field)){
+        $tmp = array_filter($node->$field);
+        $db_fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
+      } else {
+        $db_fields[$field] = $node->$field;
+      }
     }
   }
-  return $fields;
+  return $db_fields;
 }
 
 function metabio_taxo_autocomplete_callback($string = "") {

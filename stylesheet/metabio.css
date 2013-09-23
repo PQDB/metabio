@@ -1,3 +1,19 @@
+#content .metabio-section-header {
+  border-bottom:1px solid #aaa;margin-top:1em;padding:0;
+}
+#content .metabio-section-header h2 {
+  border-bottom:2px solid #bbb;margin:0;width:20em;padding:0;
+}
+#content span.metabio-field-header {
+  font-weight:bold;
+}
+#content .metabio-subsection-heading {
+}
+
+#content .metabio-contact{
+}
+
+
 #inputcoords{
   width:300px;
   height:200px;

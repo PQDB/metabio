@@ -153,6 +153,10 @@ function metabio_schema() {
         'description' => 'Collections information',
         'type' => 'varchar',
         'length' => 255),
+      'specimens' => array(
+        'description' => 'Specimens',
+        'type' => 'varchar',
+        'length' => 255),
       'files' => array(
         'description' => 'Comma separated list of file urls',
         'type' => 'text'),
@@ -196,9 +200,11 @@ function metabio_schema() {
   return $schema;
 }
 
-
+/**
+ * Implements hook_install().
+ */
+function flexslider_install() {
 /*
-function metabio_install(){
   module_load_include('inc', 'taxonomy_csv','import/taxonomy_csv.import.api');
     ini_set("memory_limit","200M");
     $csv_lines = file_get_contents(drupal_get_path('module','metabio').'/ITIS.csv');
@@ -209,12 +215,20 @@ function metabio_install(){
         'enclosure'        => '"',
         'source_choice'    => 'text',
       ));
+*/
 }
 
-*/
-function metabio_disable(){
-    $del = db_delete('system')->condition('name','metabio')->execute();
-    $del = db_delete('metabio_dataset')->execute();
+/**
+ * Implements hook_uninstall().
+ */
+function metabio_uninstall() {
+  $results = db_select('node', 'n')->fields('n', array('nid'))->condition('type', 'metabio' ,'=')->execute()->fetchAll();
+  foreach($results as $result) {
+    node_delete($result->nid);
+  }
+  db_drop_table('metabio_dataset');
+  node_types_rebuild();
+  menu_rebuild();
 }
 
 ?>
