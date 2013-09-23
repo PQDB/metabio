@@ -605,7 +605,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $numuploads = 0;
     if(array_key_exists('values',$form_state)){
       foreach ($form_state['values'] as $key => $value) {
-        if (strpos($key,"file_")!==false) {
+        if (strpos($key,"file_") !== false) {
         $numuploads++;
         }
       }
@@ -615,6 +615,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       $filesindb = explode(';',$form['#node']->metabio['files']);
       $numuploads = count($filesindb);
     }
+
     for ($i=0; $i<=$numuploads; $i++){
       $form['filesfield']['filelist']['file_'.$i]= array(
         '#title' => t('Choose a file'),
@@ -665,20 +666,20 @@ function metabio_form_validate($form, &$form_state) {
 // Form submit handler.
 function metabio_form_submit($form, &$form_state) {
   $form_state['values']['title'] = $form_state['values']['dataset_name'];
+  $fids = array();
   foreach ($form_state['values'] as $key => $value) {
-    $fids=array();
-    if (strpos($key,"file_")!==false & $value!=0) {
-      $fids[]=$value;
+    if (strpos($key, "file_") !== false && $value !== 0) {
+      $fids[] = $value;
     }
   }
-  $form_state['values']['files']=implode(';',$fids);
+  $form_state['values']['files'] = implode(';', $fids);
 }
 
 
 function metabio_insert($node) {
   if($node->type=='metabio'){
     foreach ($node as $key => $value) {
-      if (strpos($key,"file_")!==false & $value!=0) {
+      if (strpos($key,"file_") !== false && $value !== 0) {
         $file = file_load($value);
         $file->status = FILE_STATUS_PERMANENT;
         file_save($file);
@@ -702,7 +703,6 @@ function metabio_delete($node) {
 }
 
 function metabio_load($nodes) {
-  variable_set('file_extensions', '');
   if($nodes[key($nodes)]->type=='metabio'){
     $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
     foreach($result as $record) {
@@ -723,7 +723,7 @@ function _metabio_fields($node) {
     if(is_array($node->$field)){
       $tmp = array_filter($node->$field);
       $fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
-    }else{
+    } else {
       $fields[$field] = $node->$field;
     }
   }
