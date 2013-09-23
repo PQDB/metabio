@@ -520,7 +520,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         4 => t('Aerial')
         ),
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['site_details']['site_environment']) && is_array($form['#node']->metabio['site_details']['site_environment']) ? $form['#node']->metabio['site_environment'] : array()
+      '#default_value' => isset($form['#node']->metabio['site_details']['site_environment']) && is_array($form['#node']->metabio['site_details']['site_environment']) ? $form['#node']->metabio['site_details']['site_environment'] : array()
       );
 
     $form['site_details']['location_name'] = array(
@@ -608,7 +608,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         2 => t('Specimens not in a known collection'),
         3 => t('No specimens collected')
         ),
-      '#default_value' => isset($form['#node']->metabio['citations']['specimens']) ? $form['#node']->metabio['citations']['specimens'] : array()
+      '#default_value' => isset($form['#node']->metabio['citations']['specimens']) && is_array($form['#node']->metabio['citations']['specimens']) ? $form['#node']->metabio['citations']['specimens'] : array()
       );
 
     $form['citations']['collections'] = array(
