@@ -18,12 +18,15 @@ function metabio_schema() {
         'description' => 'The foreign key for the node',
         'type' => 'int',
         'not null' => TRUE),
-       'dataset_name' => array(
+      'dataset_name' => array(
         'description' => 'The name of the dataset',
         'type' => 'varchar',
         'length' => 255),
       'dataset_description' => array(
         'description' => 'The description of the dataset.',
+        'type' => 'text'),
+      'tags' => array(
+        'description' => 'Dataset tags/keywords',
         'type' => 'text'),
       'data_collector' => array(
         'description' => 'Who collected the data?',
@@ -160,18 +163,18 @@ function metabio_schema() {
       'files' => array(
         'description' => 'Comma separated list of file urls',
         'type' => 'text'),
-    ),
-      'indexes' => array(
-        'node_dataset' => array('nid')
       ),
-      'foreign keys' => array(
-        'node' => array(
-          'table' => 'node',
-          'columns' => array('nid' => 'nid'),
-         )
-      ),
-      'primary key' => array('mid'),
-  );
+'indexes' => array(
+  'node_dataset' => array('nid')
+  ),
+'foreign keys' => array(
+  'node' => array(
+    'table' => 'node',
+    'columns' => array('nid' => 'nid'),
+    )
+  ),
+'primary key' => array('mid'),
+);
   /*$schema['ITIS_names'] = array(
     'description' => 'The table with ITIS longnames',
     'fields' => array(
@@ -196,8 +199,8 @@ function metabio_schema() {
         'length' => 255,
         'not null' => TRUE),
       ),
-  );*/
-  return $schema;
+);*/
+return $schema;
 }
 
 /**
@@ -227,8 +230,29 @@ function metabio_uninstall() {
     node_delete($result->nid);
   }
   db_drop_table('metabio_dataset');
+  $vid = db_select('taxonomy_vocabulary', 't')
+    -> fields('t', array('vid'))
+    -> condition('name','metabio_keywords','=')
+    -> execute()
+    -> fetchField();
+  taxonomy_vocabulary_delete($vid);  
   node_types_rebuild();
   menu_rebuild();
 }
+
+function metabio_install(){
+  module_load_include('module', 'taxonomy', 'taxonomy');
+  $t=get_t();
+  $vocabulary = new stdClass();
+  $vocabulary->name = 'metabio_keywords';
+  $vocabulary->machine_name = 'metabio_keywords';
+  taxonomy_vocabulary_save($vocabulary);
+  $vid = $vocabulary->vid;
+  $term = new stdClass();
+  $term->name = 'urban';
+  $term->vid = $vid;
+  taxonomy_term_save($term);
+}
+
 
 ?>

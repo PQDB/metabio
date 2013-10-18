@@ -13,6 +13,9 @@
 #content .metabio-contact{
 }
 
+.fieldset-wrapper{
+  padding-top:30px !important;
+}
 
 #inputcoords{
   width:300px;
@@ -38,4 +41,8 @@
 
 #coorderror span{
   display:block;
+}
+
+#tagstbl, #taxotbl {
+  width:300px;  
 }

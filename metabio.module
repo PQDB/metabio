@@ -3,7 +3,8 @@ $GLOBALS['metabio_dataset_fields'] = array(
   'overview' => array(
     'dataset_name',
     'dataset_description',
-    'data_collector', 
+    'tags',
+    'data_collector',
     'data_holder_first_name',
     'data_holder_last_name',
     'data_holder_institution',
@@ -93,6 +94,13 @@ function metabio_menu() {
     'type' => MENU_CALLBACK,
     );
 
+  $items['metabio/tags_autocomplete'] = array(
+    'page callback' => 'metabio_tags_autocomplete_callback',
+    'access arguments' => user_access('access content'),
+    'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+  ); 
+
   return $items;
 }
 
@@ -174,13 +182,16 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
   if($form_id == 'metabio_node_form') {
 
     drupal_add_js(array('metabio_mode' => 'edit'), 'setting');
-
+    $form['vertical_tabs'] = array(
+    '#type' => 'vertical_tabs',
+    '#default_tab' => 'overview_tab',
+   );
     $form['overview'] = array(
       '#title' => t('Overview'),
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#group' => 'overviewtab',
+      '#group' => 'vertical_tabs',
       '#tree' =>FALSE,
       );
 
@@ -200,6 +211,21 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->metabio['overview']['dataset_description']) ? $form['#node']->metabio['overview']['dataset_description'] : ""
       );
+
+
+    $form['overview']['tags'] = array(
+      '#type' => 'hidden',
+      '#prefix' => '<h3>'.t('Tags / keywords').'</h3>',
+      '#default_value' => isset($form['#node']->metabio['overview']['tags']) ? $form['#node']->metabio['overview']['tags'] : "",
+      );
+
+    $form['overview']['tags_input'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Add tags/keywords here. Start typing and choose an existing tag, or enter a new one, then press the ENTER key.'),
+      '#prefix' => "<table id='tagstbl'></table>",
+      '#autocomplete_path' => 'metabio/tags_autocomplete',
+      '#maxlength' => 1024,
+    );
 
     $form['overview']['data_collector'] = array(
       '#title' => t('Data collector(s)'),
@@ -324,6 +350,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
+      '#group' => 'vertical_tabs',
       '#tree' => FALSE
       );
 
@@ -378,6 +405,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
+      '#group' => 'vertical_tabs',
       '#tree' =>FALSE,
       );
 
@@ -481,6 +509,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
+      '#group' => 'vertical_tabs',
       '#tree' =>FALSE
       );
 
@@ -557,6 +586,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
+      '#group' => 'vertical_tabs',
       '#tree' =>FALSE
       );
 
@@ -622,16 +652,17 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $form['filesfield'] = array(
       '#title' => t('Files'),
       '#type' => 'fieldset',
+      '#title_display' => 'invisible',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
+      '#group' => 'vertical_tabs',
       '#tree' =>FALSE
       );
 
     $form['filesfield']['filelist'] = array(
-      '#title' => t('Files'),
       '#type' => 'fieldset',
       '#title_display' => 'invisible',
-      '#prefix' => '<div id="files-div">',
+      '#prefix' => '<h3>'.t('Files').'</h3><div id="files-div">',
       '#suffix' => '</div>',
       '#tree' =>FALSE
       );
@@ -682,9 +713,10 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       'http://maps.google.com/maps/api/js?sensor=false',
       $module_path . '/javascript/metabio.map.js',
       $module_path . '/javascript/metabio.taxonomy.js',
+      $module_path . '/javascript/metabio.tags.js',
       );
     $form['#attached']['js'] = $js_files;
-
+    $form['#pre_render'][] = 'vertical_tabs_form_pre_render';
     $form['#validate'][] = 'metabio_form_validate';
     $form['#submit'][] = 'metabio_form_submit';
   }
@@ -718,6 +750,19 @@ function metabio_insert($node) {
         $file->status = FILE_STATUS_PERMANENT;
         file_save($file);
         file_usage_add($file, 'metabio', 'node', $node->nid);
+      }else if($key=="tags" && $value !== 0){
+        $vid = db_select('taxonomy_vocabulary', 't')
+          -> fields('t', array('vid'))
+          -> condition('name','metabio_keywords','=')
+          -> execute()
+          -> fetchField();
+        $values=explode('|',$value); 
+        foreach($values as $val){
+            $term = new stdClass();
+            $term->name = $val;
+            $term->vid = $vid;
+            taxonomy_term_save($term);
+        }
       }
     }
     db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
@@ -856,6 +901,28 @@ function _check_coordinate($coord) {
 
 function ajax_addfiles_callback($form, $form_state) {
   return $form['filesfield']['filelist'];
+}
+
+//autocomplete callback function
+function metabio_tags_autocomplete_callback($str = 0) {
+  $matches = array();
+  //vocabulary id
+  $vid = db_select('taxonomy_vocabulary', 't')
+    -> fields('t', array('vid'))
+    -> condition('name','metabio_keywords','=')
+    -> execute()
+    -> fetchField();
+
+  $result = db_select('taxonomy_term_data', 't')
+    -> fields('t', array('tid', 'name'))
+    -> condition('vid', $vid, '=')
+    -> condition('name', $str.'%%', 'LIKE')
+    -> range(0, 10)
+    -> execute();
+  foreach ($result as $term) {
+    $matches[$term -> name] = check_plain($term -> name);
+  }
+  drupal_json_output($matches);
 }
 
 ?>
