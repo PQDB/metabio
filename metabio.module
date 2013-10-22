@@ -26,6 +26,7 @@ $GLOBALS['metabio_dataset_fields'] = array(
     'study_design',
     'study_status',
     'sampling_approaches',
+    'sampling_approaches_other',
     'study_goals',
     'data_types',
     'frequency_of_sampling',
@@ -221,8 +222,8 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
 
     $form['overview']['tags_input'] = array(
       '#type' => 'textfield',
-      '#title' => t('Add tags/keywords here. Start typing and choose an existing tag, or enter a new one, then press the ENTER key.'),
-      '#prefix' => "<table id='tagstbl'></table>",
+      '#title' => '',
+      '#prefix' => "<h4>".t('Add tags/keywords here. Start typing and choose an existing tag, or enter a new one, then press the ENTER key.')."</h4><table id='tagstbl'></table>",
       '#autocomplete_path' => 'metabio/tags_autocomplete',
       '#maxlength' => 1024,
     );
@@ -426,10 +427,23 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         2 => t('Indirect visual observation (e.g. photos)'),
         3 => t('Active sampling (e.g. electrofishing, plant vouchers)'),
         4 => t('Passive sampling (e.g. insect or mammal traps)'),
-        5 => t('Remote sensing')
+        5 => t('Remote sensing'),
+        6 => t('Other')
         ),
       '#default_value' => isset($form['#node']->metabio['study_details']['sampling_approaches']) && is_array($form['#node']->metabio['study_details']['sampling_approaches']) ? $form['#node']->metabio['study_details']['sampling_approaches'] : array()
       );
+
+    $form['study_details']['sampling_approaches_other'] = array(
+      '#type' => 'textfield',
+      '#size' => 70,
+      '#title' => '<h4>'.t('Please define "other"').'</h4>',
+      '#states' => array(
+        'visible' => array(
+          ':input[name="sampling_approaches[6]"]' => array('checked' => TRUE),
+        ),
+      ),
+      '#default_value' => isset($form['#node']->metabio['study_details']['sampling_approaches_other']) ? $form['#node']->metabio['study_details']['sampling_approaches_other'] : ""
+    );
 
     $form['study_details']['study_goals'] = array(
       '#title' => t('Study goal(s)'),
@@ -466,8 +480,8 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $form['study_details']['frequency_of_sampling'] = array(
       '#title' => t('Frequency of sampling'),
       '#type' => 'textarea',
-      '#cols' => 50,
-      '#rows' => 6,
+      '#cols' => 30,
+      '#rows' => 2,
       '#required' => FALSE,
       '#default_value' => isset($form['#node']->metabio['study_details']['frequency_of_sampling']) ? $form['#node']->metabio['study_details']['frequency_of_sampling'] : ""
       );

@@ -97,6 +97,10 @@ function metabio_schema() {
         'description' => 'Multiple checkboxes',
         'type' => 'varchar',
         'length' => 500),
+      'sampling_approaches_other' => array(
+        'description' => 'Description of "other" sampling approach',
+        'type' => 'varchar',
+        'length' => 500),
       'study_goals' => array(
         'description' => 'Multiple checkboxes',
         'type' => 'varchar',
