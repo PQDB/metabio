@@ -13,10 +13,9 @@
 #content .metabio-contact{
 }
 
-.fieldset-wrapper{
-  padding-top:30px !important;
+.node-metabio-form label{
+  font-size:small;
 }
-
 #inputcoords{
   width:300px;
   height:200px;
@@ -45,4 +44,31 @@
 
 #tagstbl, #taxotbl {
   width:300px;  
+}
+
+#metabio-node-form .vertical-tabs .form-type-textfield input {
+  width: auto; /* See: http://drupal.org/node/1143712#comment-4697172 */
+}
+
+#metabio-node-form .form-textarea-wrapper{
+  max-width:700px;
+}
+
+#edit-data-holder-contact input{
+  margin-bottom:0px;
+}
+
+#edit-data-holder-contact {
+  width:360px;
+  background:#f2f2f2;
+}
+
+#edit-data-holder-contact .form-item {
+  padding:0px;
+  margin-bottom:3px;
+}
+
+#metabio-node-form .form-type-checkbox {
+  padding:0px;
+  margin-bottom:3px;
 }

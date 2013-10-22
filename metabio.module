@@ -246,8 +246,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#title_display' => 'invisible',
-      '#field_prefix' => t('First name'),
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_first_name']) ? $form['#node']->metabio['overview']['data_holder_first_name'] : ""
       );
 
@@ -256,8 +254,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#title_display' => 'invisible',
-      '#field_prefix' => t('Last name'),
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_last_name']) ? $form['#node']->metabio['overview']['data_holder_last_name'] : ""
       );
 
@@ -266,8 +262,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#title_display' => 'invisible',
-      '#field_prefix' => t('Institution'),
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_institution']) ? $form['#node']->metabio['overview']['data_holder_institution'] : ""
       );
 
@@ -276,8 +270,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#title_display' => 'invisible',
-      '#field_prefix' => t('Email'),
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_email']) ? $form['#node']->metabio['overview']['data_holder_email'] : ""
       );
 
@@ -286,18 +278,16 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#title_display' => 'invisible',
-      '#field_prefix' => t('Phone'),
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_phone']) ? $form['#node']->metabio['overview']['data_holder_phone'] : ""
       );
 
     $form['overview']['data_holder_contact']['data_holder_address'] = array(
       '#title' => t('Address'),
-      '#type' => 'textfield',
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 3,
       '#size' => 50,
       '#required' => FALSE,
-      '#title_display' => 'invisible',
-      '#field_prefix' => t('Address'),
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_address']) ? $form['#node']->metabio['overview']['data_holder_address'] : ""
       );
 
@@ -507,6 +497,9 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $form['site_details'] = array(
       '#title' => t('Site details'),
       '#type' => 'fieldset',
+      '#attributes' => array(
+        'class' => array('site_details_fieldset'),
+      ),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#group' => 'vertical_tabs',
@@ -652,7 +645,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $form['filesfield'] = array(
       '#title' => t('Files'),
       '#type' => 'fieldset',
-      '#title_display' => 'invisible',
+      //'#title_display' => 'invisible',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#group' => 'vertical_tabs',
@@ -662,7 +655,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $form['filesfield']['filelist'] = array(
       '#type' => 'fieldset',
       '#title_display' => 'invisible',
-      '#prefix' => '<h3>'.t('Files').'</h3><div id="files-div">',
+      '#prefix' => '<div id="files-div">',
       '#suffix' => '</div>',
       '#tree' =>FALSE
       );
@@ -690,7 +683,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         '#default_value' => isset($filesindb[$i]) ? $filesindb[$i] : "",
         '#upload_location' => 'public://metabio_files/',
         '#upload_validators' => array(
-          'file_validate_extensions' => array('gif png jpg jpeg pdf xls xlsx doc docx csv csvt odf'),
+          'file_validate_extensions' => array('gif png jpg jpeg pdf xls xlsx doc docx csv csvt odf txt rtf'),
           // Pass the maximum file size in bytes
         ),
       );
