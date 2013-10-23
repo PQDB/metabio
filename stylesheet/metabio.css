@@ -13,15 +13,36 @@
 #content .metabio-contact{
 }
 
-.node-metabio-form label{
-  font-size:14px;
+#metabio-node-form label{
+  font-size:100%;
 }
 
-.node-metabio-form h4{
-  font-size:12px;
+#metabio-node-form {
+  font-family: verdana, arial;
+}
+
+#metabio-node-form h4{
+  font-size:90%;
   font-weight:normal;
   color:#4d4d4d;
 }
+
+#metabio-node-form h3{
+  font-size:100%;
+  font-weight:bold;
+}
+
+#content #metabio-node-form h2{
+  font-size:120%;
+  font-weight:bold;
+  margin-top:0;
+  margin-bottom:20px;
+}
+
+#edit-data-holder-contact .fieldset-wrapper{
+  margin-top:25px;
+}
+
 #inputcoords{
   width:300px;
   height:200px;
@@ -76,18 +97,21 @@
 
 #metabio-node-form .form-type-checkbox {
   padding:0px;
-  margin-bottom:3px;
+  margin-bottom:0px;
+  margin-top:1px;
 }
 
 #metabio-node-form .fieldset-legend{
   font-size:15px;
 }
 
-.form-item-sampling-approaches-other{
-  margin-top:0px !important;
+div[class$="-other"]{
+  margin-top:-15px !important;
   padding-top:0px !important;
 }
 
-.form-item-sampling-approaches{
-  padding-bottom:0px !important;
+.metabox{
+  background:#f2f2f2;
+  padding:15px;
+  border-radius:15px;
 }

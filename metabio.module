@@ -28,7 +28,9 @@ $GLOBALS['metabio_dataset_fields'] = array(
     'sampling_approaches',
     'sampling_approaches_other',
     'study_goals',
+    'study_goals_other',
     'data_types',
+    'data_types_other',
     'frequency_of_sampling',
     'first_year',
     'last_year'
@@ -102,6 +104,24 @@ function metabio_menu() {
     'type' => MENU_CALLBACK,
   ); 
 
+  $items['metabio/newmeta']=array(
+    'page callback' => 'metabio_newmeta',
+    'access arguments' => user_access('access content'),
+    'type' => MENU_CALLBACK,
+  ); 
+
+  $items['newmeta'] = array(
+    'title'           => t('Add a new metadata entry'),
+    'description'     => t('Metadata entry form'),
+    'menu_name'       => 'main-menu',
+    'access arguments' => user_access('access content'),
+    'weight'          => 8,
+    'access callback' => TRUE,
+    'page callback'   => 'drupal_goto',
+    'page callback' => 'metabio_newmeta',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
   return $items;
 }
 
@@ -167,7 +187,7 @@ function theme_metabio_contact($content) {
   $output  = '<div class="metabio-contact">';
   $output .= '<h3 class="metabio-subsection-heading">' . t('Contact') . '</h3>';
   $output .= '<ul>';
-  $output .= '<li>' . $content['content']['overview']['data_holder_first_name'] . " " . $content['content']['data_holder_last_name'] . '</li>';
+  $output .= '<li>' . $content['content']['overview']['data_holder_first_name'] . " " . $content['content']['overview']['data_holder_last_name'] . '</li>';
   $output .= '<li>' . $content['content']['overview']['data_holder_institution'] . '</li>';
   $output .= '<li>' . $content['content']['overview']['data_holder_address'] . '</li>';
   $output .= '<li>' . $content['content']['overview']['data_holder_phone'] . '</li>';
@@ -216,7 +236,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
 
     $form['overview']['tags'] = array(
       '#type' => 'hidden',
-      '#prefix' => '<h3>'.t('Tags / keywords').'</h3>',
+      '#prefix' => '<div class="metabox"><h3>'.t('Tags / keywords').'</h3>',
       '#default_value' => isset($form['#node']->metabio['overview']['tags']) ? $form['#node']->metabio['overview']['tags'] : "",
       );
 
@@ -226,6 +246,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#prefix' => "<h4>".t('Add tags/keywords here. Start typing and choose an existing tag, or enter a new one, then press the ENTER key.')."</h4><table id='tagstbl'></table>",
       '#autocomplete_path' => 'metabio/tags_autocomplete',
       '#maxlength' => 1024,
+      '#suffix' => '</div><br>'
     );
 
     $form['overview']['data_collector'] = array(
@@ -377,7 +398,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
 
     $form['biology']['taxonomic_details'] = array(
       '#type' => 'hidden',
-      '#prefix' => '<h3>'.t('Taxonomic Details').'</h3>',
+      '#prefix' => '<div class="metabox"><h3>'.t('Taxonomic Details').'</h3>',
       '#default_value' => isset($form['#node']->metabio['biology']['taxonomic_details']) ? $form['#node']->metabio['biology']['taxonomic_details'] : "",
       );
 
@@ -388,6 +409,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#size' => 100,
       '#required' => FALSE,
       '#prefix' => "<table id='taxotbl'></table>",
+      '#suffix' => "</div>",
       '#autocomplete_path' => (db_table_exists('itis_names')) ? 'metabio/taxonomy_autocomplete' : '',
       );  
 
@@ -456,10 +478,24 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         5 => t('Paleo-study'),
         6 => t('Complete inventory'),
         7 => t('Partial inventory'),
-        8 => t('Single species')
+        8 => t('Single species'),
+        9 => t('Other'),
         ),
       '#default_value' => isset($form['#node']->metabio['study_details']['study_goals']) && is_array($form['#node']->metabio['study_details']['study_goals']) ? $form['#node']->metabio['study_details']['study_goals'] : array()
       );
+
+    $form['study_details']['study_goals_other'] = array(
+      '#type' => 'textfield',
+      '#size' => 70,
+      '#title' => '<h4>'.t('Please define "other"').'</h4>',
+      '#states' => array(
+        'visible' => array(
+          ':input[name="study_goals[9]"]' => array('checked' => TRUE),
+        ),
+      ),
+      '#default_value' => isset($form['#node']->metabio['study_details']['study_goals_other']) ? $form['#node']->metabio['study_details']['study_goals_other'] : ""
+    );
+
 
     $form['study_details']['data_types'] = array(
       '#title' => t('Data type(s)'),
@@ -476,6 +512,19 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         ),
       '#default_value' => isset($form['#node']->metabio['study_details']['data_types']) && is_array($form['#node']->metabio['study_details']['data_types']) ? $form['#node']->metabio['study_details']['data_types'] : array()
       );
+
+
+    $form['study_details']['data_types_other'] = array(
+      '#type' => 'textfield',
+      '#size' => 70,
+      '#title' => '<h4>'.t('Please define "other"').'</h4>',
+      '#states' => array(
+        'visible' => array(
+          ':input[name="data_types[8]"]' => array('checked' => TRUE),
+        ),
+      ),
+      '#default_value' => isset($form['#node']->metabio['study_details']['data_types_other']) ? $form['#node']->metabio['study_details']['data_types_other'] : ""
+    );
 
     $form['study_details']['frequency_of_sampling'] = array(
       '#title' => t('Frequency of sampling'),
@@ -564,6 +613,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#type' => 'textfield',
       '#size' => 100,
       '#required' => FALSE,
+      '#prefix' => '<div class="metabox"><h2>'.t('Geography').'</h2>',
       '#default_value' => isset($form['#node']->metabio['site_details']['location_name']) ? $form['#node']->metabio['site_details']['location_name'] : ""
       );
 
@@ -585,7 +635,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         <button type="button" id="pointbut">'.t('Add point(s)').'</button>
         <button type="button" id="metabio-clear">'.t('Clear all').'</button>
         </p>
-        <div id="map" width="700" height="500"></div>'
+        <div id="map" width="700" height="500"></div></div>'
       );
 
     $form['citations'] = array(
@@ -656,6 +706,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#default_value' => isset($form['#node']->metabio['citations']['collections']) ? $form['#node']->metabio['citations']['collections'] : array()
       );
 
+
     $form['filesfield'] = array(
       '#title' => t('Files'),
       '#type' => 'fieldset',
@@ -665,6 +716,12 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#group' => 'vertical_tabs',
       '#tree' =>FALSE
       );
+
+    $form['filesfield']['file_title'] = array(
+      '#title' => t('Files'),
+      '#type' => 'hidden',
+      '#prefix' => '<h2>'.t('Files').'</h2>'
+    );
 
     $form['filesfield']['filelist'] = array(
       '#type' => 'fieldset',
@@ -705,7 +762,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
 
     $form['filesfield']['addnewfile'] = array(
       '#type' => 'submit',
-      '#value' => t('Add file'),
+      '#value' => t('Add more files'),
       '#executes_submit_callback' => FALSE,
       '#ajax' => array(
         'callback' => 'ajax_addfiles_callback',
@@ -726,6 +783,8 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $form['#pre_render'][] = 'vertical_tabs_form_pre_render';
     $form['#validate'][] = 'metabio_form_validate';
     $form['#submit'][] = 'metabio_form_submit';
+    $form['additional_settings']['#access'] = FALSE;
+    $form['options']['status']['#default_value'] = TRUE;
   }
 }
 
@@ -932,4 +991,12 @@ function metabio_tags_autocomplete_callback($str = 0) {
   drupal_json_output($matches);
 }
 
+
+function metabio_newmeta(){
+  module_load_include('inc', 'node', 'node.pages');
+  $form = node_add('metabio'); 
+  return drupal_render($form);
+}
+
 ?>
+
