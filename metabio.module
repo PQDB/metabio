@@ -614,6 +614,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#size' => 100,
       '#required' => FALSE,
       '#prefix' => '<div class="metabox"><h2>'.t('Geography').'</h2>',
+      '#suffix' => '<div id="noloc" style="display:none;">'.t('Location not recognized!').'</div><button type="button" id="addbynamebut">'.t('Add marker at this location').'</button>',
       '#default_value' => isset($form['#node']->metabio['site_details']['location_name']) ? $form['#node']->metabio['site_details']['location_name'] : ""
       );
 
