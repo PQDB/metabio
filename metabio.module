@@ -87,26 +87,20 @@ function metabio_menu() {
 
   $items['metabio/taxonomy_autocomplete'] = array(
     'page callback' => 'metabio_taxo_autocomplete_callback',
-    'access arguments' => user_access('access content'),
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );
 
   $items['metabio/coordinate_conversion'] = array(
     'page callback' => 'metabio_coordinate_conversion_callback',
-    'access arguments' => user_access('access content'),
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );
 
   $items['metabio/tags_autocomplete'] = array(
     'page callback' => 'metabio_tags_autocomplete_callback',
-    'access arguments' => user_access('access content'),
-    'page arguments' => array(2),
-    'type' => MENU_CALLBACK,
-  ); 
-
-  $items['metabio/newmeta']=array(
-    'page callback' => 'metabio_newmeta',
-    'access arguments' => user_access('access content'),
+    'access arguments' => array('access content'),
+    //'page arguments' => array(2),
     'type' => MENU_CALLBACK,
   ); 
 
@@ -114,10 +108,9 @@ function metabio_menu() {
     'title'           => t('Add a new metadata entry'),
     'description'     => t('Metadata entry form'),
     'menu_name'       => 'main-menu',
-    'access arguments' => user_access('access content'),
+    'access arguments' => array('create metabio content'),
     'weight'          => 8,
-    'access callback' => TRUE,
-    'page callback'   => 'drupal_goto',
+    'access callback' => 'user_access',
     'page callback' => 'metabio_newmeta',
     'type' => MENU_NORMAL_ITEM,
   );
@@ -404,11 +397,10 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
 
 
     $form['biology']['taxonomic_details_input'] = array(
-      '#title' => t('Add taxa here by typing either the scientific or common name. Press the ENTER key when the name is selected'),
       '#type' => 'textfield',
       '#size' => 100,
       '#required' => FALSE,
-      '#prefix' => "<table id='taxotbl'></table>",
+      '#prefix' => "<h4>".t('Add taxa here by typing either the scientific or common name. Press the ENTER key when the name is selected')."</h4><table id='taxotbl'></table>",
       '#suffix' => "</div>",
       '#autocomplete_path' => (db_table_exists('itis_names')) ? 'metabio/taxonomy_autocomplete' : '',
       );  
@@ -718,12 +710,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#tree' =>FALSE
       );
 
-    $form['filesfield']['file_title'] = array(
-      '#title' => t('Files'),
-      '#type' => 'hidden',
-      '#prefix' => '<h2>'.t('Files').'</h2>'
-    );
-
     $form['filesfield']['filelist'] = array(
       '#type' => 'fieldset',
       '#title_display' => 'invisible',
@@ -805,7 +791,9 @@ function metabio_form_submit($form, &$form_state) {
       $fids[] = $value;
     }
   }
-  $form_state['values']['files'] = implode(';', $fids);
+  if(empty($fids) == false){
+    $form_state['values']['files'] = implode(';', $fids);
+  }
 }
 
 

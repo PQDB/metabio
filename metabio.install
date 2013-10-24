@@ -98,7 +98,7 @@ function metabio_schema() {
         'type' => 'varchar',
         'length' => 500),
       'sampling_approaches_other' => array(
-        'description' => 'Description of "other" sampling approach',
+        'description' => 'Description of other sampling approach',
         'type' => 'varchar',
         'length' => 500),
       'study_goals' => array(
@@ -116,7 +116,7 @@ function metabio_schema() {
       'data_types_other' => array(
         'description' => 'Other data types',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'frequency_of_sampling' => array(
         'description' => 'Frequency of sampling',
         'type' => 'varchar',
