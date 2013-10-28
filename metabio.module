@@ -15,7 +15,7 @@ $GLOBALS['metabio_dataset_fields'] = array(
     'funding_sources',
     'dataset_format',
     'responsible_person',
-    'additional_comments'
+    'additional_comments',
   ),
   'biology' => array(
     'taxa_studied',
@@ -53,7 +53,7 @@ $GLOBALS['metabio_dataset_fields'] = array(
   ),
   'files' => array(
     'files'
-  )
+  ),
 );
 
 /**
@@ -68,6 +68,14 @@ function metabio_node_info() {
     'module'      => 'metabio',
     'description' => t('Biodiversity metadata entry form for datasets.'),
     'has_body'    => FALSE
+  );
+
+  $info['metabio_list'] = array(
+    'name'        => t('Metabio dataset list'),
+    'base'        => 'article',
+    'module'      => 'metabio',
+    'description' => t('List of biodiversity metadata'),
+    'has_body'    => TRUE
   );
 
   return $info;
@@ -103,6 +111,17 @@ function metabio_menu() {
     //'page arguments' => array(2),
     'type' => MENU_CALLBACK,
   ); 
+
+  $items['metabio_list'] = array(
+    'title'           => t('List of metadata entries'),
+    'description'     => t('List of metadata entries'),
+    'menu_name'       => 'main-menu',
+    'access arguments' => array('access content'),
+    'weight'          => 7,
+    'access callback' => 'user_access',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'metabio_metalist',
+  );
 
   $items['newmeta'] = array(
     'title'           => t('Add a new metadata entry'),
@@ -759,6 +778,8 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
         ),
       );
 
+
+
     $module_path = base_path().drupal_get_path('module', 'metabio');
     $js_files = array(
       'http://maps.google.com/maps/api/js?sensor=false',
@@ -772,6 +793,16 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
     $form['#submit'][] = 'metabio_form_submit';
     $form['additional_settings']['#access'] = FALSE;
     $form['options']['status']['#default_value'] = TRUE;
+    $form['options']['status']['#input'] = TRUE;
+    $form['options']['status']['#return_value'] = TRUE;
+    $form['options']['status']['#value'] = TRUE;
+    $form['options']['status']['#checked'] = TRUE;
+    // Temporary fix to see datasets on Front page. Until we create a list view. 
+    $form['options']['promote']['#checked'] = TRUE;
+    $form['options']['promote']['#return_value'] = TRUE;
+    $form['options']['promote']['#default_value'] = TRUE;
+    $form['options']['promote']['#input'] = TRUE;
+    $form['options']['promote']['#value'] = TRUE;
   }
 }
 
@@ -985,6 +1016,53 @@ function metabio_newmeta(){
   module_load_include('inc', 'node', 'node.pages');
   $form = node_add('metabio'); 
   return drupal_render($form);
+}
+
+function metabio_metalist(){
+}
+
+
+/**
+ * Implements hook_block_info().
+ */
+function metabio_block_info() {
+  $blocks = array();
+  $blocks['metabio_datasets'] = array(
+    'info' => t('A block to show metabio datasets'),
+    'cache' => DRUPAL_NO_CACHE,
+    'region' => 'content',
+    'status' => TRUE,
+    'visibility' => BLOCK_VISIBILITY_PHP,
+    'pages' => '<?php if(arg(0) == "node"){$nid = arg(1);$node = node_load(array("nid" => $nid));if ($node->type == "metabio_list"){return TRUE;}}return FALSE; ?>'
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function metabio_block_view($block_name = '') {
+  if ($block_name == 'metabio_datasets') {
+    $query=db_select('metabio_dataset', 't')
+    -> fields('t', array('nid', 'dataset_name','dataset_description'));
+    $result = $query->execute();
+    $header = array(t('Dataset name'),t('Last modified'),t('Edit'));
+    $rows = array();
+    foreach ($result as $node) {
+      $options = array('absolute' => TRUE);
+      $changed = db_select('node', 'n')->fields('n', array('changed'))->condition('nid',$node->nid,'=')->execute()->fetchField();
+      $url = url('node/' . $node->nid, $options);
+      $rows[] = array('<a href='.$url.'>'.$node->dataset_name.'</a>',gmdate("Y-m-d",$changed),'<a href='.$url.'/edit>Edit</a>');
+    }
+
+    //Return the content of the block
+    $content=theme('table', array('header' => $header, 'rows' => $rows));
+    $block = array(
+      'subject' => t('List of metabio datasets'),
+      'content' => $content,
+    );
+    return $block;
+  }
 }
 
 ?>
