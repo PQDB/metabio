@@ -238,7 +238,7 @@ function flexslider_install() {
  * Implements hook_uninstall().
  */
 function metabio_uninstall() {
-  $results = db_select('node', 'n')->fields('n', array('nid'))->condition(db_or()->condition('type', 'metabio' ,'=')->condition('title','List of datasets','='))->execute()->fetchAll();
+  $results = db_select('node', 'n')->fields('n', array('nid'))->condition(db_or()->condition('type', 'metabio' ,'=')->condition('type', 'metabio_list' ,'='))->execute()->fetchAll();
   foreach($results as $result) {
     node_delete($result->nid);
   }
@@ -266,19 +266,18 @@ function metabio_install(){
   $term->vid = $vid;
   taxonomy_term_save($term);
 
-  $node = new stdClass();
-  $node->title = "Metabio dataset list";
-  $node->type = "metabio_list";
-  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
-  $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
-  $node->status = 1; //(1 or 0): published or not
-  $node->promote = 1; //(1 or 0): promoted to front page
-  $node->comment = 2; // 0 = comments disabled, 1 = read only, 2 = read/write
-  $node->comment = 2;
-  $node = node_submit($node); // Prepare node for saving
-  node_save($node);
+  $mnode = new stdClass();
+  $mnode->title = "Metabio dataset list";
+  $mnode->type = "metabio_list";
+  node_object_prepare($mnode); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $mnode->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
+  $mnode->status = 1; //(1 or 0): published or not
+  $mnode->promote = 0; //(1 or 0): promoted to front page
+  $mnode->comment = 0; // 0 = comments disabled, 1 = read only, 2 = read/write
+  $mnode = node_submit($mnode); // Prepare node for saving
+  node_save($mnode);
   $args = array(
-    "source" => 'node/'.$node->nid,
+    "source" => 'node/'.$mnode->nid,
      "alias" => 'metabio_list'
   );
   path_save($args);

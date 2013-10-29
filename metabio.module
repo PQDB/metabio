@@ -77,7 +77,6 @@ function metabio_node_info() {
     'description' => t('List of biodiversity metadata'),
     'has_body'    => TRUE
   );
-
   return $info;
 }
 
@@ -1033,7 +1032,15 @@ function metabio_block_info() {
     'region' => 'content',
     'status' => TRUE,
     'visibility' => BLOCK_VISIBILITY_PHP,
-    'pages' => '<?php if(arg(0) == "node"){$nid = arg(1);$node = node_load(array("nid" => $nid));if ($node->type == "metabio_list"){return TRUE;}}return FALSE; ?>'
+    'pages' => '<?php 
+      if(arg(0) == "node"){
+        $nid = arg(1);
+        $nnode = node_load($nid);
+        if ($nnode->type == "metabio_list"){
+          return TRUE;
+        }
+      }
+      return FALSE; ?>'
   );
   return $blocks;
 }
@@ -1046,13 +1053,24 @@ function metabio_block_view($block_name = '') {
     $query=db_select('metabio_dataset', 't')
     -> fields('t', array('nid', 'dataset_name','dataset_description'));
     $result = $query->execute();
-    $header = array(t('Dataset name'),t('Last modified'),t('Edit'));
+    $header = array(t('Dataset name'),t('Last modified'),t(''));
     $rows = array();
+
+
+
     foreach ($result as $node) {
+      $isnode = node_load($node->nid);
       $options = array('absolute' => TRUE);
       $changed = db_select('node', 'n')->fields('n', array('changed'))->condition('nid',$node->nid,'=')->execute()->fetchField();
       $url = url('node/' . $node->nid, $options);
-      $rows[] = array('<a href='.$url.'>'.$node->dataset_name.'</a>',gmdate("Y-m-d",$changed),'<a href='.$url.'/edit>Edit</a>');
+      if ($router_item = menu_get_item($url.'/edit')) {
+        if ($router_item['access']) {
+          $edit='<a href='.$url.'/edit>Edit</a>';
+        }
+      }else{
+        $edit='';
+      }
+      $rows[] = array('<a href='.$url.'>'.$node->dataset_name.'</a>',gmdate("Y-m-d",$changed),$edit);
     }
 
     //Return the content of the block
