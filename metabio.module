@@ -1033,7 +1033,7 @@ function metabio_block_info() {
     'status' => TRUE,
     'visibility' => BLOCK_VISIBILITY_PHP,
     'pages' => '<?php 
-      if(arg(0) == "node"){
+      if(arg(0) == "node" && is_numeric(arg(1))){
         $nid = arg(1);
         $nnode = node_load($nid);
         if ($nnode->type == "metabio_list"){
@@ -1063,10 +1063,8 @@ function metabio_block_view($block_name = '') {
       $options = array('absolute' => TRUE);
       $changed = db_select('node', 'n')->fields('n', array('changed'))->condition('nid',$node->nid,'=')->execute()->fetchField();
       $url = url('node/' . $node->nid, $options);
-      if ($router_item = menu_get_item($url.'/edit')) {
-        if ($router_item['access']) {
+      if(node_access('update',$node->nid)){
           $edit='<a href='.$url.'/edit>Edit</a>';
-        }
       }else{
         $edit='';
       }
