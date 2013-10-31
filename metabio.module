@@ -1018,6 +1018,8 @@ function metabio_newmeta(){
 }
 
 function metabio_metalist(){
+  $block = module_invoke('metabio', 'block_view', 'metabio_datasets');
+  return $block['content'];
 }
 
 
@@ -1031,16 +1033,8 @@ function metabio_block_info() {
     'cache' => DRUPAL_NO_CACHE,
     'region' => 'content',
     'status' => TRUE,
-    'visibility' => BLOCK_VISIBILITY_PHP,
-    'pages' => '<?php 
-      if(arg(0) == "node" && is_numeric(arg(1))){
-        $nid = arg(1);
-        $nnode = node_load($nid);
-        if ($nnode->type == "metabio_list"){
-          return TRUE;
-        }
-      }
-      return FALSE; ?>'
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'metabio_list'
   );
   return $blocks;
 }
