@@ -37,11 +37,11 @@
         this.bindDeleteButtons();
       }
     },
-    
+
     buildTaxonomyRow: function(name) {
       return '<tr><td><input type="hidden" name="taxo[]" value="' + name + '">' + name + '</td><td><button class="taxodel" type="button" style="border:none;">x</button> </td></tr>';
     },
-    
+
     bindDeleteButtons: function() {
       var self = this;
 
