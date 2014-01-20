@@ -887,11 +887,13 @@ function _metabio_fields($node) {
   $db_fields = array();
   foreach($GLOBALS['metabio_dataset_fields'] as $group => $fields) {
     foreach($fields as $field) {
-      if(is_array($node->$field)){
-        $tmp = array_filter($node->$field);
-        $db_fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
-      } else {
-        $db_fields[$field] = $node->$field;
+      if(isset($node->{$field})) {
+        if(is_array($node->{$field})){
+          $tmp = array_filter($node->{$field});
+          $db_fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
+        } else {
+          $db_fields[$field] = $node->{$field};
+        }
       }
     }
   }
