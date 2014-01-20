@@ -17,7 +17,7 @@
   <?php print theme('metabio_contact', array('content' => $content)); ?>
 <?php endif; ?>
 <?php if(!empty($content['overview']['data_collector'])): ?>
-  <p><span class="metabio-field-header"><?php print t('Data collector'); ?>:</span><?php print $content['data_collector']; ?></p>
+  <p><span class="metabio-field-header"><?php print t('Data collector'); ?>:</span><?php print $content['overview']['data_collector']; ?></p>
 <?php endif; ?>
 
 

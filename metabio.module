@@ -179,7 +179,11 @@ function template_preprocess_metabio(&$variables) {
   $data = $variables['elements']['#metabio'];
   foreach ($data as $section => $fields) {
     foreach($fields as $key => $value) {
-      $value = ($key === 'geography') ? $data[$section][$key] : check_plain($data[$section][$key]);
+      if($key === 'geography') {
+        $value = $data[$section][$key];
+      } else {
+        $value = (is_string($data[$section][$key])) ? check_plain($data[$section][$key]) : $data[$section][$key];
+      }
       $variables['content'][$section][$key] = $value;
     }
   }
@@ -1007,7 +1011,7 @@ function metabio_tags_autocomplete_callback($str = 0) {
     -> range(0, 10)
     -> execute();
   foreach ($result as $term) {
-    $matches[$term -> name] = check_plain($term -> name);
+    $matches[$term->name] = check_plain($term->name);
   }
   drupal_json_output($matches);
 }
