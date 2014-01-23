@@ -184,6 +184,10 @@ function metabio_theme($existing, $type, $theme, $path) {
     'render element' => 'element'
   );
 
+  $info['metabio_checkbox_values_with_other'] = array(
+    'render element' => 'element'
+  );
+  
   return $info;
 }
 
@@ -225,13 +229,20 @@ function theme_metabio_contact($contact) {
 }
 
 function theme_metabio_checkbox_values($content) {
-//  debug($content['checkboxes']);
-  $selections = (is_array($content['checkboxes'])) ? $content['checkboxes'] : array($content['checkboxes']);
-//  debug(array_map("_options_{$content['options']}", $selections));
-  return implode(", ", array_map("_options_{$content['options']}", $selections));
+  $selections = (is_array($content['selections'])) ? $content['selections'] : array((int)$content['selections']);
+  return implode(", ", array_map("_options_{$content['name']}", $selections));
 }
 
-// Form builder. Form ID = function name
+function theme_metabio_checkbox_values_with_other($content) {
+  $key = array_search('Other', array_map("_options_{$content['name']}", $content['selections']));
+  if($key !== false) { unset($content['selections'][$key]); }
+  $selections = array(theme_metabio_checkbox_values($content));
+  if($key && !empty($content['other'])) {
+    $selections[] = $content['other'];
+  }
+  return implode(", ", $selections);
+}
+
 function metabio_form_alter(&$form, &$form_state, $form_id) {
 
   if($form_id == 'metabio_node_form') {
@@ -266,7 +277,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#required' => TRUE,
       '#default_value' => isset($form['#node']->metabio['overview']['dataset_description']) ? $form['#node']->metabio['overview']['dataset_description'] : ""
       );
-
 
     $form['overview']['tags'] = array(
       '#type' => 'hidden',
@@ -472,7 +482,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
           ':input[name="sampling_approaches[6]"]' => array('checked' => TRUE),
         ),
       ),
-      '#default_value' => isset($form['#node']->metabio['study_details']['sampling_approaches_other']) ? $form['#node']->metabio['study_details']['sampling_approaches_other'] : ""
+      '#default_value' => (isset($form['#node']->metabio['study_details']['sampling_approaches_other']) && in_array(6, $form['#node']->metabio['study_details']['sampling_approaches'])) ? $form['#node']->metabio['study_details']['sampling_approaches_other'] : ""
     );
 
     $form['study_details']['study_goals'] = array(
@@ -767,101 +777,6 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
-
-// Form validation handler.
-function metabio_form_validate($form, &$form_state) {
-  //do validation here if necessary
-}
-
-
-// Form submit handler.
-function metabio_form_submit($form, &$form_state) {
-  $form_state['values']['title'] = $form_state['values']['dataset_name'];
-  $fids = array();
-  foreach ($form_state['values'] as $key => $value) {
-    if (strpos($key, "file_") !== false && $value !== 0) {
-      $fids[] = $value;
-    }
-  }
-  if(empty($fids) == false){
-    $form_state['values']['files'] = implode(';', $fids);
-  }
-}
-
-
-function metabio_insert($node) {
-  if($node->type=='metabio'){
-    foreach ($node as $key => $value) {
-      if (strpos($key,"file_") !== false && $value !== 0) {
-        $file = file_load($value);
-        $file->status = FILE_STATUS_PERMANENT;
-        file_save($file);
-        file_usage_add($file, 'metabio', 'node', $node->nid);
-      }else if($key=="tags" && $value !== 0){
-        $vid = db_select('taxonomy_vocabulary', 't')
-          -> fields('t', array('vid'))
-          -> condition('name','metabio_keywords','=')
-          -> execute()
-          -> fetchField();
-        $values=explode('|',$value); 
-        foreach($values as $val){
-            $term = new stdClass();
-            $term->name = $val;
-            $term->vid = $vid;
-            taxonomy_term_save($term);
-        }
-      }
-    }
-    db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
-  }
-}
-
-function metabio_update($node) {
-  if($node->type=='metabio'){
-    db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
-  }
-}
-
-function metabio_delete($node) {
-  if($node->type=='metabio'){
-    db_delete('metabio_dataset')->condition('nid', $node->nid)->execute();
-  }
-}
-
-function metabio_load($nodes) {
-  if($nodes[key($nodes)]->type=='metabio'){
-    $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
-    foreach($result as $record) {
-      foreach($GLOBALS['metabio_dataset_fields'] as $group => $fields) {
-        foreach($fields as $field) {
-          if ($field !== "geography" && is_array(json_decode($record->{$field},true))){ 
-            $nodes[$record->nid]->metabio[$group][$field] = array_keys(json_decode($record->{$field},true));
-          } else{
-            $nodes[$record->nid]->metabio[$group][$field] = $record->{$field};
-          }
-        }
-      }
-    }
-  }
-}
-
-function _metabio_fields($node) {
-  $db_fields = array();
-  foreach($GLOBALS['metabio_dataset_fields'] as $group => $fields) {
-    foreach($fields as $field) {
-      if(isset($node->{$field})) {
-        if(is_array($node->{$field})){
-          $tmp = array_filter($node->{$field});
-          $db_fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
-        } else {
-          $db_fields[$field] = $node->{$field};
-        }
-      }
-    }
-  }
-  return $db_fields;
-}
-
 function _options_taxonomic_information($key = NULL) {
   $options = array(
     1 => t('Mammals'),
@@ -955,10 +870,104 @@ function _options_specimens($key = NULL) {
 
 function _options_study_status($key = NULL) {
   $options = array(
-    '0' => t('Ongoing'),
-    '1' => t('Complete')
+    1 => t('Ongoing'),
+    2 => t('Complete')
   );
   return ($key) ? $options[$key] : $options;
+}
+
+// Form validation handler.
+function metabio_form_validate($form, &$form_state) {
+  //do validation here if necessary
+}
+
+
+// Form submit handler.
+function metabio_form_submit($form, &$form_state) {
+  $form_state['values']['title'] = $form_state['values']['dataset_name'];
+  $fids = array();
+  foreach ($form_state['values'] as $key => $value) {
+    if (strpos($key, "file_") !== false && $value !== 0) {
+      $fids[] = $value;
+    }
+  }
+  if(empty($fids) == false){
+    $form_state['values']['files'] = implode(';', $fids);
+  }
+}
+
+
+function metabio_insert($node) {
+  if($node->type=='metabio'){
+    foreach ($node as $key => $value) {
+      if (strpos($key,"file_") !== false && $value !== 0) {
+        $file = file_load($value);
+        $file->status = FILE_STATUS_PERMANENT;
+        file_save($file);
+        file_usage_add($file, 'metabio', 'node', $node->nid);
+      }else if($key=="tags" && $value !== 0){
+        $vid = db_select('taxonomy_vocabulary', 't')
+          -> fields('t', array('vid'))
+          -> condition('name','metabio_keywords','=')
+          -> execute()
+          -> fetchField();
+        $values=explode('|',$value); 
+        foreach($values as $val){
+            $term = new stdClass();
+            $term->name = $val;
+            $term->vid = $vid;
+            taxonomy_term_save($term);
+        }
+      }
+    }
+    db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
+  }
+}
+
+function metabio_update($node) {
+  if($node->type=='metabio'){
+    db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
+  }
+}
+
+function metabio_delete($node) {
+  if($node->type=='metabio'){
+    db_delete('metabio_dataset')->condition('nid', $node->nid)->execute();
+  }
+}
+
+function metabio_load($nodes) {
+  if($nodes[key($nodes)]->type=='metabio'){
+    $result = db_select('metabio_dataset', 'm')->fields('m')->condition('m.nid', key($nodes))->execute();
+    foreach($result as $record) {
+      foreach($GLOBALS['metabio_dataset_fields'] as $group => $fields) {
+        foreach($fields as $field) {
+          if ($field !== "geography" && is_array(json_decode($record->{$field},true))){ 
+            $nodes[$record->nid]->metabio[$group][$field] = array_keys(json_decode($record->{$field},true));
+          } else{
+            $nodes[$record->nid]->metabio[$group][$field] = $record->{$field};
+          }
+        }
+      }
+    }
+  }
+}
+
+function _metabio_fields($node) {
+  $db_fields = array();
+  foreach($GLOBALS['metabio_dataset_fields'] as $group => $fields) {
+    foreach($fields as $field) {
+      if(isset($node->{$field})) {
+        if(is_array($node->{$field})){
+          $tmp = array_filter($node->{$field});
+          $db_fields[$field] = (empty($tmp)) ? '' : json_encode($tmp);
+        } else {
+          $db_fields[$field] = $node->{$field};
+        }
+      }
+    }
+  }
+  return $db_fields;
 }
 
 function metabio_taxo_autocomplete_callback($string = "") {

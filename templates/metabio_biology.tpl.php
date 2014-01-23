@@ -10,7 +10,7 @@
 <?php if(!empty($content['taxonomic_information'])): ?>
   <dt><?php print t('Taxonomic information'); ?></dt>
   <dd>
-  <?php print theme('metabio_checkbox_values', array('options' => 'taxonomic_information', 'checkboxes' => $content['taxonomic_information'])); ?>
+  <?php print theme('metabio_checkbox_values', array('name' => 'taxonomic_information', 'selections' => $content['taxonomic_information'])); ?>
   </dd>
 <?php endif; ?>
 
