@@ -772,7 +772,7 @@ function metabio_form_alter(&$form, &$form_state, $form_id) {
       '#ajax' => array(
         'callback' => 'ajax_addfiles_callback',
         'wrapper' => 'files-div',
-        'method' => 'replace',
+        'method' => 'append',
         'effect' => 'fade',
         ),
       );
@@ -1050,15 +1050,13 @@ function metabio_block_view($block_name = '') {
     $header = array(t('Dataset name'),t('Last modified'),t(''));
     $rows = array();
 
-
-
     foreach ($result as $node) {
       $isnode = node_load($node->nid);
       $options = array('absolute' => TRUE);
       $changed = db_select('node', 'n')->fields('n', array('changed'))->condition('nid',$node->nid,'=')->execute()->fetchField();
       $url = url('node/' . $node->nid, $options);
       if(node_access('update',$node->nid)){
-          $edit='<a href='.$url.'/edit>Edit</a>';
+          $edit='<a href='.$url.'/edit>'.t('Edit').'</a>';
       }else{
         $edit='';
       }
