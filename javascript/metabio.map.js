@@ -36,8 +36,8 @@
 
     readGeoJSON: function() {
       var self = this,
-      geojson = (this.geography.val().length > 0) ? $.parseJSON(this.geography.val()) : { features : []},
-      polygon = {};
+          geojson = (this.geography.val().length > 0) ? $.parseJSON(this.geography.val()) : { features : []},
+          polygon = {};
 
       $.each(geojson.features, function() {
         switch (this.geometry.type) {
@@ -58,7 +58,7 @@
 
     attachEvents: function() {
       var self = this,
-      polygon = {};
+          polygon = {};
 
       $('#edit-site-details').find("legend a").click(function() {
         google.maps.event.trigger(self.map, "resize");
@@ -95,7 +95,7 @@
         self.addByName();
       });
     },
-    
+
     changeCursor: function() {
       this.map.setOptions({draggableCursor:'crosshair'});
     },
@@ -106,7 +106,7 @@
 
     createPolygon: function() {
       var polygon = {},
-      paths = new google.maps.MVCArray();
+          paths = new google.maps.MVCArray();
 
       polygon = new google.maps.Polygon({
         strokeWeight: 3,
@@ -155,13 +155,13 @@
 
     buildFeature: function(data, type) {
       var coords = [];
-      
+
       switch(type) {
         case 'Point':
           coords.push(data.position.lng());
           coords.push(data.position.lat());
         break;
-        
+
         case 'Polygon':
           coords.push([]);
           $.each(data, function() {
@@ -176,7 +176,7 @@
 
     addVertex: function(polygon, position) {
       var vertex = this.createMarker(position, this.polygon_icon),
-      path = polygon.getPath();
+          path = polygon.getPath();
 
       path.insertAt(path.length, position);
       this.polygon_vertices.push(vertex);
@@ -267,28 +267,28 @@
         }
       });
     },
-    
+
     clearOverlays: function() {
       var self = this;
-      
+
       $.each(this.markers, function() {
         this.setMap(null);
       });
-      
+
       $.each(this.polygons, function() {
         this.getPath().clear();
       });
-      
+
       $.each(this.polygon_vertices, function() {
         this.setMap(null);
       });
-      
+
       this.markers = [];
       this.polygons = [];
       this.polygon_vertices = [];
       this.geography.val("");
     },
-    
+
     isEditMode: function() {
       if(Drupal.settings.hasOwnProperty('metabio_mode') && Drupal.settings.metabio_mode === 'edit') {
         return true;
@@ -298,21 +298,22 @@
     },
 
     addByName: function() {
-      var self = this;
-      var geocoder;
-      geocoder = new google.maps.Geocoder();
-      locname=$("input[name='location_name']").val();
-      self.geocodePosition(locname,geocoder);
+      var geocoder = new google.maps.Geocoder(),
+          locname = $("input[name='location_name']").val();
+
+      this.geocodePosition(locname,geocoder);
     },
 
     geocodePosition: function(address,geocoder) {
-      var self = this;
+      var self = this,
+      noloc = $('#noloc');
+
       geocoder.geocode( {'address': address}, function(results, status) {
-        if (status == google.maps.GeocoderStatus.OK) {
-          $('#noloc').hide();
+        if (status === google.maps.GeocoderStatus.OK) {
+          noloc.hide();
           self.addMarker(results[0].geometry.location);
         } else {
-          $('#noloc').show(); 
+          noloc.show(); 
         }
       });
     }

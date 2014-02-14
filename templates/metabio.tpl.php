@@ -7,47 +7,31 @@
 ?>
 
 <!-- OVERVIEW -->
-<div class="metabio-section-header">
-  <h2><?php print t('Overview'); ?></h2>
-</div>
-<?php if(!empty($content['overview']['dataset_description'])): ?>
-  <p><?php print $content['overview']['dataset_description']; ?></p>
+<?php if(!empty(array_filter($content['overview']))): ?>
+  <?php print theme('metabio_overview', array('content' => $content['overview'])); ?>
 <?php endif; ?>
-<?php if(!empty($content['overview']['data_holder_last_name'])): ?>
-  <?php print theme('metabio_contact', array('content' => $content)); ?>
-<?php endif; ?>
-<?php if(!empty($content['overview']['data_collector'])): ?>
-  <p><span class="metabio-field-header"><?php print t('Data collector'); ?>:</span><?php print $content['data_collector']; ?></p>
-<?php endif; ?>
-
-
-<!-- BIOLOGY -->
-<div class="metabio-section-header">
-  <h2><?php print t('Biology'); ?></h2>
-</div>
-
-<!-- STUDY DETAILS -->
-<div class="metabio-section-header">
-  <h2><?php print t('Study Details'); ?></h2>
-</div>
 
 <!-- SITE DETAILS -->
-<div class="metabio-section-header">
-  <h2><?php print t('Site Details'); ?></h2>
-</div>
-<?php if(!empty($content['site_details']['site-description'])): ?>
-  <p><?php print $content['site_details']['site_description']; ?></p>
+<?php if(!empty(array_filter($content['site_details']))): ?>
+  <?php print theme('metabio_site_details', array('content' => $content['site_details'])); ?>
 <?php endif; ?>
-<?php if(!empty($content['site_details']['geography'])): ?>
-  <?php print theme('metabio_geography', array('content' => $content['site_details']['geography'])); ?>
+
+<!-- BIOLOGY -->
+<?php if(!empty(array_filter($content['biology']))): ?>
+  <?php print theme('metabio_biology', array('content' => $content['biology'])); ?>
+<?php endif; ?>
+
+<!-- STUDY DETAILS -->
+<?php if(!empty(array_filter($content['study_details']))): ?>
+  <?php print theme('metabio_study_details', array('content' => $content['study_details'])); ?>
 <?php endif; ?>
 
 <!-- CITATIONS -->
-<div class="metabio-section-header">
-  <h2><?php print t('Citations'); ?></h2>
-</div>
+<?php if(!empty(array_filter($content['citations']))): ?>
+  <?php print theme('metabio_citations', array('content' => $content['citations'])); ?>
+<?php endif; ?>
 
 <!-- FILES -->
-<div class="metabio-section-header">
-  <h2><?php print t('Data'); ?></h2>
-</div>
+<?php if(!empty(array_filter($content['files']))): ?>
+  <?php print theme("metabio_files", array('content' => $content['files'])); ?>
+<?php endif; ?>

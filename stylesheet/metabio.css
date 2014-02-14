@@ -1,16 +1,40 @@
+#content p{
+  margin:0.75em 0;
+}
 #content .metabio-section-header {
-  border-bottom:1px solid #aaa;margin-top:1em;padding:0;
+  border-bottom:1px solid #aaa;margin:1em 0;padding:0;
 }
 #content .metabio-section-header h2 {
-  border-bottom:2px solid #bbb;margin:0;width:20em;padding:0;
+  border-bottom:2px solid #bbb;margin:0px;;width:20em;padding:0px;
 }
-#content span.metabio-field-header {
+#content .metabio-field-header {
   font-weight:bold;
+  margin-right:5px;
 }
 #content .metabio-subsection-heading {
 }
 
 #content .metabio-contact{
+}
+
+#content .metabio-contact ul{
+  margin:0;
+  padding:0;
+}
+
+#content .metabio-contact ul li{
+  list-style-type:none;
+}
+
+#content dl.metabio-definitions {
+}
+
+#content dl.metabio-definitions dt {
+  font-weight:bold;
+}
+
+#content dl.metabio-definitions dd {
+  margin-bottom:1em;
 }
 
 #metabio-node-form label{
