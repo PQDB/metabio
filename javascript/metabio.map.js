@@ -4,7 +4,7 @@
   Drupal.behaviors.metabio_map = {
 
     map: {}, map_center: {}, marker_icon: {}, polygon_icon: {},
-    markers: [], polygons: [], polygon_vertices: [],
+    markers: [], polygons: [], polygon_vertices: [],infowindows: [],
     geography: "",
 
     attach: function() {
@@ -32,6 +32,12 @@
         origin: new google.maps.Point(0,0),
         anchor: new google.maps.Point(6, 6)
       };
+      this.polygon_icon_view = {
+        url: Drupal.settings.metabio_path + '/images/icon_view.png',
+        size: new google.maps.Size(3, 3),
+        origin: new google.maps.Point(0,0),
+        anchor: new google.maps.Point(2, 2)
+      };
     },
 
     readGeoJSON: function() {
@@ -40,17 +46,18 @@
           polygon = {};
 
       $.each(geojson.features, function() {
+        contentString=this.properties.infowin;
         switch (this.geometry.type) {
           case 'Point':
-            self.addMarker(self.createPoint(this.geometry.coordinates));
+            self.addMarker(self.createPoint(this.geometry.coordinates),contentString);
           break;
-
           case 'Polygon':
             polygon = self.createPolygon();
             this.geometry.coordinates[0].pop();
             $.each(this.geometry.coordinates[0], function() {
               self.addVertex(polygon, self.createPoint(this));
             });
+            self.createPolyInfoWindow(polygon,contentString);
           break;
         }
       });
@@ -107,9 +114,17 @@
     createPolygon: function() {
       var polygon = {},
           paths = new google.maps.MVCArray();
-
+      if(this.isEditMode()) {
+        strokeColor= '#000000';
+        strokeOpacity= 3;
+      } else {
+        strokeColor= '#000044';
+        strokeOpacity= 2;
+      }
       polygon = new google.maps.Polygon({
         strokeWeight: 3,
+        strokeColor: strokeColor,
+        strokeOpacity: strokeOpacity,
         fillColor: '#5555FF',
         editable: false
       });
@@ -175,7 +190,12 @@
     },
 
     addVertex: function(polygon, position) {
-      var vertex = this.createMarker(position, this.polygon_icon),
+      if(this.isEditMode()){
+        icon=this.polygon_icon;
+      }else{
+        icon=this.polygon_icon_view;
+      }
+      var vertex = this.createMarker(position, icon),
           path = polygon.getPath();
 
       path.insertAt(path.length, position);
@@ -219,15 +239,25 @@
       });
     },
 
-    addMarker: function(position) {
-      var marker = {};
+    createInfoWindow: function(contentString) {
+      return new google.maps.InfoWindow({
+        content: contentString,
+        maxWidth: 250
+      });
+    },
 
+    addMarker: function(position,contentString) {
+      var marker = {};
+      var infowindow = {};
+      infowindow = this.createInfoWindow(contentString);
       marker = this.createMarker(position, this.marker_icon);
       this.markers.push(marker);
+      this.infowindows.push(infowindow);
       this.buildGeoJSON();
-      
       if(this.isEditMode()) {
         this.addMarkerListener(marker);
+      }else{
+        this.addMarkerInfoWindowListener(marker,infowindow);
       }
     },
 
@@ -243,6 +273,38 @@
           }
         });
       });
+    },
+
+    addMarkerInfoWindowListener: function(marker,infowindow) {
+      var self = this;
+      google.maps.event.addListener(marker, 'click', function() {
+        $.each(self.infowindows, function() {
+           this.close();
+        });
+        $.each(self.polygons, function() {
+            this.setOptions({fillColor: "#0000FF"})
+          });
+        infowindow.open(this.map,marker);
+      });
+    },
+
+    createPolyInfoWindow: function (poly,content) {
+        var self = this;
+        poly.set("Info", content);
+        google.maps.event.addListener(poly, 'click', function(event) {
+          $.each(self.infowindows, function() {
+            this.close();
+          });
+          $.each(self.polygons, function() {
+            this.setOptions({fillColor: "#0000FF"})
+          });
+          this.setOptions({fillColor: "#00FF00"});
+          var infoWindow = new google.maps.InfoWindow();
+          infoWindow.setContent(poly.get("Info"));
+          infoWindow.setPosition(event.latLng);     
+          infoWindow.open(this.map);
+          self.infowindows.push(infoWindow);
+        });
     },
 
     addCoordinates: function() {

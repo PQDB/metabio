@@ -799,7 +799,7 @@ function _options_taxonomic_information($key = NULL) {
 
 function _options_sampling_approaches($key = NULL) {
   $options = array(
-    1 => t('Direct visual observation (e.g. Fieldwork)'),
+    1 => t('Direct visual observation (e.g. fieldwork)'),
     2 => t('Indirect visual observation (e.g. photos)'),
     3 => t('Active sampling (e.g. electrofishing, plant vouchers)'),
     4 => t('Passive sampling (e.g. insect or mammal traps)'),
@@ -1091,7 +1091,7 @@ function metabio_newmeta(){
 
 function metabio_metalist(){
   $block = module_invoke('metabio', 'block_view', 'metabio_datasets');
-  return $block['content'];
+  return $block;
 }
 
 
@@ -1116,27 +1116,33 @@ function metabio_block_info() {
  */
 function metabio_block_view($block_name = '') {
   if ($block_name == 'metabio_datasets') {
-    $query=db_select('metabio_dataset', 't')
-    -> fields('t', array('nid', 'dataset_name','dataset_description'));
-    $result = $query->execute();
-    $header = array(t('Dataset name'),t('Last modified'),t(''));
-    $rows = array();
+    $header = array(
+      array('data'=>t('Dataset name'),'field' => 'dataset_name'), 
+      array('data'=>t('Last modified'),'field' => 'changed', 'sort' => 'desc'),
+      );
 
+    $query=db_select('metabio_dataset', 't')->extend('PagerDefault');
+    $query->join('node','n','t.nid=n.nid');
+    $query->fields('t', array('nid','dataset_name','dataset_description'));
+    $query->fields('n', array('changed'));
+    $query->extend('TableSort')->orderByHeader($header)->limit(100);
+
+    $result = $query->execute();
+    $rows = array();
     foreach ($result as $node) {
       $isnode = node_load($node->nid);
       $options = array('absolute' => TRUE);
-      $changed = db_select('node', 'n')->fields('n', array('changed'))->condition('nid',$node->nid,'=')->execute()->fetchField();
       $url = url('node/' . $node->nid, $options);
       if(node_access('update',$node->nid)){
           $edit='<a href='.$url.'/edit>'.t('Edit').'</a>';
       }else{
         $edit='';
       }
-      $rows[] = array('<a href='.$url.'>'.$node->dataset_name.'</a>',gmdate("Y-m-d",$changed),$edit);
+      $rows[] = array('<a href='.$url.'>'.$node->dataset_name.'</a>',gmdate("Y-m-d",$node->changed),$edit);
     }
 
     //Return the content of the block
-    $content=theme('table', array('header' => $header, 'rows' => $rows));
+    $content=metabio_map(700,450).theme('table', array('header' => $header, 'rows' => $rows)).theme('pager');
     $block = array(
       'subject' => t('List of metabio datasets'),
       'content' => $content,
@@ -1144,6 +1150,35 @@ function metabio_block_view($block_name = '') {
     return $block;
   }
 }
+
+
+function metabio_map($width,$height){
+  drupal_add_js('http://maps.google.com/maps/api/js?sensor=false');
+  drupal_add_js(base_path().drupal_get_path('module', 'metabio') . '/javascript/metabio.map.js');
+  drupal_add_js(array('metabio_mode' => 'view'), 'setting');
+      $query=db_select('metabio_dataset', 't')
+    -> fields('t', array('nid', 'dataset_name','geography'));
+  $result = $query->execute();
+  $output='';
+  $geog=array();
+  foreach($result as $n){
+    $iw="<div><h3><b>".$n->dataset_name."</b></h3></div>";
+    $geo=json_decode($n->geography);
+    $geo->features[0]->properties=array(
+      'nid'=>$n->nid,
+      'infowin'=>$iw,
+      );
+    $geog[]=$geo->features[0];
+  }
+  $arr=array(
+    'type'=>'FeatureCollection',
+    'features' => $geog,
+    );
+  $output="<input type='hidden' name='geography' value='".json_encode($arr,JSON_UNESCAPED_SLASHES)."'>";
+  $output.='<div id="map" style="width:100%;height:'.$height.'px;max-width: none;max-height:85%;"></div><br><br>';
+  return $output;
+}
+
 
 ?>
 
