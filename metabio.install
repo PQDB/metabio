@@ -6,6 +6,45 @@
 
 function metabio_schema() {
   $schema = array();
+    $schema['metabio_users'] = array(
+    'description' => 'Metabio users.',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'The foreign user key',
+        'type' => 'int',
+        'not null' => TRUE),
+      'first_name' => array(
+        'description' => 'First name',
+        'type' => 'varchar',
+        'length' => 255),
+      'last_name' => array(
+        'description' => 'Last name',
+        'type' => 'varchar',
+        'length' => 255),
+      'organization' => array(
+        'description' => 'Organization',
+        'type' => 'varchar',
+        'length' => 255),
+      'phone' => array(
+        'description' => 'Phone',
+        'type' => 'varchar',
+        'length' => 30),
+      'contact' => array(
+        'description' => 'Register for the mailing list',
+        'type' => 'int',
+        'length' => 1),
+      ),
+'indexes' => array(
+  'node_dataset' => array('uid')
+  ),
+'foreign keys' => array(
+  'users' => array(
+    'table' => 'users',
+    'columns' => array('uid' => 'uid'),
+    )
+  ),
+'primary key' => array('uid'),
+);
   $schema['metabio_dataset'] = array(
     'description' => 'The base table for metadata datasets.',
     'fields' => array(
