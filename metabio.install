@@ -214,6 +214,14 @@ function metabio_schema() {
       'files' => array(
         'description' => 'Comma separated list of file urls',
         'type' => 'text'),
+      'date_created' => array(
+        'description' => 'Date entry was created in Atom format',
+        'type' => 'varchar',
+        'length' => 100),
+      'date_last_changed' => array(
+        'description' => 'Date entry was last changed in Atom format',
+        'type' => 'varchar',
+        'length' => 100),
       ),
 'indexes' => array(
   'node_dataset' => array('nid')

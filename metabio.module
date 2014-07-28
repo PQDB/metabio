@@ -54,6 +54,10 @@ $GLOBALS['metabio_dataset_fields'] = array(
   'files' => array(
     'files'
   ),
+  'dates' => array(
+    'date_created',
+    'date_last_changed',
+  ),
 );
 
 include('metabio_forms.inc');
@@ -428,12 +432,16 @@ function metabio_insert($node) {
         }
       }
     }
+    $created=date(DATE_ATOM);
+    $node->date_created=$created;
+    $node->date_last_changed=$created;
     db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
   }
 }
 
 function metabio_update($node) {
   if($node->type=='metabio'){
+    $node->date_last_changed=date(DATE_ATOM);
     db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
   }
 }
@@ -450,9 +458,9 @@ function metabio_load($nodes) {
     foreach($result as $record) {
       foreach($GLOBALS['metabio_dataset_fields'] as $group => $fields) {
         foreach($fields as $field) {
-          if ($field !== "geography" && is_array(json_decode($record->{$field},true))){ 
+          if ($field !== "geography" && is_array(json_decode($record->{$field},true))) { 
             $nodes[$record->nid]->metabio[$group][$field] = array_keys(json_decode($record->{$field},true));
-          } else{
+          } else {
             $nodes[$record->nid]->metabio[$group][$field] = $record->{$field};
           }
         }

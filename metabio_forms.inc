@@ -475,7 +475,7 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       );
 
     $form['citations']['publications_dois'] = array(
-      '#title' => t('DOIs publications'),
+      '#title' => t('Publications Digital Object Identifiers (DOIs)'),
       '#type' => 'textarea',
       '#cols' => 50,
       '#rows' => 6,
@@ -497,7 +497,6 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       '#cols' => 50,
       '#default_value' => isset($form['#node']->metabio['citations']['collections']) ? $form['#node']->metabio['citations']['collections'] : array()
       );
-
 
     $form['filesfield'] = array(
       '#title' => t('Files'),
@@ -575,12 +574,6 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
     $form['options']['status']['#return_value'] = TRUE;
     $form['options']['status']['#value'] = TRUE;
     $form['options']['status']['#checked'] = TRUE;
-    // Temporary fix to see datasets on Front page. Until we create a list view. 
-    $form['options']['promote']['#checked'] = TRUE;
-    $form['options']['promote']['#return_value'] = TRUE;
-    $form['options']['promote']['#default_value'] = TRUE;
-    $form['options']['promote']['#input'] = TRUE;
-    $form['options']['promote']['#value'] = TRUE;
   }
 }
 ?>
