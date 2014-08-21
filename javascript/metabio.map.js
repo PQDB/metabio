@@ -42,8 +42,8 @@
 
     readGeoJSON: function() {
       var self = this,
-          geojson = (this.geography.val().length > 0) ? $.parseJSON(this.geography.val()) : { features : []},
-          polygon = {};
+          geojson = (this.geography.val().length > 0) ? $.parseJSON(this.geography.val()) : { features : []};
+          /*polygon = {};*/
 
       $.each(geojson.features, function() {
         contentString=this.properties.infowin;
@@ -55,7 +55,7 @@
             polygon = self.createPolygon();
             this.geometry.coordinates[0].pop();
             $.each(this.geometry.coordinates[0], function() {
-              self.addVertex(polygon, self.createPoint(this));
+               self.addVertex(polygon, self.createPoint(this));
             });
             self.createPolyInfoWindow(polygon,contentString);
           break;
@@ -136,7 +136,6 @@
 
     startPolygon: function(polygon) {
       var self = this;
-
       google.maps.event.clearListeners(this.map, 'click');
       google.maps.event.addListener(this.map, 'click', function(e) { self.addVertex(polygon, e.latLng); });
     },
@@ -200,9 +199,9 @@
 
       path.insertAt(path.length, position);
       this.polygon_vertices.push(vertex);
-      this.buildGeoJSON();
 
       if(this.isEditMode()) {
+        this.buildGeoJSON();
         this.addVertexListener(path, vertex, path.length-1, 'drag');
         this.addVertexListener(path, vertex, path.length-1, 'dblclick');
       }
@@ -253,9 +252,9 @@
       marker = this.createMarker(position, this.marker_icon);
       this.markers.push(marker);
       this.infowindows.push(infowindow);
-      this.buildGeoJSON();
       if(this.isEditMode()) {
         this.addMarkerListener(marker);
+        this.buildGeoJSON();
       }else{
         this.addMarkerInfoWindowListener(marker,infowindow);
       }
