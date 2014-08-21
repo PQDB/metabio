@@ -201,7 +201,7 @@ function template_preprocess_metabio(&$variables) {
   $data = $variables['elements']['#metabio'];
   foreach ($data as $section => $fields) {
     foreach($fields as $key => $value) {
-      if($key === 'geography') {
+      if($key === 'geography' | $key==='taxonomic_details') {
         $value = $data[$section][$key];
       } else {
         $value = (is_string($data[$section][$key])) ? check_plain($data[$section][$key]) : $data[$section][$key];
@@ -250,7 +250,7 @@ function theme_metabio_checkbox_values_with_other($content) {
 }
 
 function metabio_user_insert(&$edit, $account, $category) {
-/*  db_insert('metabio_users')->fields(array(
+  db_insert('metabio_users')->fields(array(
     'uid' => $account->uid,
     'first_name' => $edit['first_name'],
     'last_name' => $edit['last_name'],
@@ -259,7 +259,6 @@ function metabio_user_insert(&$edit, $account, $category) {
     'contact' => $edit['contact'],
     ))->execute();
   drupal_set_message('You are now registered and connected!','status');
-  */
 }
 
 function metabio_user_update(&$edit, $account, $category) {
@@ -411,7 +410,7 @@ function metabio_form_submit($form, &$form_state) {
 
 
 function metabio_insert($node) {
-/*  if($node->type=='metabio'){
+  if($node->type=='metabio'){
     foreach ($node as $key => $value) {
       if (strpos($key,"file_") !== false && $value !== 0) {
         $file = file_load($value);
@@ -438,7 +437,6 @@ function metabio_insert($node) {
     $node->date_last_changed=$created;
     db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
   }
-  */
 }
 
 function metabio_update($node) {
