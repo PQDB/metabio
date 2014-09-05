@@ -22,6 +22,7 @@
         mapTypeId: google.maps.MapTypeId.HYBRID,
         disableDoubleClickZoom: true
       });
+      this.bounds = new google.maps.LatLngBounds();
       this.marker_icon = {
         url: Drupal.settings.metabio_path + '/images/red-dot.png',
         origin: new google.maps.Point(0,0)
@@ -44,9 +45,9 @@
       var self = this,
           geojson = (this.geography.val().length > 0) ? $.parseJSON(this.geography.val()) : { features : []};
           /*polygon = {};*/
-
       $.each(geojson.features, function() {
         contentString=this.properties.infowin;
+
         switch (this.geometry.type) {
           case 'Point':
             self.addMarker(self.createPoint(this.geometry.coordinates),contentString);
@@ -125,7 +126,7 @@
         strokeWeight: 3,
         strokeColor: strokeColor,
         strokeOpacity: strokeOpacity,
-        fillColor: '#5555FF',
+        fillColor: '#ffc600',
         editable: false
       });
       polygon.setMap(this.map);
@@ -205,7 +206,8 @@
         this.addVertexListener(path, vertex, path.length-1, 'drag');
         this.addVertexListener(path, vertex, path.length-1, 'dblclick');
       }
-
+      this.bounds.extend(position);
+      this.map.fitBounds(this.bounds);
     },
 
     addVertexListener: function(path, vertex, index, type) {
@@ -252,6 +254,8 @@
       marker = this.createMarker(position, this.marker_icon);
       this.markers.push(marker);
       this.infowindows.push(infowindow);
+      this.bounds.extend(position);
+      this.map.fitBounds(this.bounds);
       if(this.isEditMode()) {
         this.addMarkerListener(marker);
         this.buildGeoJSON();

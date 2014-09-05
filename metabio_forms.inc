@@ -575,5 +575,50 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
     $form['options']['status']['#value'] = TRUE;
     $form['options']['status']['#checked'] = TRUE;
   }
+
 }
+
+function metabio_search_form($form,&$form_state){
+    if(!array_key_exists('values',$form_state)) {
+      $content=metabio_list('',false);
+    }else{
+      $content='';
+    }
+   $form['searchbox'] = array(
+      '#title' => t(''),
+      '#type' => 'textfield',
+      '#size' => 50,
+      '#required' => FALSE,
+      );
+
+   $form['searchbutton'] = array(
+      '#type' => 'submit',
+      '#value' => t('Search'),
+      //'#executes_submit_callback' => FALSE,
+      '#ajax' => array(
+        'callback' => '_ajax_metabio_list',
+        'wrapper' => 'search_results',
+        ),
+      );
+
+   $form['box'] = array(
+      '#type' => 'markup',
+      '#prefix' => '<div id="search_results">',
+      '#suffix' => '</div>',
+      '#markup' => $content,
+      );
+
+    $module_path = base_path().drupal_get_path('module', 'metabio');
+    $js_files = array(
+      'http://maps.google.com/maps/api/js?sensor=false',
+      $module_path . '/javascript/metabio.map.js',
+      );
+    $form['#attached']['js'] = $js_files;
+    return $form;
+}
+
+function _metabio_search_form() {
+  return drupal_get_form('metabio_search_form');
+}
+
 ?>
