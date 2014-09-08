@@ -24,7 +24,7 @@
       });
       this.bounds = new google.maps.LatLngBounds();
       this.marker_icon = {
-        url: Drupal.settings.metabio_path + '/images/red-dot.png',
+        url: Drupal.settings.metabio_path + '/images/database.png',
         origin: new google.maps.Point(0,0)
       };
       this.polygon_icon = {
@@ -119,8 +119,9 @@
         strokeColor= '#000000';
         strokeOpacity= 3;
       } else {
-        strokeColor= '#000044';
+        strokeColor= '#ffc600';
         strokeOpacity= 2;
+        fillOpacity:0.5;
       }
       polygon = new google.maps.Polygon({
         strokeWeight: 3,
@@ -285,7 +286,7 @@
            this.close();
         });
         $.each(self.polygons, function() {
-            this.setOptions({fillColor: "#0000FF"})
+            this.setOptions({fillColor: "#ffff00",fillOpacity:0.5})
           });
         infowindow.open(this.map,marker);
       });
@@ -299,9 +300,9 @@
             this.close();
           });
           $.each(self.polygons, function() {
-            this.setOptions({fillColor: "#0000FF"})
+            this.setOptions({fillColor: "#ffff00",fillOpacity:0.5})
           });
-          this.setOptions({fillColor: "#00FF00"});
+          this.setOptions({fillColor: "#ffff00",fillOpacity:0.8});
           var infoWindow = new google.maps.InfoWindow();
           infoWindow.setContent(poly.get("Info"));
           infoWindow.setPosition(event.latLng);     

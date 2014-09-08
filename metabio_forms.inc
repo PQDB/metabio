@@ -118,7 +118,7 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       '#title' => t('First name'),
       '#type' => 'textfield',
       '#size' => 50,
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_first_name']) ? $form['#node']->metabio['overview']['data_holder_first_name'] : ""
       );
 
@@ -126,7 +126,7 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       '#title' => t('Last name'),
       '#type' => 'textfield',
       '#size' => 50,
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_last_name']) ? $form['#node']->metabio['overview']['data_holder_last_name'] : ""
       );
 
@@ -142,7 +142,7 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       '#title' => t('Email'),
       '#type' => 'textfield',
       '#size' => 50,
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#default_value' => isset($form['#node']->metabio['overview']['data_holder_email']) ? $form['#node']->metabio['overview']['data_holder_email'] : ""
       );
 
@@ -598,6 +598,8 @@ function metabio_search_form($form,&$form_state){
       '#ajax' => array(
         'callback' => '_ajax_metabio_list',
         'wrapper' => 'search_results',
+        'method' => 'replace',
+        'effect' => 'fade',
         ),
       );
 

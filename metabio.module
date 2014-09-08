@@ -117,8 +117,8 @@ function metabio_menu() {
     'type' => MENU_CALLBACK,
     ); 
 
-/*
-  $items['metabio_list'] = array(
+
+$items['metabio/metabio_list'] = array(
     'title'           => t('List of metadata entries'),
     'description'     => t('List of metadata entries'),
     'menu_name'       => 'main-menu',
@@ -126,9 +126,8 @@ function metabio_menu() {
     'weight'          => 7,
     'access callback' => 'user_access',
     'type' => MENU_NORMAL_ITEM,
-    'page callback' => 'metabio_metalist',
+    'page callback' => '_ajax_metabio_list',
     );
-*/
 
 $items['metabio_search'] = array(
   'title'           => t('List of metadata entries'),
@@ -641,13 +640,9 @@ function metabio_block_info() {
 }
 
 function _ajax_metabio_list($form,&$form_state){
-  if(!array_key_exists('values',$form_state)) {
-    $filter='';
-  }else{
-    $filter=$form_state['values']['searchbox'];
-  }
+  $filter=$form_state['values']['searchbox'];
   $form['box']['#markup']=metabio_list($filter,true);
-  return $form['box']['#markup'];
+  return $form['box'];
 }
 
 //function _ajax_metabio_list($form, $form_state){
@@ -667,7 +662,10 @@ function metabio_list($filter,$map){
   }
   $query->fields('t', array('nid','dataset_name','dataset_description','geography'));
   $query->fields('n', array('changed'));
-  $query->extend('TableSort')->orderByHeader($header)->limit(100);
+  $query->extend('TableSort')->orderByHeader($header);
+  if ($filter==""){
+    $query->limit(100);
+  }
   $result = $query->execute();
   $rows = array();
   $output='';
@@ -705,7 +703,11 @@ function metabio_list($filter,$map){
       $output.="<input type='hidden' name='geography' value='".json_encode($arr)."'>";
       $output.='<div id="map" style="width:100%;height:500px;max-width: none;max-height:85%;"></div><br><br>';
   }
-  $output.=theme('pager').theme('table', array('header' => $header, 'rows' => $rows)).theme('pager');
+  if ($filter==""){
+        $output.=theme('pager').theme('table', array('header' => $header, 'rows' => $rows)).theme('pager');
+  }else{
+        $output.=theme('table', array('header' => $header, 'rows' => $rows));
+  }
 return $output;
 }
 
