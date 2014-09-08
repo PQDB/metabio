@@ -139,3 +139,9 @@ div[class$="-other"]{
   padding:15px;
   border-radius:15px;
 }
+
+#number_results{
+  padding-top:20px;
+  font-size:large;
+  font-weight:bold;
+}
