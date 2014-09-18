@@ -5,7 +5,7 @@
 
     map: {}, map_center: {}, marker_icon: {}, polygon_icon: {},
     markers: [], polygons: [], polygon_vertices: [],infowindows: [],
-    geography: "",
+    geography: "", polybounds:[],
 
     attach: function() {
       this.geography = $("input[name='geography']");
@@ -50,15 +50,17 @@
 
         switch (this.geometry.type) {
           case 'Point':
-            self.addMarker(self.createPoint(this.geometry.coordinates),contentString);
+            self.addMarker(self.createPoint(this.geometry.coordinates),contentString,false);
           break;
           case 'Polygon':
             polygon = self.createPolygon();
             this.geometry.coordinates[0].pop();
+            self.polybounds = new google.maps.LatLngBounds();
             $.each(this.geometry.coordinates[0], function() {
                self.addVertex(polygon, self.createPoint(this));
             });
-            self.createPolyInfoWindow(polygon,contentString);
+            //self.createPolyInfoWindow(polygon,contentString);
+            self.addMarker(self.createPoint([self.polybounds.getCenter().lng(),self.polybounds.getCenter().lat()]),contentString,polygon);
           break;
         }
       });
@@ -118,19 +120,23 @@
       if(this.isEditMode()) {
         strokeColor= '#000000';
         strokeOpacity= 3;
+        fillOpacity=0.6;
       } else {
         strokeColor= '#ffc600';
         strokeOpacity= 2;
-        fillOpacity:0.5;
+        fillOpacity=0.6;
       }
       polygon = new google.maps.Polygon({
         strokeWeight: 3,
         strokeColor: strokeColor,
         strokeOpacity: strokeOpacity,
         fillColor: '#ffc600',
+        fillOpacity: fillOpacity,
         editable: false
       });
-      polygon.setMap(this.map);
+      if (this.isEditMode()){
+        polygon.setMap(this.map);
+      }
       polygon.setPaths(new google.maps.MVCArray([paths]));
       this.polygons.push(polygon);
       return polygon;
@@ -208,7 +214,9 @@
         this.addVertexListener(path, vertex, path.length-1, 'dblclick');
       }
       this.bounds.extend(position);
+      this.polybounds.extend(position);
       this.map.fitBounds(this.bounds);
+      return this.polybounds;
     },
 
     addVertexListener: function(path, vertex, index, type) {
@@ -248,7 +256,7 @@
       });
     },
 
-    addMarker: function(position,contentString) {
+    addMarker: function(position,contentString,poly) {
       var marker = {};
       var infowindow = {};
       infowindow = this.createInfoWindow(contentString);
@@ -262,6 +270,9 @@
         this.buildGeoJSON();
       }else{
         this.addMarkerInfoWindowListener(marker,infowindow);
+        if(poly){
+          this.addPolygonMarkerListener(marker,poly);
+        }
       }
     },
 
@@ -278,6 +289,17 @@
         });
       });
     },
+
+    addPolygonMarkerListener: function(marker,poly) {
+      var self = this;
+      google.maps.event.addListener(marker, 'mouseover', function() {
+        poly.setMap(this.map);
+      });
+      google.maps.event.addListener(marker, 'mouseout', function() {
+        poly.setMap(null);
+      });
+    },
+
 
     addMarkerInfoWindowListener: function(marker,infowindow) {
       var self = this;

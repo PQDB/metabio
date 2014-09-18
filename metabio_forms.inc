@@ -613,7 +613,7 @@ function metabio_search_form($form,&$form_state){
     $module_path = base_path().drupal_get_path('module', 'metabio');
     $js_files = array(
       'http://maps.google.com/maps/api/js?sensor=false',
-      $module_path . '/javascript/metabio.map.js',
+      $module_path . '/javascript/metabio.map2.js',
       );
     $form['#attached']['js'] = $js_files;
     return $form;

@@ -144,4 +144,9 @@ div[class$="-other"]{
   padding-top:20px;
   font-size:large;
   font-weight:bold;
+  color:#FF9E45;
+}
+
+#map img {
+max-width: none;
 }
