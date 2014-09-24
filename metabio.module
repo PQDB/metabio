@@ -746,6 +746,7 @@ return $output;
 function metabio_frontpage_map(){
   drupal_add_js('http://maps.google.com/maps/api/js?sensor=false');
   drupal_add_js(base_path().drupal_get_path('module', 'metabio') . '/javascript/metabio.map.js');
+  drupal_add_js(array('metabio_globalmap' => 'yes'), 'setting');
   $query=db_select('metabio_dataset', 't');
   $query->join('node','n','t.nid=n.nid');
   $query->fields('t', array('nid','dataset_name','dataset_description','geography'));

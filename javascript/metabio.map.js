@@ -16,11 +16,12 @@
 
     createMap: function() {
       this.map_center = new google.maps.LatLng(50, -73);
+      maptype=(this.isEditMode())?google.maps.MapTypeId.HYBRID:google.maps.MapTypeId.ROADMAP;
       this.map = new google.maps.Map($("#map")[0], {
         zoom: 5,
         center: this.map_center,
-        mapTypeId: google.maps.MapTypeId.HYBRID,
-        disableDoubleClickZoom: true
+        mapTypeId: maptype,
+        disableDoubleClickZoom: (this.isEditMode())?true:false,
       });
       this.bounds = new google.maps.LatLngBounds();
       this.marker_icon = {
@@ -134,7 +135,7 @@
         fillOpacity: fillOpacity,
         editable: false
       });
-      if (this.isEditMode()){
+      if (this.isEditMode() | !this.isGlobalMap()){
         polygon.setMap(this.map);
       }
       polygon.setPaths(new google.maps.MVCArray([paths]));
@@ -199,14 +200,11 @@
     addVertex: function(polygon, position) {
       if(this.isEditMode()){
         icon=this.polygon_icon;
-      }else{
-        icon=this.polygon_icon_view;
-      }
-      var vertex = this.createMarker(position, icon),
-          path = polygon.getPath();
-
-      path.insertAt(path.length, position);
-      this.polygon_vertices.push(vertex);
+       var vertex = this.createMarker(position, icon);
+       this.polygon_vertices.push(vertex);
+     }
+     path = polygon.getPath();
+     path.insertAt(path.length, position);
 
       if(this.isEditMode()) {
         this.buildGeoJSON();
@@ -270,7 +268,7 @@
         this.buildGeoJSON();
       }else{
         this.addMarkerInfoWindowListener(marker,infowindow);
-        if(poly){
+        if(poly && this.isGlobalMap()){
           this.addPolygonMarkerListener(marker,poly);
         }
       }
@@ -379,6 +377,14 @@
 
     isEditMode: function() {
       if(Drupal.settings.hasOwnProperty('metabio_mode') && Drupal.settings.metabio_mode === 'edit') {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    isGlobalMap: function() {
+      if(Drupal.settings.hasOwnProperty('metabio_globalmap') && Drupal.settings.metabio_globalmap === 'yes') {
         return true;
       } else {
         return false;

@@ -142,11 +142,17 @@ div[class$="-other"]{
 
 #number_results{
   padding-top:20px;
-  font-size:large;
+  font-size:18pt;
   font-weight:bold;
   color:#FF9E45;
 }
 
 #map img {
 max-width: none;
+}
+
+#map {
+border-radius: 15px;
+border: 5px solid;
+border-color:#ececec;
 }
