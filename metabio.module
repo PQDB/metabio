@@ -4,13 +4,14 @@ $GLOBALS['metabio_dataset_fields'] = array(
     'dataset_name',
     'dataset_description',
     'tags',
-    'data_collector',
+    /*'data_collector',
     'data_holder_first_name',
     'data_holder_last_name',
     'data_holder_institution',
     'data_holder_email',
     'data_holder_phone',
     'data_holder_address',
+    */
     'other_institutions',
     'funding_sources',
     'dataset_format',
@@ -60,7 +61,17 @@ $GLOBALS['metabio_dataset_fields'] = array(
     ),
   );
 
+$GLOBALS['metabio_people_fields']=array(
+  'first_name',
+  'last_name',
+  'institution',
+  'email',
+  'phone',
+  'address',
+  );
+
 include('metabio_forms.inc');
+include('metabio_eml.inc');
 
 /**
  * Implements hook_node_info().
@@ -122,6 +133,15 @@ function metabio_menu() {
     //'page arguments' => array(2),
     'type' => MENU_CALLBACK,
     ); 
+
+  $items['metabio/eml'] = array(
+    'page callback' => 'metabio_generate_eml',
+    'access arguments' => array('access content'),
+    //'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    ); 
+
+
 
 $items['metabio_search'] = array(
   'title'           => t('List of metadata entries'),
@@ -403,6 +423,15 @@ function _options_study_status($key = NULL) {
   return ($key) ? $options[$key] : $options;
 }
 
+
+function _people_roles($key= NULL){
+    $options = array(
+    1 => t('Data collector'),
+    2 => t('Data holder contact')
+    );
+  return ($key) ? $options[$key] : $options;
+}
+
 // Form validation handler.
 function metabio_form_validate($form, &$form_state) {
   //do validation here if necessary
@@ -426,6 +455,8 @@ function metabio_form_submit($form, &$form_state) {
 
 function metabio_insert($node) {
   if($node->type=='metabio'){
+    $pout=_metabio_insert_people($node);
+    $node=$pout['node'];
     foreach ($node as $key => $value) {
       if (strpos($key,"file_") !== false && $value !== 0) {
         $file = file_load($value);
@@ -447,17 +478,69 @@ function metabio_insert($node) {
         }
       }
     }
-    $created=date(DATE_ATOM);
+    $created=date(DATE_ATOM); // Date the entry was created
     $node->date_created=$created;
     $node->date_last_changed=$created;
-    db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
+    $mid=db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
+    _metabio_insert_people_datasets($mid,$pout['person_role']);
   }
 }
+
+function _metabio_insert_people($node) {
+  //Assumes that field names match exactly db column names
+  $out=_metabio_people_remap($node,'data_collector');
+  $arr=array();
+  foreach($out['people'] as $key=>$value){
+    if (array_filter($value)) {
+      $pid=db_insert('metabio_people')->fields($value)->execute();
+      $arr[$pid]=1; //person_id=>role
+    }
+  }
+  $out=_metabio_people_remap($out['node'],'data_holder_contact');
+  foreach($out['people'] as $key=>$value){
+    if (array_filter($value)) {
+      $pid=db_insert('metabio_people')->fields($value)->execute();
+      $arr[$pid]=2; //person_id=>role
+    }
+  }
+  return array('node'=>$node,'person_role'=>$arr);
+}
+
+function _metabio_people_remap($node,$name){
+  $n=array_keys((array) $node);
+  $dc=preg_grep('/^'.$name.'_/',$n);
+  $people=array();
+  foreach($dc as $key) {
+    preg_match ( '/'.$name.'_([0-9]+)/', $key, $match);
+    if(array_search($match[1],array_keys($people))===false){
+      $people[$match[1]]=array();
+    }
+    $field=substr($key,strlen($name)+3);
+    $people[$match[1]]+=array($field=>$node->{$key});
+    unset($node->{$key});
+  }
+  return array('node'=>$node,'people'=>$people);
+}
+
+function _metabio_insert_people_datasets($mid,$pr){
+  foreach($pr as $pid=>$role){
+    db_insert('metabio_people_datasets')->fields(array('person_id'=>$pid,'mid'=>$mid,'role'=>$role))->execute();
+  }
+}
+
 
 function metabio_update($node) {
   if($node->type=='metabio'){
     $node->date_last_changed=date(DATE_ATOM);
     db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
+    $query=db_select('metabio_dataset','m');
+    $query->join('metabio_people_datasets','md','m.mid=md.mid');
+    $result=$query->fields('md',array('person_id','mid'))->condition('m.nid', $node->nid)->execute();
+    foreach($result as $r) {
+      db_delete('metabio_people')->condition('person_id',$r->person_id,'=')->execute(); //Delete of lookup is automatic with foreign key
+    }
+    $pout=_metabio_insert_people($node);
+    _metabio_insert_people_datasets($r->mid,$pout['person_role']);
   }
 }
 
@@ -479,6 +562,27 @@ function metabio_load($nodes) {
             $nodes[$record->nid]->metabio[$group][$field] = $record->{$field};
           }
         }
+      }
+    }
+    $query = db_select('metabio_people_datasets','pd');
+    $query->join('metabio_people','p','pd.person_id=p.person_id');
+    $query->fields('p')->fields('pd',array('role'));
+    $query->condition('pd.mid',$record->mid,'=')->orderBy('pd.role');
+    $resultp=$query->execute();
+    $holder=0;
+    $collector=0;
+    foreach($resultp as $person) {
+      foreach($GLOBALS['metabio_people_fields'] as $field) {
+        if ($person->role==1) {
+          $nodes[$record->nid]->metabio['overview']['data_collector_'.$collector][$field]=$person->{$field};
+        }else if ($person->role==2) {
+          $nodes[$record->nid]->metabio['overview']['data_holder_contact_'.$holder][$field]=$person->{$field};;
+        }
+      }
+      if ($person->role==1) {
+        $collector+=1;
+      }else if ($person->role==2) {                  
+        $holder+=1;
       }
     }
   }
@@ -791,4 +895,3 @@ return $output;
 
 
 ?>
-

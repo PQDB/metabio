@@ -63,9 +63,6 @@
   margin-bottom:20px;
 }
 
-#edit-data-holder-contact .fieldset-wrapper{
-  margin-top:25px;
-}
 
 #inputcoords{
   width:300px;
@@ -105,16 +102,20 @@
   max-width:700px;
 }
 
-#edit-data-holder-contact input{
+.persondiv .fieldset-wrapper{
+  margin-top:25px !important;
+}
+
+.persondiv input{
   margin-bottom:0px;
 }
 
-#edit-data-holder-contact {
+.persondiv {
   width:360px;
   background:#f2f2f2;
 }
 
-#edit-data-holder-contact .form-item {
+.persondiv .form-item {
   padding:0px;
   margin-bottom:3px;
 }

@@ -414,8 +414,8 @@ msgid "Individual level (e.g. behaviour, physiology, autecology)"
 msgstr "Niveau de l'individu (e.g. comportement, physiologie, autécologie)."
 
 #: metabio.module:339
-msgid "Niveau de la communauté (e.g. richesse, distribution, composition)"
-msgstr ""
+msgid "Community level (e.g. richness, distribution, composition)"
+msgstr "Niveau de la communauté (e.g. richesse, distribution, composition)"
 
 #: metabio.module:340
 msgid "Population/species level (e.g. systematic study)"

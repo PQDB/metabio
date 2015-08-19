@@ -25,6 +25,10 @@ function metabio_schema() {
         'description' => 'Organization',
         'type' => 'varchar',
         'length' => 255),
+      'address' => array(
+        'description' => 'Address',
+        'type' => 'varchar',
+        'length' => 500),
       'phone' => array(
         'description' => 'Phone',
         'type' => 'varchar',
@@ -60,7 +64,7 @@ function metabio_schema() {
       'dataset_name' => array(
         'description' => 'The name of the dataset',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'dataset_description' => array(
         'description' => 'The description of the dataset.',
         'type' => 'text'),
@@ -70,7 +74,7 @@ function metabio_schema() {
       'data_collector' => array(
         'description' => 'Who collected the data?',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'data_holder_first_name' => array(
         'description' => 'First name of data holder',
         'type' => 'varchar',
@@ -82,7 +86,7 @@ function metabio_schema() {
       'data_holder_institution' => array(
         'description' => 'Institution of data holder',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'data_holder_email' => array(
         'description' => 'Email of data holder',
         'type' => 'varchar',
@@ -94,30 +98,28 @@ function metabio_schema() {
       'data_holder_address' => array(
         'description' => 'Address of data holder',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'other_institutions' => array(
         'description' => 'Other institutions involved in project',
-        'type' => 'varchar',
-        'length' => 255),
+        'type' => 'text'),
       'funding_sources' => array(
         'description' => 'Funding sources',
-        'type' => 'varchar',
-        'length' => 255),
+        'type' => 'text'),
       'dataset_format' => array(
         'description' => 'Format of dataset',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'responsible_person' => array(
         'description' => 'Person responsible for data',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'additional_comments' => array(
         'description' => 'Any additional comments',
         'type' => 'text'),
       'taxa_studied' => array(
         'description' => 'List of taxa studied',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'taxonomic_information' => array(
         'description' => 'Taxonomic information (multiple checkboxes)',
         'type' => 'varchar',
@@ -138,8 +140,7 @@ function metabio_schema() {
         'length' => 500),
       'sampling_approaches_other' => array(
         'description' => 'Description of other sampling approach',
-        'type' => 'varchar',
-        'length' => 500),
+        'type' => 'text'),
       'study_goals' => array(
         'description' => 'Multiple checkboxes',
         'type' => 'varchar',
@@ -158,8 +159,10 @@ function metabio_schema() {
         'length' => 500),
       'frequency_of_sampling' => array(
         'description' => 'Frequency of sampling',
-        'type' => 'varchar',
-        'length' => 255),
+        'type' => 'text'),
+      'seasons' => array(
+        'description' => 'Seasons of sampling',
+        'type' => 'text'),
       'first_year' => array(
         'description' => 'First year',
         'type' => 'int',
@@ -177,8 +180,7 @@ function metabio_schema() {
         'type' => 'text'),
       'site_habitat' => array(
         'description' => 'Site habitat',
-        'type' => 'varchar',
-        'length' => 500),
+        'type' => 'text'),
       'site_environment' => array(
         'description' => 'Aquatic/terrestrial/marine/aerial',
         'type' => 'varchar',
@@ -186,7 +188,7 @@ function metabio_schema() {
       'location_name' => array(
         'description' => 'Name of location',
         'type' => 'varchar',
-        'length' => 255),
+        'length' => 500),
       'geography' => array(
         'description' => 'Geography of study location',
         'type' => 'text'),
@@ -205,12 +207,10 @@ function metabio_schema() {
         'type' => 'text'),
       'collections' => array(
         'description' => 'Collections information',
-        'type' => 'varchar',
-        'length' => 255),
+        'type' => 'text'),
       'specimens' => array(
         'description' => 'Specimens',
-        'type' => 'varchar',
-        'length' => 255),
+        'type' => 'text'),
       'files' => array(
         'description' => 'Comma separated list of file urls',
         'type' => 'text'),
@@ -234,7 +234,75 @@ function metabio_schema() {
   ),
 'primary key' => array('mid'),
 );
-  /*$schema['ITIS_names'] = array(
+
+$schema['metabio_people'] = array(
+  'description' => 'Metabio people.',
+  'fields' => array(
+    'person_id' => array(
+      'description' => 'primary key',
+      'type' => 'serial',
+      'not null' => TRUE),
+    'first_name' => array(
+      'description' => 'First name',
+      'type' => 'varchar',
+      'length' => 255),
+    'last_name' => array(
+      'description' => 'Last name',
+      'type' => 'varchar',
+      'length' => 255),
+    'institution' => array(
+      'description' => 'Organization',
+      'type' => 'varchar',
+      'length' => 500),
+    'address' => array(
+      'description' => 'Address',
+      'type' => 'varchar',
+      'length' => 500),
+    'phone' => array(
+      'description' => 'Phone',
+      'type' => 'varchar',
+      'length' => 30),
+    'email' => array(
+      'description' => 'Email',
+      'type' => 'varchar',
+      'length' => 255),
+  ),
+  'indexes' => array(
+    'people' => array('person_id')
+  ),
+  'primary key' => array('person_id'),
+);
+
+$schema['metabio_people_datasets'] = array(
+  'description' => 'Metabio people dataset lookup table.',
+  'fields' => array(
+    'person_id' => array(
+      'description' => 'Person id',
+      'type' => 'int',
+      'not null' => TRUE),
+    'mid' => array(
+      'description' => 'Dataset id',
+      'type' => 'int',
+      'not null' => TRUE),
+    'role' => array(
+      'description' => 'role',
+      'type' => 'int',
+  ),
+  'foreign keys' => array(
+    'dataset' => array(
+      'table' => 'metabio_dataset',
+      'columns' => array('mid' => 'mid'),
+    ), 
+    'person' => array(
+      'table' => 'metabio_people',
+      'columns' => array('person_id' => 'person_id'),
+    ), 
+  ),
+);
+
+
+/*
+  $schema['itis_names'] = array(
     'description' => 'The table with ITIS longnames',
     'fields' => array(
       'tsn' => array(
@@ -246,40 +314,29 @@ function metabio_schema() {
         'description' => 'Latin name',
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE),
+        'not null' => FALSE),
       'english_name' => array(
         'description' => 'English name',
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE),     
+        'not null' => FALSE),     
       'french_name' => array(
         'description' => 'French name',
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE),
+        'not null' => FALSE),
+      'parent_tsn' => array(
+        'description' => 'Parent tsn',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE),
       ),
-);*/
+);
+*/
 return $schema;
 }
 
 
-/**
- * Implements hook_install().
- */
-function flexslider_install() {
-/*
-  module_load_include('inc', 'taxonomy_csv','import/taxonomy_csv.import.api');
-    ini_set("memory_limit","200M");
-    $csv_lines = file_get_contents(drupal_get_path('module','metabio').'/ITIS.csv');
-      $result = taxonomy_csv_import(
-      array(
-        'text'             => $csv_lines,
-        'update_or_ignore' => 'update',
-        'enclosure'        => '"',
-        'source_choice'    => 'text',
-      ));
-*/
-}
 
 /**
  * Implements hook_uninstall().
@@ -312,6 +369,7 @@ function metabio_install(){
   $term->name = 'urban';
   $term->vid = $vid;
   taxonomy_term_save($term);
+  /*db_query("COPY itis_names FROM '".drupal_get_path('module','metabio')."/itis_names.csv' DELIMITER '|' CSV");*/
 }
 
 

@@ -1,5 +1,7 @@
 <?php
 
+require_once(DRUPAL_ROOT . "/modules/node/node.pages.inc");
+
 function metabio_form_alter(&$form, &$form_state, $form_id) {
 
 if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
@@ -72,7 +74,7 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       '#title' => t('Dataset name'),
       '#type' => 'textfield',
       '#size' => 50,
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#default_value' => isset($form['#node']->metabio['overview']['dataset_name']) ? $form['#node']->metabio['overview']['dataset_name'] : ""
       );
 
@@ -81,7 +83,7 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       '#type' => 'textarea',
       '#cols' => 50,
       '#rows' => 6,
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#default_value' => isset($form['#node']->metabio['overview']['dataset_description']) ? $form['#node']->metabio['overview']['dataset_description'] : ""
       );
 
@@ -99,70 +101,17 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       '#maxlength' => 1024,
       '#suffix' => '</div><br>'
     );
-
+/*
     $form['overview']['data_collector'] = array(
       '#title' => t('Data collector(s)'),
       '#type' => 'textfield',
       '#size' => 50,
       '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['overview']['data_collector']) ? $form['#node']->metabio['overview']['data_collector'] : ""
+      '#default_value' => isset($form['#node']->metabio['overview']['data_collector']) ? $form['#node']->metabio['overview']['data_collector'] : "",
       );
-    
-    $form['overview']['data_holder_contact'] = array(
-      '#title' => t('Contact information for data holder'),
-      '#type' => 'fieldset', 
-      '#collapsible' => FALSE, 
-      );
-
-    $form['overview']['data_holder_contact']['data_holder_first_name'] = array(
-      '#title' => t('First name'),
-      '#type' => 'textfield',
-      '#size' => 50,
-      '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_first_name']) ? $form['#node']->metabio['overview']['data_holder_first_name'] : ""
-      );
-
-    $form['overview']['data_holder_contact']['data_holder_last_name'] = array(
-      '#title' => t('Last name'),
-      '#type' => 'textfield',
-      '#size' => 50,
-      '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_last_name']) ? $form['#node']->metabio['overview']['data_holder_last_name'] : ""
-      );
-
-    $form['overview']['data_holder_contact']['data_holder_institution'] = array(
-      '#title' => t('Institution'),
-      '#type' => 'textfield',
-      '#size' => 50,
-      '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_institution']) ? $form['#node']->metabio['overview']['data_holder_institution'] : ""
-      );
-
-    $form['overview']['data_holder_contact']['data_holder_email'] = array(
-      '#title' => t('Email'),
-      '#type' => 'textfield',
-      '#size' => 50,
-      '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_email']) ? $form['#node']->metabio['overview']['data_holder_email'] : ""
-      );
-
-    $form['overview']['data_holder_contact']['data_holder_phone'] = array(
-      '#title' => t('Telephone'),
-      '#type' => 'textfield',
-      '#size' => 50,
-      '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_phone']) ? $form['#node']->metabio['overview']['data_holder_phone'] : ""
-      );
-
-    $form['overview']['data_holder_contact']['data_holder_address'] = array(
-      '#title' => t('Address'),
-      '#type' => 'textarea',
-      '#cols' => 50,
-      '#rows' => 3,
-      '#size' => 50,
-      '#required' => FALSE,
-      '#default_value' => isset($form['#node']->metabio['overview']['data_holder_address']) ? $form['#node']->metabio['overview']['data_holder_address'] : ""
-      );
+*/
+    $form['overview']+=metabio_form_person('data_collector',$form,$form_state,'data collector');
+    $form['overview']+=metabio_form_person('data_holder_contact',$form,$form_state,'data holder');
 
     $form['overview']['other_institutions'] = array(
       '#title' => t('Other institution(s) involved in data collection, analysis, archiving, etc. (e.g. university, government, department)'),
@@ -623,4 +572,139 @@ function _metabio_search_form() {
   return drupal_get_form('metabio_search_form');
 }
 
+function metabio_form_person($person_type,$form,$form_state,$fieldtitle){
+   $person=array();
+   $fs=$person_type;
+   $person[$fs] = array(
+      '#title' => t("Contact information for @value", array('@value' => $fieldtitle)),
+      '#type' => 'fieldset', 
+      '#collapsible' => FALSE,
+      '#prefix'=> '<div class="persondiv" id="div_'.$fs.'">',
+      '#suffix'=> '</div>',
+      );
+
+    $numpersons = 0;
+    if(array_key_exists('values',$form_state)){
+      $par=$form_state['triggering_element']['#array_parents'];
+      //debug($par);
+      if($par[1]==$fs){
+        foreach ($form_state['values'] as $key => $value) {
+          if (preg_match('/'.$person_type.'_[0-9]_first_name/',$key) == 1) {
+              $numpersons++;
+          }
+        }
+       if($form_state['triggering_element']['#value']==t("Remove last @value", array('@value' => $fieldtitle))) {
+            $numpersons=max($numpersons-2,0);
+       }
+     }
+    }else if(isset($form['#node']->metabio['overview'])) {
+      $n=preg_grep('/'.$person_type.'_[0-9]/',array_keys($form['#node']->metabio['overview']));
+      foreach($n as $nn) {
+          $numpersons++;
+      }
+       $numpersons-=1;
+    }
+  for($i=0;$i<=$numpersons;$i++){
+    $p=$person_type.'_'.$i;
+    $person[$fs][$p] = array(
+      '#title' => t("Person @value", array('@value' => $i+1)),
+      '#type' => 'fieldset', 
+      '#collapsible' => TRUE, 
+      );
+
+    $person[$fs][$p][$p.'_first_name'] = array(
+      '#title' => t('First name'),
+      '#type' => 'textfield',
+      '#size' => 50,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->metabio['overview'][$p]['first_name']) ? $form['#node']->metabio['overview'][$p]['first_name'] : ""
+      );
+
+    $person[$fs][$p][$p.'_last_name'] = array(
+      '#title' => t('Last name'),
+      '#type' => 'textfield',
+      '#size' => 50,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->metabio['overview'][$p]['last_name']) ? $form['#node']->metabio['overview'][$p]['last_name'] : ""
+      );
+
+    $person[$fs][$p][$p.'_institution'] = array(
+      '#title' => t('Institution'),
+      '#type' => 'textfield',
+      '#size' => 50,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->metabio['overview'][$p]['institution']) ? $form['#node']->metabio['overview'][$p]['institution'] : ""
+      );
+
+    $person[$fs][$p][$p.'_email'] = array(
+      '#title' => t('Email'),
+      '#type' => 'textfield',
+      '#size' => 50,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->metabio['overview'][$p]['email']) ? $form['#node']->metabio['overview'][$p]['email'] : ""
+      );
+
+    $person[$fs][$p][$p.'_phone'] = array(
+      '#title' => t('Telephone'),
+      '#type' => 'textfield',
+      '#size' => 50,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->metabio['overview'][$p]['phone']) ? $form['#node']->metabio['overview'][$p]['phone'] : ""
+      );
+
+
+    $person[$fs][$p][$p.'_address'] = array(
+      '#title' => t('Address'),
+      '#type' => 'textarea',
+      '#cols' => 50,
+      '#rows' => 3,
+      '#size' => 50,
+      '#required' => FALSE,
+      '#default_value' => isset($form['#node']->metabio['overview'][$p]['address']) ? $form['#node']->metabio['overview'][$p]['address'] : ""
+      );
+  }
+
+    $person[$fs]['add_'.$fs] = array(
+      '#title' => t("Add person @value", array('@value' => $fieldtitle)),
+      '#type' => 'submit',
+      '#executes_submit_callback' => FALSE,
+      '#size' => 50,
+      '#default_value' =>t("Add @value", array('@value' => $fieldtitle)),
+      '#ajax' => array(
+        'callback' => 'metabio_ajax_add_person',
+        'method' => 'replace',
+        'effect' => 'fade',
+        'wrapper' => 'div_'.$fs,
+        ),
+      );
+
+    $person[$fs]['rem_'.$fs] = array(
+      '#title' => t("Remove last person @value", array('@value' => $fieldtitle)),
+      '#type' => 'submit',
+      '#executes_submit_callback' => FALSE,
+      '#size' => 50,
+      '#default_value' =>t("Remove last @value", array('@value' => $fieldtitle)),
+      '#ajax' => array(
+        'callback' => 'metabio_ajax_add_person',
+        'method' => 'replace',
+        'effect' => 'fade',
+        'wrapper' => 'div_'.$fs,
+        ),
+      );
+
+  return $person;
+}
+
+function metabio_ajax_add_person($form,$form_state){
+  $parents=$form_state['triggering_element']['#array_parents'];
+  //debug($parents);
+  return array(
+    '#type' => 'ajax',
+    '#commands' => array(
+      ajax_command_replace("#div_".$parents[1], render($form[$parents[0]][$parents[1]])),
+    )
+  );
+  //return $form[$parents[0]][$parents[1]];
+  //return $form['overview']['data_holder_contact'];
+}
 ?>

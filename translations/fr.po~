@@ -1,0 +1,580 @@
+
+# $Id$
+#
+# French translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  metabio.module: n/a
+#  templates/metabio_overview.tpl.php: n/a
+#  templates/metabio_biology.tpl.php: n/a
+#  templates/metabio_study_details.tpl.php: n/a
+#  templates/metabio_citations.tpl.php: n/a
+#  metabio.info: n/a
+#  templates/metabio_files.tpl.php: n/a
+#  templates/metabio_site_details.tpl.php: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2014-07-25 16:07-0400\n"
+"PO-Revision-Date: 2014-07-25 16:07-0400\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: French <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: metabio.module:66
+msgid "Metabio Dataset"
+msgstr "Jeu de données"
+
+#: metabio.module:69
+msgid "Biodiversity metadata entry form for datasets."
+msgstr "Formulaire d'entrée de jeux de données"
+
+#: metabio.module:74
+msgid "Metabio dataset list"
+msgstr "Liste des jeux de données"
+
+#: metabio.module:77
+msgid "List of biodiversity metadata"
+msgstr "Liste des métadonnées sur la biodiversité"
+
+#: metabio.module:115;116
+msgid "List of metadata entries"
+msgstr "List des entrées"
+
+#: metabio.module:126
+msgid "Add a new metadata entry"
+msgstr "Ajouter une nouvelle entrée"
+
+#: metabio.module:127
+msgid "Metadata entry form"
+msgstr "Formulaire d'entrée de données"
+
+#: metabio.module:256 templates/metabio_overview.tpl.php:2
+msgid "Overview"
+msgstr "Survol"
+
+#: metabio.module:265;1120
+msgid "Dataset name"
+msgstr "Nom du jeu de données"
+
+#: metabio.module:273
+msgid "Dataset description"
+msgstr "Description du jeu de données"
+
+#: metabio.module:283
+msgid "Tags / keywords"
+msgstr "Mots-clés"
+
+#: metabio.module:290
+msgid "Add tags/keywords here. Start typing and choose an existing tag, or enter a new one, then press the ENTER key."
+msgstr "Ajouter les mots-clé ici. Commencez à taper et choisissez un mot-clé existant, ou entrez en un nouveau et appuyez sur la touche ENTER du clavier"
+
+#: metabio.module:297 templates/metabio_overview.tpl.php:21
+msgid "Data collector(s)"
+msgstr "Personne(s) ayant collecté les données"
+
+#: metabio.module:305
+msgid "Contact information for data holder"
+msgstr "Coordonnées de la personne possédant les données"
+
+#: metabio.module:311
+msgid "First name"
+msgstr "Prénom"
+
+#: metabio.module:319
+msgid "Last name"
+msgstr "Nom de famille"
+
+#: metabio.module:327
+msgid "Institution"
+msgstr "Institution"
+
+#: metabio.module:335
+msgid "Email"
+msgstr "Courriel"
+
+#: metabio.module:343
+msgid "Telephone"
+msgstr "Téléphone"
+
+#: metabio.module:351
+msgid "Address"
+msgstr "Adresse"
+
+#: metabio.module:361
+msgid "Other institution(s) involved in data collection, analysis, archiving, etc. (e.g. university, government, department)"
+msgstr "Autres institution(s) impliquée(s) dans la collecte des données, l'analyse, l'archivage, etc. (universités, gouvernements, départements)"
+
+#: metabio.module:370
+msgid "Funding sources for data collection"
+msgstr "Sources de financement pour la collecte des données"
+
+#: metabio.module:379
+msgid "In what format is the dataset?"
+msgstr "Dans quel format est le jeu de données?"
+
+#: metabio.module:388
+msgid "Person currently responsible for this metadata"
+msgstr ""
+
+#: metabio.module:396
+msgid "Additional comments"
+msgstr ""
+
+#: metabio.module:405 templates/metabio_biology.tpl.php:2
+msgid "Biology"
+msgstr ""
+
+#: metabio.module:414 templates/metabio_biology.tpl.php:7
+msgid "Taxa studied"
+msgstr ""
+
+#: metabio.module:422 templates/metabio_biology.tpl.php:11
+msgid "Taxonomic information"
+msgstr ""
+
+#: metabio.module:430
+msgid "Taxonomic Details"
+msgstr ""
+
+#: metabio.module:439
+msgid "Add taxa here by typing either the scientific or common name. Press the ENTER key when the name is selected"
+msgstr ""
+
+#: metabio.module:445
+msgid "Study details"
+msgstr ""
+
+#: metabio.module:454
+msgid "Describe the study design"
+msgstr ""
+
+#: metabio.module:463 templates/metabio_study_details.tpl.php:12
+msgid "Study status"
+msgstr ""
+
+#: metabio.module:470
+msgid "Sampling approach(es)"
+msgstr ""
+
+#: metabio.module:479;498;519
+msgid "Please define \"other\""
+msgstr ""
+
+#: metabio.module:489
+msgid "Study goal(s)"
+msgstr ""
+
+#: metabio.module:509
+msgid "Data type(s)"
+msgstr ""
+
+#: metabio.module:529 templates/metabio_study_details.tpl.php:40
+msgid "Frequency of sampling"
+msgstr ""
+
+#: metabio.module:538 templates/metabio_study_details.tpl.php:44
+msgid "First year of data collection"
+msgstr ""
+
+#: metabio.module:549 templates/metabio_study_details.tpl.php:48
+msgid "Last year of data collection"
+msgstr ""
+
+#: metabio.module:560
+msgid "Site details"
+msgstr ""
+
+#: metabio.module:572
+msgid "Number of sites included in the study"
+msgstr ""
+
+#: metabio.module:580
+msgid "Describe the site(s) (including distribution of sites if more than one)"
+msgstr ""
+
+#: metabio.module:589
+msgid "Describe site habitat(s)"
+msgstr ""
+
+#: metabio.module:598
+msgid "Site environment(s)"
+msgstr ""
+
+#: metabio.module:606
+msgid "Location name"
+msgstr ""
+
+#: metabio.module:610;616
+msgid "Geography"
+msgstr ""
+
+#: metabio.module:611
+msgid "Location not recognized!"
+msgstr ""
+
+#: metabio.module:611
+msgid "Add marker at this location"
+msgstr ""
+
+#: metabio.module:621
+msgid "Define extent/location of study site(s)"
+msgstr ""
+
+#: metabio.module:622
+msgid "Add geographic coordinates of each study site in the box below, one coordinate per line or add the sites directly on the map below."
+msgstr ""
+
+#: metabio.module:624
+msgid "Coordinate(s) not recognized!"
+msgstr ""
+
+#: metabio.module:625
+msgid "Add to map"
+msgstr ""
+
+#: metabio.module:627
+msgid "For points, single-click to delete. For polygons, double-click on a node to delete, click and drag to relocate."
+msgstr ""
+
+#: metabio.module:629
+msgid "Add polygon"
+msgstr ""
+
+#: metabio.module:630
+msgid "Add point(s)"
+msgstr ""
+
+#: metabio.module:631
+msgid "Clear all"
+msgstr ""
+
+#: metabio.module:637 templates/metabio_citations.tpl.php:2
+msgid "Citations"
+msgstr ""
+
+#: metabio.module:646
+msgid "Publications"
+msgstr ""
+
+#: metabio.module:653
+msgid "List of publications"
+msgstr ""
+
+#: metabio.module:662
+msgid "Hyperlinks to publications"
+msgstr ""
+
+#: metabio.module:671
+msgid "DOIs publications"
+msgstr ""
+
+#: metabio.module:680
+msgid "Specimens"
+msgstr ""
+
+#: metabio.module:687
+msgid "Name of collection(s)"
+msgstr ""
+
+#: metabio.module:696
+msgid "Files"
+msgstr ""
+
+#: metabio.module:729
+msgid "Choose a file"
+msgstr ""
+
+#: metabio.module:744
+msgid "Add more files"
+msgstr ""
+
+#: metabio.module:782
+msgid "Mammals"
+msgstr ""
+
+#: metabio.module:783
+msgid "Marine mammals"
+msgstr ""
+
+#: metabio.module:784
+msgid "Birds"
+msgstr ""
+
+#: metabio.module:785
+msgid "Amphibians and reptiles"
+msgstr ""
+
+#: metabio.module:786
+msgid "Fish"
+msgstr ""
+
+#: metabio.module:787
+msgid "Insects"
+msgstr ""
+
+#: metabio.module:788
+msgid "Arthropods"
+msgstr ""
+
+#: metabio.module:789
+msgid "Crustaceans"
+msgstr ""
+
+#: metabio.module:790
+msgid "Non-arthropod invertebrate animals"
+msgstr ""
+
+#: metabio.module:791
+msgid "Vascular plants"
+msgstr ""
+
+#: metabio.module:792
+msgid "Non-vascular plants"
+msgstr ""
+
+#: metabio.module:793
+msgid "Mushrooms, molds and yeast"
+msgstr ""
+
+#: metabio.module:794
+msgid "Unicellular organisms"
+msgstr ""
+
+#: metabio.module:795
+msgid "Bacteria"
+msgstr ""
+
+#: metabio.module:802
+msgid "Direct visual observation (e.g. fieldwork)"
+msgstr ""
+
+#: metabio.module:803
+msgid "Indirect visual observation (e.g. photos)"
+msgstr ""
+
+#: metabio.module:804
+msgid "Active sampling (e.g. electrofishing, plant vouchers)"
+msgstr ""
+
+#: metabio.module:805
+msgid "Passive sampling (e.g. insect or mammal traps)"
+msgstr ""
+
+#: metabio.module:806
+msgid "Remote sensing"
+msgstr ""
+
+#: metabio.module:807;822;836
+msgid "Other"
+msgstr ""
+
+#: metabio.module:814
+msgid "Individual level (e.g. behaviour, physiology, autecology)"
+msgstr ""
+
+#: metabio.module:815
+msgid "Community level (e.g. richness, distribution, composition)"
+msgstr ""
+
+#: metabio.module:816
+msgid "Population/species level (e.g. systematic study)"
+msgstr ""
+
+#: metabio.module:817
+msgid "Ecosystem level"
+msgstr ""
+
+#: metabio.module:818
+msgid "Paleo-study"
+msgstr ""
+
+#: metabio.module:819
+msgid "Complete inventory"
+msgstr ""
+
+#: metabio.module:820
+msgid "Partial inventory"
+msgstr ""
+
+#: metabio.module:821
+msgid "Single species"
+msgstr ""
+
+#: metabio.module:829
+msgid "Species list"
+msgstr ""
+
+#: metabio.module:830
+msgid "Presence/absence"
+msgstr ""
+
+#: metabio.module:831
+msgid "Abundance/relative abundance/frequency"
+msgstr ""
+
+#: metabio.module:832
+msgid "Biomass"
+msgstr ""
+
+#: metabio.module:833
+msgid "Size"
+msgstr ""
+
+#: metabio.module:834
+msgid "Relative coverage"
+msgstr ""
+
+#: metabio.module:835
+msgid "Genetics"
+msgstr ""
+
+#: metabio.module:843
+msgid "Aquatic"
+msgstr ""
+
+#: metabio.module:844
+msgid "Terrestrial"
+msgstr ""
+
+#: metabio.module:845
+msgid "Marine"
+msgstr ""
+
+#: metabio.module:846
+msgid "Aerial"
+msgstr ""
+
+#: metabio.module:853
+msgid "Publication(s) in peer reviewed literature"
+msgstr ""
+
+#: metabio.module:854
+msgid "Thesis/es"
+msgstr ""
+
+#: metabio.module:855
+msgid "Report(s)"
+msgstr ""
+
+#: metabio.module:856
+msgid "Unpublished"
+msgstr ""
+
+#: metabio.module:857
+msgid "Database"
+msgstr ""
+
+#: metabio.module:864
+msgid "Specimens in a known collection"
+msgstr ""
+
+#: metabio.module:865
+msgid "Specimens not in a known collection"
+msgstr ""
+
+#: metabio.module:866
+msgid "No specimens collected"
+msgstr ""
+
+#: metabio.module:873
+msgid "Ongoing"
+msgstr ""
+
+#: metabio.module:874
+msgid "Complete"
+msgstr ""
+
+#: metabio.module:1104
+msgid "A block to show metabio datasets"
+msgstr ""
+
+#: metabio.module:1121
+msgid "Last modified"
+msgstr ""
+
+#: metabio.module:1137
+msgid "Edit"
+msgstr ""
+
+#: metabio.module:1147
+msgid "List of metabio datasets"
+msgstr ""
+
+#: metabio.info:0;0
+msgid "Biodiversity Metadata System"
+msgstr ""
+
+#: templates/metabio_biology.tpl.php:18
+msgid "Taxonomic details"
+msgstr ""
+
+#: templates/metabio_files.tpl.php:2
+msgid "Data"
+msgstr ""
+
+#: templates/metabio_overview.tpl.php:13
+msgid "Other institutions"
+msgstr ""
+
+#: templates/metabio_overview.tpl.php:17
+msgid "Individual responsible for data"
+msgstr ""
+
+#: templates/metabio_overview.tpl.php:25
+msgid "Funding source(s)"
+msgstr ""
+
+#: templates/metabio_overview.tpl.php:29
+msgid "Dataset format"
+msgstr ""
+
+#: templates/metabio_overview.tpl.php:33
+msgid "Additional information"
+msgstr ""
+
+#: templates/metabio_site_details.tpl.php:2
+msgid "Site Details"
+msgstr ""
+
+#: templates/metabio_site_details.tpl.php:8
+msgid "Number of sites"
+msgstr ""
+
+#: templates/metabio_site_details.tpl.php:12
+msgid "Site description"
+msgstr ""
+
+#: templates/metabio_site_details.tpl.php:16
+msgid "Habitat"
+msgstr ""
+
+#: templates/metabio_site_details.tpl.php:20
+msgid "Environment"
+msgstr ""
+
+#: templates/metabio_study_details.tpl.php:2
+msgid "Study Details"
+msgstr ""
+
+#: templates/metabio_study_details.tpl.php:8
+msgid "Study design"
+msgstr ""
+
+#: templates/metabio_study_details.tpl.php:19
+msgid "Sampling approaches"
+msgstr ""
+
+#: templates/metabio_study_details.tpl.php:26
+msgid "Study goals"
+msgstr ""
+
+#: templates/metabio_study_details.tpl.php:33
+msgid "Data types"
+msgstr ""
+
