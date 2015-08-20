@@ -10,8 +10,7 @@ $GLOBALS['metabio_dataset_fields'] = array(
     'data_holder_institution',
     'data_holder_email',
     'data_holder_phone',
-    'data_holder_address',
-    */
+    'data_holder_address',*/
     'other_institutions',
     'funding_sources',
     'dataset_format',
@@ -256,16 +255,21 @@ function theme_metabio_geography($content) {
 }
 
 function theme_metabio_contact($contact) {
-  $output  = '<div class="metabio-contact metabox"><ul>';
-  $person = array(
-    'name' => (!empty($contact['data_holder_first_name']) && !empty($contact['data_holder_last_name'])) ? '<span class="metabio-field-header">' . $contact['data_holder_first_name'] . " " . $contact['data_holder_last_name'] . '</span>': null,
-    'institution' => (!empty($contact['data_holder_institution'])) ? $contact['data_holder_institution'] : null,
-    'address' => (!empty($contact['data_holder_address'])) ? $contact['data_holder_address'] : null,
-    'email' => (!empty($contact['data_holder_email'])) ? '<a href="mailto:' . $contact['data_holder_email'] . '">' . $contact['data_holder_email'] . '</a>' : null,
-    'phone' => (!empty($contact['data_holder_phone'])) ? $contact['data_holder_phone'] : null
-    );
-  $output .= '<li>' . implode(array_filter($person), '</li><li>') . '</li>';
-  $output .= '</ul></div>';
+  $conts=preg_grep('/^data_holder_contact/',array_keys($contact));
+  $output='';
+  foreach ($conts as $ct){
+    $c=$contact[$ct];
+    $output  .= '<div class="metabio-contact metabox"><ul>';
+    $person = array(
+      'name' => (!empty($c['first_name']) && !empty($c['last_name'])) ? '<span class="metabio-field-header">' . $c['first_name'] . " " . $c['last_name'] . '</span>': null,
+      'institution' => (!empty($c['institution'])) ? $c['institution'] : null,
+      'address' => (!empty($c['address'])) ? $c['address'] : null,
+      'email' => (!empty($c['email'])) ? '<a href="mailto:' . $c['email'] . '">' . $c['email'] . '</a>' : null,
+      'phone' => (!empty($c['phone'])) ? $c['phone'] : null
+      );
+    $output .= '<li>' . implode(array_filter($person), '</li><li>') . '</li>';
+    $output .= '</ul></div>';
+  }
   return $output;
 }
 
