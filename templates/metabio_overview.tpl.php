@@ -6,7 +6,10 @@
   <p><?php print $content['dataset_description']; ?></p>
 <?php endif; ?>
 
+<h3><?php print t('Data holder(s)') ?></h3>
 <?php print theme('metabio_contact', $content); ?>
+
+<?php print theme('metabio_collector', $content); ?>
 
 <dl class="metabio-definitions">
 <?php if(!empty($content['other_institutions'])): ?>
@@ -15,10 +18,6 @@
 
 <?php if(!empty($content['responsible_person'])): ?>
   <dt><?php print t('Individual responsible for data'); ?></dt><dd><?php print $content['responsible_person']; ?></dd>
-<?php endif; ?>
-
-<?php if(!empty($content['data_collector'])): ?>
-  <dt><?php print t('Data collector(s)'); ?></dt><dd><?php print $content['data_collector']; ?></dd>
 <?php endif; ?>
 
 <?php if(!empty($content['funding_sources'])): ?>

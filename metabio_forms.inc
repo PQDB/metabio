@@ -576,7 +576,8 @@ function metabio_form_person($person_type,$form,$form_state,$fieldtitle){
    $person=array();
    $fs=$person_type;
    $person[$fs] = array(
-      '#title' => t("Contact information for @value", array('@value' => $fieldtitle)),
+      //'#title' => t("Contact information for @value", array('@value' => $fieldtitle)),
+      '#title' => t("Contact information for ".$fieldtitle),
       '#type' => 'fieldset', 
       '#collapsible' => FALSE,
       '#prefix'=> '<div class="persondiv" id="div_'.$fs.'">',
@@ -669,7 +670,8 @@ function metabio_form_person($person_type,$form,$form_state,$fieldtitle){
       '#type' => 'submit',
       '#executes_submit_callback' => FALSE,
       '#size' => 50,
-      '#default_value' =>t("Add @value", array('@value' => $fieldtitle)),
+      //'#default_value' =>t("Add @value", array('@value' => $fieldtitle)),
+      '#default_value' =>t("Add person"),
       '#ajax' => array(
         'callback' => 'metabio_ajax_add_person',
         'method' => 'replace',
@@ -679,11 +681,12 @@ function metabio_form_person($person_type,$form,$form_state,$fieldtitle){
       );
 
     $person[$fs]['rem_'.$fs] = array(
-      '#title' => t("Remove last person @value", array('@value' => $fieldtitle)),
+      '#title' => t("Remove last person"),
       '#type' => 'submit',
       '#executes_submit_callback' => FALSE,
       '#size' => 50,
-      '#default_value' =>t("Remove last @value", array('@value' => $fieldtitle)),
+      //'#default_value' =>t("Remove last @value", array('@value' => $fieldtitle)),
+      '#default_value' =>t("Remove last person"),
       '#ajax' => array(
         'callback' => 'metabio_ajax_add_person',
         'method' => 'replace',

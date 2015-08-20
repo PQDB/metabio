@@ -4,13 +4,6 @@ $GLOBALS['metabio_dataset_fields'] = array(
     'dataset_name',
     'dataset_description',
     'tags',
-    /*'data_collector',
-    'data_holder_first_name',
-    'data_holder_last_name',
-    'data_holder_institution',
-    'data_holder_email',
-    'data_holder_phone',
-    'data_holder_address',*/
     'other_institutions',
     'funding_sources',
     'dataset_format',
@@ -216,6 +209,10 @@ function metabio_theme($existing, $type, $theme, $path) {
     'render element' => 'element'
     );
 
+  $info['metabio_collector'] = array(
+    'render element' => 'element'
+    );
+
   $info['metabio_geography'] = array(
     'render element' => 'element'
     );
@@ -259,18 +256,37 @@ function theme_metabio_contact($contact) {
   $output='';
   foreach ($conts as $ct){
     $c=$contact[$ct];
-    $output  .= '<div class="metabio-contact metabox"><ul>';
-    $person = array(
+    $output.=_person_section($c);
+  }
+  return $output;
+}
+
+
+function theme_metabio_collector($collector) {
+  $conts=preg_grep('/^data_collector/',array_keys($collector));
+  $output='';
+  foreach ($conts as $ct){
+    $c=$collector[$ct];
+    $output.=_person_section($c);
+  }
+  if($conts){
+    $output='<h3>'.t('Data collector(s)').'</h3>'.$output;
+  }
+  return $output;
+}
+
+function _person_section($c){
+    $person=array(
       'name' => (!empty($c['first_name']) && !empty($c['last_name'])) ? '<span class="metabio-field-header">' . $c['first_name'] . " " . $c['last_name'] . '</span>': null,
       'institution' => (!empty($c['institution'])) ? $c['institution'] : null,
       'address' => (!empty($c['address'])) ? $c['address'] : null,
       'email' => (!empty($c['email'])) ? '<a href="mailto:' . $c['email'] . '">' . $c['email'] . '</a>' : null,
       'phone' => (!empty($c['phone'])) ? $c['phone'] : null
       );
+    $output = '<div class="metabio-contact metabox"><ul>';
     $output .= '<li>' . implode(array_filter($person), '</li><li>') . '</li>';
     $output .= '</ul></div>';
-  }
-  return $output;
+    return $output;
 }
 
 function theme_metabio_checkbox_values($content) {
