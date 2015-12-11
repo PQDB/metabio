@@ -501,7 +501,7 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
       '#ajax' => array(
         'callback' => 'ajax_addfiles_callback',
         'wrapper' => 'files-div',
-        'method' => 'append',
+        'method' => 'replace',
         'effect' => 'fade',
         ),
       );

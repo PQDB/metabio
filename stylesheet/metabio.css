@@ -139,6 +139,8 @@ div[class$="-other"]{
   background:#f2f2f2;
   padding:15px;
   border-radius:15px;
+  max-width:750px;
+  margin:5px 0px;
 }
 
 #number_results{
@@ -156,4 +158,12 @@ max-width: none;
 border-radius: 15px;
 border: 5px solid;
 border-color:#ececec;
+}
+
+#edit-taxonomic-details-input{
+  max-width:600px;
+}
+
+#graph_site_environment, #graph_taxonomic_information{
+  height:500px;
 }

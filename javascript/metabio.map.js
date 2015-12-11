@@ -58,7 +58,7 @@
             this.geometry.coordinates[0].pop();
             self.polybounds = new google.maps.LatLngBounds();
             $.each(this.geometry.coordinates[0], function() {
-               self.addVertex(polygon, self.createPoint(this));
+               self.addVertex(polygon, self.createPoint(this),false);
             });
             //self.createPolyInfoWindow(polygon,contentString);
             self.addMarker(self.createPoint([self.polybounds.getCenter().lng(),self.polybounds.getCenter().lat()]),contentString,polygon,false);
@@ -78,6 +78,7 @@
       $('li.vertical-tab-button').find("a").click(function() {
         google.maps.event.trigger(self.map, "resize");
         self.map.setCenter(self.map_center);
+        self.map.fitBounds(self.bounds);
       });
       $(window).resize(function() {
         google.maps.event.trigger(self.map, "resize");
@@ -146,7 +147,7 @@
     startPolygon: function(polygon) {
       var self = this;
       google.maps.event.clearListeners(this.map, 'click');
-      google.maps.event.addListener(this.map, 'click', function(e) { self.addVertex(polygon, e.latLng); });
+      google.maps.event.addListener(this.map, 'click', function(e) { self.addVertex(polygon, e.latLng,true); });
     },
 
     startPoint: function() {
@@ -197,7 +198,7 @@
       return { type: "Feature", geometry: { type : type, coordinates : coords }, properties: {} };
     },
 
-    addVertex: function(polygon, position) {
+    addVertex: function(polygon, position, click_button) {
       if(this.isEditMode()){
         icon=this.polygon_icon;
        var vertex = this.createMarker(position, icon);
@@ -207,7 +208,9 @@
      path.insertAt(path.length, position);
 
       if(this.isEditMode()) {
+        if(click_button===true){
         this.buildGeoJSON();
+        }
         this.addVertexListener(path, vertex, path.length-1, 'drag');
         this.addVertexListener(path, vertex, path.length-1, 'dblclick');
       }
