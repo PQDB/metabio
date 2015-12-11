@@ -126,6 +126,29 @@ function metabio_menu() {
     'type' => MENU_CALLBACK,
     ); 
 
+
+  $items['metabio/graphs_site_environment'] = array(
+    'page callback' => 'metabio_get_site_environment_callback',
+    'access arguments' => array('access content'),
+    //'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    ); 
+
+
+  $items['metabio/graphs_taxonomic_information'] = array(
+    'page callback' => 'metabio_get_taxonomic_information_callback',
+    'access arguments' => array('access content'),
+    //'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    ); 
+
+  $items['metabio/graphs_usage_curve'] = array(
+    'page callback' => 'metabio_get_usage_curve_callback',
+    'access arguments' => array('access content'),
+    //'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    ); 
+
   $items['metabio/eml'] = array(
     'page callback' => 'metabio_generate_eml',
     'access arguments' => array('access content'),
@@ -240,6 +263,7 @@ function template_preprocess_metabio(&$variables) {
       $variables['content'][$section][$key] = $value;
     }
   }
+  $variables['content']['mid']=$variables['elements']['#metabio']['mid'];
 }
 
 function theme_metabio_geography($content) {
@@ -465,11 +489,22 @@ function metabio_form_submit($form, &$form_state) {
   foreach ($form_state['values'] as $key => $value) {
     if (strpos($key, "file_") !== false && $value !== 0) {
       $fids[] = $value;
+      metabio_manage_file($value,$form_state['node']->nid);
     }
   }
   if(empty($fids) == false){
-    $form_state['values']['files'] = implode(';', $fids);
+    $addq=' AND fid NOT IN('.implode(',',$fids).')';
+  }else{
+    $addq='';
   }
+  $form_state['values']['files'] = implode(';', $fids);
+  $q='SELECT fid from file_usage WHERE id='.$form_state['node']->nid.' AND module=\'metabio\''.$addq;
+  $dfid=db_query($q);
+  foreach($dfid as $f){
+    $ff=file_load($f->fid);
+    file_delete($ff,true);
+  }
+  //}
 }
 
 
@@ -479,10 +514,7 @@ function metabio_insert($node) {
     $node=$pout['node'];
     foreach ($node as $key => $value) {
       if (strpos($key,"file_") !== false && $value !== 0) {
-        $file = file_load($value);
-        $file->status = FILE_STATUS_PERMANENT;
-        file_save($file);
-        file_usage_add($file, 'metabio', 'node', $node->nid);
+        /*  metabio_manage_file($value,$node);*/
       }else if($key=="tags" && $value !== 0){
         $vid = db_select('taxonomy_vocabulary', 't')
         -> fields('t', array('vid'))
@@ -504,6 +536,58 @@ function metabio_insert($node) {
     $mid=db_insert('metabio_dataset')->fields(array_merge(array('nid' => $node->nid), _metabio_fields($node)))->execute();
     _metabio_insert_people_datasets($mid,$pout['person_role']);
   }
+}
+
+
+
+function metabio_update($node) {
+  if($node->type=='metabio'){
+    foreach ($node as $key => $value) {
+      if (strpos($key,"file_") !== false && $value !== 0) {
+        //metabio_manage_file($value,$node);
+      }else if($key=="tags" && $value !== 0){
+        $vid = db_select('taxonomy_vocabulary', 't')
+        -> fields('t', array('vid'))
+        -> condition('name','metabio_keywords','=')
+        -> execute()
+        -> fetchField();
+        $values=explode('|',$value); 
+        foreach($values as $val){
+          $term = new stdClass();
+          $term->name = $val;
+          $term->vid = $vid;
+          taxonomy_term_save($term);
+        }
+      }
+    }
+
+    $node->date_last_changed=date(DATE_ATOM);
+    db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
+    $query=db_select('metabio_dataset','m');
+    $query->join('metabio_people_datasets','md','m.mid=md.mid');
+    $result=$query->fields('md',array('person_id','mid'))->condition('m.nid', $node->nid)->execute();
+    foreach($result as $r) {
+      db_delete('metabio_people')->condition('person_id',$r->person_id,'=')->execute(); //Delete of lookup is automatic with foreign key
+    }
+    $pout=_metabio_insert_people($node);
+    _metabio_insert_people_datasets($r->mid,$pout['person_role']);
+  }
+}
+
+
+function metabio_manage_file($f,$nid){
+        $file = file_load($f);
+        $dir='public://metabio_files/'.$nid;
+        if(!file_prepare_directory($dir)) {
+          drupal_mkdir($dir);
+        }
+        $isd=db_select('file_managed','f')->fields('f')->condition('uri',$dir.'/'.$file->filename,'=')->condition('filesize',$file->filesize)->execute();
+        if($isd->rowCount()==0){
+          $file=file_move($file, $dir);
+          $file->status = FILE_STATUS_PERMANENT;
+          file_save($file);
+          file_usage_add($file, 'metabio', 'node', $nid);
+        }
 }
 
 function _metabio_insert_people($node) {
@@ -548,22 +632,6 @@ function _metabio_insert_people_datasets($mid,$pr){
   }
 }
 
-
-function metabio_update($node) {
-  if($node->type=='metabio'){
-    $node->date_last_changed=date(DATE_ATOM);
-    db_update('metabio_dataset')->fields(_metabio_fields($node))->condition('nid', $node->nid)->execute();
-    $query=db_select('metabio_dataset','m');
-    $query->join('metabio_people_datasets','md','m.mid=md.mid');
-    $result=$query->fields('md',array('person_id','mid'))->condition('m.nid', $node->nid)->execute();
-    foreach($result as $r) {
-      db_delete('metabio_people')->condition('person_id',$r->person_id,'=')->execute(); //Delete of lookup is automatic with foreign key
-    }
-    $pout=_metabio_insert_people($node);
-    _metabio_insert_people_datasets($r->mid,$pout['person_role']);
-  }
-}
-
 function metabio_delete($node) {
   if($node->type=='metabio'){
     db_delete('metabio_dataset')->condition('nid', $node->nid)->execute();
@@ -584,6 +652,7 @@ function metabio_load($nodes) {
         }
       }
     }
+    $nodes[$record->nid]->metabio['mid']=$record->mid;
     $query = db_select('metabio_people_datasets','pd');
     $query->join('metabio_people','p','pd.person_id=p.person_id');
     $query->fields('p')->fields('pd',array('role'));
@@ -628,8 +697,8 @@ function _metabio_fields($node) {
 function metabio_taxo_autocomplete_callback($string = "") {
   $matches = array();
   if ($string) {
-    $result = db_select('ITIS_names')
-    ->fields('ITIS_names',array('tsn','latin_name','english_name','french_name'))
+    $result = db_select('itis_names')
+    ->fields('itis_names',array('tsn','latin_name','english_name','french_name'))
     ->condition(db_or()
       ->condition('latin_name', db_like($string) . '%', 'LIKE')
       ->condition('english_name', db_like($string) . '%', 'LIKE')
@@ -649,8 +718,8 @@ function metabio_taxo_autocomplete_callback($string = "") {
 function metabio_taxo_checkitis_callback() {
   $string=$_POST['string'];
   if ($string) {
-    $result = db_select('ITIS_names')
-    ->fields('ITIS_names',array('tsn','latin_name','english_name','french_name'))
+    $result = db_select('itis_names','i')
+    ->fields('i',array('tsn','latin_name','english_name','french_name','rank_name'))
     ->condition('latin_name', $string, 'LIKE')
     ->execute()->fetchAll();
   }
@@ -913,5 +982,73 @@ function metabio_frontpage_map(){
 return $output;
 }
 
+
+function metabio_get_site_environment_callback() {
+  $query=db_select('metabio_dataset','m')->fields('m',array('site_environment'));
+  $result=$query->execute();
+  $vals=array();
+  foreach($result as $res) {
+    $arr=json_decode($res->site_environment);
+    foreach($arr as $a) {
+      $vals[]=$a;
+    }
+  }
+  $ac=array_count_values($vals);
+  $out=array();
+  foreach ($ac as $key=>$value) {
+    $k=_options_site_environment($key);
+    $out[]=array('name'=>$k,'y'=>$value);
+  }
+  drupal_json_output($out); 
+}
+
+function metabio_get_taxonomic_information_callback() {
+  $query=db_select('metabio_dataset','m')->fields('m',array('taxonomic_information'));
+  $result=$query->execute();
+  $vals=array();
+  foreach($result as $res) {
+    $arr=json_decode($res->taxonomic_information);
+    foreach($arr as $a) {
+      $vals[]=$a;
+    }
+  }
+  $ac=array_count_values($vals);
+  $out=array();
+  foreach ($ac as $key=>$value) {
+    $k=_options_taxonomic_information($key);
+    $out[]=array('name'=>$k,'y'=>$value);
+  }
+  drupal_json_output($out); 
+}
+
+function metabio_get_usage_curve_callback() {
+  $query=db_select('metabio_dataset','m')->fields('m',array('date_last_changed'));
+  $result=$query->execute();
+  $dateslc=array();
+  foreach($result as $r) {
+    $dateslc[]=$r->date_last_changed;
+  }
+  $vals=array();
+  $format = 'Y/m/d';
+  $dr=_date_range('2012/06/01', date($format),'+2 month', $format);
+  $out=[];
+  foreach($dr as $d) {
+    $out[$d]=count(array_filter($dateslc,function($td) use($d){
+         return strtotime($td)<strtotime($d);
+    }));
+  }
+  drupal_json_output(array('dates'=>array_keys($out),'counts'=>array_values($out))); 
+}
+
+function _date_range( $first, $last, $step = '+1 month', $format) {
+  $dates = array();
+  $current = strtotime( $first );
+  $last = strtotime( $last );
+  while( $current <= $last ) {
+    $dates[] = date( $format, $current );
+    $current = strtotime( $step, $current );
+  }
+  return $dates;
+}
 
 ?>

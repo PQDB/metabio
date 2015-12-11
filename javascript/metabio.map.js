@@ -51,7 +51,7 @@
 
         switch (this.geometry.type) {
           case 'Point':
-            self.addMarker(self.createPoint(this.geometry.coordinates),contentString,false);
+            self.addMarker(self.createPoint(this.geometry.coordinates),contentString,false,false);
           break;
           case 'Polygon':
             polygon = self.createPolygon();
@@ -61,7 +61,7 @@
                self.addVertex(polygon, self.createPoint(this));
             });
             //self.createPolyInfoWindow(polygon,contentString);
-            self.addMarker(self.createPoint([self.polybounds.getCenter().lng(),self.polybounds.getCenter().lat()]),contentString,polygon);
+            self.addMarker(self.createPoint([self.polybounds.getCenter().lng(),self.polybounds.getCenter().lat()]),contentString,polygon,false);
           break;
         }
       });
@@ -155,7 +155,7 @@
 
       mark.setMap(this.map);
       google.maps.event.clearListeners(this.map, 'click');
-      google.maps.event.addListener(this.map, 'click', function(e) { self.addMarker(e.latLng); });
+      google.maps.event.addListener(this.map, 'click', function(e) { self.addMarker(e.latLng,null,false,true); });
     },
 
     buildGeoJSON: function() {
@@ -254,7 +254,7 @@
       });
     },
 
-    addMarker: function(position,contentString,poly) {
+    addMarker: function(position,contentString,poly,click_button) {
       var marker = {};
       var infowindow = {};
       infowindow = this.createInfoWindow(contentString);
@@ -264,8 +264,10 @@
       this.bounds.extend(position);
       this.map.fitBounds(this.bounds);
       if(this.isEditMode()) {
+        if(click_button==true){
+          this.buildGeoJSON();
+        }
         this.addMarkerListener(marker);
-        this.buildGeoJSON();
       }else{
         this.addMarkerInfoWindowListener(marker,infowindow);
         if(poly && this.isGlobalMap()){
@@ -346,7 +348,7 @@
             if(this.status === "fail") {
               coordinate_error.append("<span>"+key+"</span>").show();
             } else {
-              self.addMarker(self.createPoint(value.converted.reverse()));
+              self.addMarker(self.createPoint(value.converted.reverse()),null,false,true);
             }
           });
           coordinate_list.val("");
@@ -405,7 +407,7 @@
       geocoder.geocode( {'address': address}, function(results, status) {
         if (status === google.maps.GeocoderStatus.OK) {
           noloc.hide();
-          self.addMarker(results[0].geometry.location);
+          self.addMarker(results[0].geometry.location,null,false,true);
         } else {
           noloc.show(); 
         }

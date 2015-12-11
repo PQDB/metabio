@@ -517,6 +517,7 @@ if($form_id == 'user_register_form' | $form_id == 'user_profile_form'){
     $form['#pre_render'][] = 'vertical_tabs_form_pre_render';
     $form['#validate'][] = 'metabio_form_validate';
     $form['#submit'][] = 'metabio_form_submit';
+    $form['actions']['submit']['#submit'][] = 'metabio_form_submit';
     $form['additional_settings']['#access'] = FALSE;
     $form['options']['status']['#default_value'] = TRUE;
     $form['options']['status']['#input'] = TRUE;
