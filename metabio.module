@@ -498,6 +498,7 @@ function metabio_form_submit($form, &$form_state) {
     $addq='';
   }
   $form_state['values']['files'] = implode(';', $fids);
+  // Clean up files that were removed
   $q='SELECT fid from file_usage WHERE id='.$form_state['node']->nid.' AND module=\'metabio\''.$addq;
   $dfid=db_query($q);
   foreach($dfid as $f){

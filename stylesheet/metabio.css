@@ -167,3 +167,8 @@ border-color:#ececec;
 #graph_site_environment, #graph_taxonomic_information{
   height:500px;
 }
+
+.files_list{
+  font-size:1.2em;
+  list-style-image: url('../images/file_download_bullet.png');
+}
